@@ -1,0 +1,192 @@
+import React, { useState, useRef } from 'react';
+import { usePortfolio } from './hooks/usePortfolio';
+import { useAutoBackup } from './hooks/useAutoBackup';
+import { useAlerts } from './hooks/useAlerts';
+import { useNotification } from './context/NotificationContext';
+import { useAppNavigation } from './hooks/useAppNavigation';
+import { useDataStorage } from './hooks/useDataStorage';
+
+import { Dashboard } from './components/dashboard/Dashboard';
+import TransactionForm from './components/TransactionForm';
+import Settings from './components/Settings';
+import { CloudSyncModal } from './components/CloudSyncModal';
+import { Sidebar } from './components/layout/Sidebar';
+import { BackupToast } from './components/common/BackupToast';
+import { BackupService } from './services/db';
+
+function App() {
+  // 1. Core Data & Portfolio
+  const {
+    getAssets, addTransaction, deleteTransaction, updateTransaction,
+    transactions, getPortfolioHistory, importTransactions,
+    updateAssetPrice, updateAssetOverride, refreshPrices,
+    prices, priceChanges, priceVolumes
+  } = usePortfolio();
+
+  const assets = getAssets();
+  const { notify } = useNotification();
+
+  // 2. Navigation & UI State
+  const {
+    currentView, navigateTo, isMobileMenuOpen, setIsMobileMenuOpen,
+    isDarkMode, toggleTheme, locale
+  } = useAppNavigation();
+
+  // 3. Data Storage & Import/Export
+  const { downloadJSON, handleFileUpload } = useDataStorage(transactions, importTransactions, notify);
+  const fileInputRef = useRef(null);
+
+  // 4. Alerts
+  const { alerts, addAlert, removeAlert, toggleAlert, isMuted, toggleMute } = useAlerts(prices, assets);
+
+  // 5. Form & Modal States
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
+  const [formDefaults, setFormDefaults] = useState(null);
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+
+  // 6. Auto Backup
+  const {
+    isBackupDue, showCleanupReminder, performBackup,
+    dismissBackup, dismissCleanup
+  } = useAutoBackup();
+
+  // --- Handlers ---
+  const handleEditClick = (transaction) => {
+    setEditingTransaction(transaction);
+    setIsFormOpen(true);
+  };
+
+  const handleAddCapital = (symbol) => {
+    setFormDefaults({ assetSymbol: symbol, inputMode: 'LP', type: 'DEPOSIT' });
+    setEditingTransaction(null);
+    setIsFormOpen(true);
+  };
+
+  const handleFormClose = () => {
+    setIsFormOpen(false);
+    setEditingTransaction(null);
+    setFormDefaults(null);
+  };
+
+  const handleSaveTransaction = (transaction) => {
+    if (editingTransaction) {
+      updateTransaction(transaction);
+      notify.success('Transaction updated successfully');
+    } else {
+      addTransaction(transaction);
+      notify.success('Transaction added successfully');
+    }
+    handleFormClose();
+  };
+
+  const triggerImport = () => fileInputRef.current?.click();
+
+  return (
+    <div className="min-h-screen bg-gray-100 dark:bg-slate-950 flex flex-col md:flex-row transition-colors duration-200">
+      <BackupToast
+        isBackupDue={isBackupDue}
+        showCleanupReminder={showCleanupReminder}
+        onBackup={performBackup}
+        onDismissBackup={dismissBackup}
+        onDismissCleanup={dismissCleanup}
+      />
+
+      {/* Navigation (Mobile Header + Sidebars) */}
+      <Sidebar
+        isMobile={true}
+        currentView={currentView}
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+        isDarkMode={isDarkMode}
+        toggleTheme={toggleTheme}
+        navigateTo={navigateTo}
+        onImportClick={triggerImport}
+        onExportClick={downloadJSON}
+        onSyncClick={() => setIsSyncModalOpen(true)}
+      />
+
+      <Sidebar
+        currentView={currentView}
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+        isDarkMode={isDarkMode}
+        toggleTheme={toggleTheme}
+        navigateTo={navigateTo}
+        onImportClick={triggerImport}
+        onExportClick={downloadJSON}
+        onSyncClick={() => setIsSyncModalOpen(true)}
+      />
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileUpload}
+        className="hidden"
+        accept=".json"
+      />
+
+      {/* Main Content */}
+      <main className="flex-1 p-6 overflow-auto">
+        {currentView !== 'settings' ? (
+          <Dashboard
+            assets={assets}
+            transactions={transactions}
+            onEditClick={handleEditClick}
+            onDeleteClick={deleteTransaction}
+            history={getPortfolioHistory()}
+            alerts={alerts}
+            onToggleAlert={toggleAlert}
+            isMuted={isMuted}
+            onToggleMute={toggleMute}
+            onAddAlert={addAlert}
+            onRemoveAlert={removeAlert}
+            onRefreshPrices={refreshPrices}
+            prices={prices}
+            priceChanges={priceChanges}
+            priceVolumes={priceVolumes}
+            updateAssetPrice={updateAssetPrice}
+            view={currentView}
+            locale={locale}
+            onAddClick={() => setIsFormOpen(true)}
+            onAddCapital={handleAddCapital}
+            onUpdateAssetOverride={updateAssetOverride}
+          />
+        ) : (
+          <Settings
+            assets={assets}
+            updateAssetPrice={updateAssetPrice}
+            prices={prices}
+          />
+        )}
+      </main>
+
+      <TransactionForm
+        isOpen={isFormOpen}
+        onClose={handleFormClose}
+        onSave={handleSaveTransaction}
+        initialData={editingTransaction}
+        defaultValues={formDefaults}
+        assets={assets}
+      />
+
+      <CloudSyncModal
+        isOpen={isSyncModalOpen}
+        onClose={() => setIsSyncModalOpen(false)}
+        currentData={{ assets, transactions, watchlist: [] }}
+        onRestore={async (data) => {
+          try {
+            if (confirm("This will overwrite your current local data with the Cloud Backup. Continue?")) {
+              await BackupService.restoreFullBackup(data);
+              window.location.reload();
+            }
+          } catch (e) {
+            alert("Restore failed: " + e)
+          }
+        }}
+      />
+    </div>
+  );
+}
+
+export default App;
