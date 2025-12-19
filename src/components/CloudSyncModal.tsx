@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore }) => {
-    const { user, isLoading, error, status, signIn, signUp, signOut, uploadVault, downloadVault } = useCloudSync();
+    const { user, isLoading, error, status, syncKey, setSyncKey, signIn, signUp, signOut, uploadVault, downloadVault } = useCloudSync();
 
     // Auth State
     const [email, setEmail] = useState('');
@@ -20,14 +20,13 @@ export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore }) 
     const [isSignUp, setIsSignUp] = useState(false);
 
     // Sync State
-    const [syncPassword, setSyncPassword] = useState(''); // Encryption Password
     const [showPassword, setShowPassword] = useState(false);
 
 
     const handleUpload = async () => {
         try {
             const data = await BackupService.createFullBackup();
-            await uploadVault(syncPassword, data);
+            await uploadVault(data);
         } catch (e) {
             console.error("Failed to gather data for upload", e);
         }
@@ -40,10 +39,17 @@ export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore }) 
             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-800">
                 {/* Header */}
                 <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
-                    <h2 className="font-bold text-lg flex items-center gap-2 text-slate-800 dark:text-white">
-                        <Cloud size={20} className="text-indigo-500" />
-                        Cloud Vault
-                    </h2>
+                    <div className="flex flex-col">
+                        <h2 className="font-bold text-lg flex items-center gap-2 text-slate-800 dark:text-white">
+                            <Cloud size={20} className="text-indigo-500" />
+                            Cloud Vault
+                        </h2>
+                        {user && syncKey && (
+                            <span className="text-[10px] text-emerald-500 flex items-center gap-1 font-medium">
+                                <RefreshCw size={10} className="animate-spin" /> Auto-Sync Active
+                            </span>
+                        )}
+                    </div>
                     <button onClick={onClose} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">
                         <X size={20} className="text-slate-500" />
                     </button>
@@ -75,27 +81,29 @@ export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore }) 
                                 </p>
                             </div>
 
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                            <input
-                                type="password"
-                                placeholder="Account Password"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
+                            <div className="space-y-3">
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="Account Password"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                />
+                            </div>
 
                             <button
                                 onClick={() => isSignUp ? signUp(email, password) : signIn(email, password)}
                                 disabled={isLoading || !email || !password}
-                                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/20"
+                                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2"
                             >
-                                {isLoading ? <RefreshCw className="animate-spin mx-auto" /> : (isSignUp ? 'Create Vault Account' : 'Open Vault')}
+                                {isLoading ? <RefreshCw className="animate-spin" /> : (isSignUp ? 'Create Vault Account' : 'Open Vault')}
                             </button>
 
                             <button
@@ -129,8 +137,8 @@ export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore }) 
                                     <input
                                         type={showPassword ? "text" : "password"}
                                         placeholder="Enter your private encryption password"
-                                        value={syncPassword}
-                                        onChange={e => setSyncPassword(e.target.value)}
+                                        value={syncKey}
+                                        onChange={e => setSyncKey(e.target.value)}
                                         className="w-full p-3 pr-10 rounded-xl border-2 border-indigo-100 dark:border-indigo-900/50 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold tracking-wider"
                                     />
                                     <button
@@ -141,36 +149,42 @@ export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore }) 
                                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                     </button>
                                 </div>
-                                <p className="text-[10px] text-orange-500 flex items-start gap-1 mt-1">
-                                    <AlertTriangle size={10} className="mt-0.5" />
-                                    Warning: If you lose this password, your cloud data is gone forever. We cannot recover it.
+                                <p className="text-[10px] text-orange-500 flex items-start gap-1 mt-1 leading-relaxed">
+                                    <AlertTriangle size={10} className="mt-0.5 flex-shrink-0" />
+                                    <span>This password is the <strong>only way</strong> to unlock your data. It is stored for this session only.</span>
                                 </p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <button
                                     onClick={handleUpload}
-                                    disabled={!syncPassword || isLoading}
+                                    disabled={!syncKey || isLoading}
                                     className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-all disabled:opacity-50"
                                 >
-                                    <Upload size={24} />
-                                    <span className="font-bold">Backup</span>
-                                    <span className="text-[10px] opacity-70">PC → Cloud</span>
+                                    <RefreshCw size={24} className={isLoading ? "animate-spin" : ""} />
+                                    <span className="font-bold">Sync Now</span>
+                                    <span className="text-[10px] opacity-70">Manual Trigger</span>
                                 </button>
 
                                 <button
                                     onClick={async () => {
-                                        const data = await downloadVault(syncPassword);
+                                        const data = await downloadVault();
                                         if (data && onRestore) onRestore(data);
                                     }}
-                                    disabled={!syncPassword || isLoading}
+                                    disabled={!syncKey || isLoading}
                                     className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all disabled:opacity-50"
                                 >
                                     <Download size={24} />
                                     <span className="font-bold">Restore</span>
-                                    <span className="text-[10px] opacity-70">Cloud → PC</span>
+                                    <span className="text-[10px] opacity-70">Force Download</span>
                                 </button>
                             </div>
+
+                            {syncKey && (
+                                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] text-center font-medium">
+                                    ✨ Auto-Sync is protecting your data in the background.
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

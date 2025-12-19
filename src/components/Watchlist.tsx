@@ -18,27 +18,39 @@ interface Props {
     onToggleMute?: () => void;
     assets: Asset[];
     onAddCapital?: (symbol: string) => void;
+
+    // Lifted Watchlist State
+    watchlist: any[];
+    isAddingWatchlist: boolean;
+    setIsAddingWatchlist: (val: boolean) => void;
+    newWatchlistSymbol: string;
+    setNewWatchlistSymbol: (val: string) => void;
+    newWatchlistBuyTarget: string;
+    setNewWatchlistBuyTarget: (val: string) => void;
+    newWatchlistSellTarget: string;
+    setNewWatchlistSellTarget: (val: string) => void;
+    newWatchlistExpectedQty: string;
+    setNewWatchlistExpectedQty: (val: string) => void;
+    newWatchlistNote: string;
+    setNewWatchlistNote: (val: string) => void;
+    handleAddWatchlist: () => Promise<void>;
+    handleDeleteWatchlist: (id: string) => void;
+    editingId: string | null;
+    editValues: any;
+    setEditValues: (val: any) => void;
+    startEditing: (item: any) => void;
+    cancelEditing: () => void;
+    saveEditing: (id: string) => void;
 }
 
 const Watchlist: React.FC<Props> = ({
-    prices = {}, onRefreshPrices, alerts = [], onAddAlert, onRemoveAlert, onToggleAlert, isMuted, onToggleMute, assets = [], onAddCapital
+    prices = {}, onRefreshPrices, alerts = [], onAddAlert, onRemoveAlert, onToggleAlert, isMuted, onToggleMute, assets = [], onAddCapital,
+    watchlist, isAddingWatchlist, setIsAddingWatchlist, newWatchlistSymbol, setNewWatchlistSymbol,
+    newWatchlistBuyTarget, setNewWatchlistBuyTarget, newWatchlistSellTarget, setNewWatchlistSellTarget,
+    newWatchlistExpectedQty, setNewWatchlistExpectedQty, newWatchlistNote, setNewWatchlistNote,
+    handleAddWatchlist, handleDeleteWatchlist, editingId, editValues, setEditValues,
+    startEditing, cancelEditing, saveEditing
 }) => {
-    const {
-        watchlist,
-        isAddingWatchlist, setIsAddingWatchlist,
-        newWatchlistSymbol, setNewWatchlistSymbol,
-        newWatchlistBuyTarget, setNewWatchlistBuyTarget,
-        newWatchlistSellTarget, setNewWatchlistSellTarget,
-        newWatchlistExpectedQty, setNewWatchlistExpectedQty,
-        newWatchlistNote, setNewWatchlistNote,
-        handleAddWatchlist,
-        handleDeleteWatchlist,
-        editingId,
-        editValues, setEditValues,
-        startEditing,
-        cancelEditing,
-        saveEditing
-    } = useWatchlist(onRefreshPrices);
 
     // Alert Modal Local State
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);

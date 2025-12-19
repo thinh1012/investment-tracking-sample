@@ -118,13 +118,22 @@ const DashboardNotes: React.FC = () => {
     const netPnL = ilAmount + feeMonthly;
 
     useEffect(() => {
-        // Load Notes
-        const savedNotes = localStorage.getItem(STORAGE_KEY);
-        if (savedNotes) {
-            setContent(savedNotes);
-        } else {
-            setContent("Welcome to your Investment Dashboard!\n\nUse this space to write notes, definitions, or instructions for yourself.\n\nExample:\n- LP: Liquidity Pool\n- ROI: Return on Investment\n- Check Binance every Monday");
-        }
+        const loadFromStorage = () => {
+            const savedNotes = localStorage.getItem(STORAGE_KEY);
+            if (savedNotes) {
+                setContent(savedNotes);
+            }
+        };
+
+        loadFromStorage();
+
+        window.addEventListener('storage', loadFromStorage);
+        window.addEventListener('local-storage-update', loadFromStorage);
+
+        return () => {
+            window.removeEventListener('storage', loadFromStorage);
+            window.removeEventListener('local-storage-update', loadFromStorage);
+        };
     }, []);
 
     const handleSave = () => {

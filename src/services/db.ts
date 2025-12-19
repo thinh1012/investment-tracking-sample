@@ -310,6 +310,25 @@ export const BackupService = {
         const manualPrices = await db.getAll('manual_prices');
         const assetOverrides = await db.getAll('asset_overrides');
 
+        // Capture Critical LocalStorage Data
+        const localStorageKeys = [
+            'dashboard_notes',
+            'investment_tracker_price_alerts',
+            'investment_tracker_notification_settings',
+            'investment_tracker_lp_status',
+            'investment_tracker_alerts_muted',
+            'investment_tracker_manual_principal',
+            'investment_tracker_funding_offset',
+            'investment_tracker_base_fix_13580_applied', // New: Crucial to prevent migration from overwriting synced offset
+            'investment_tracker_locale',
+            'theme'
+        ];
+
+        const storageSnapshot: Record<string, string | null> = {};
+        localStorageKeys.forEach(key => {
+            storageSnapshot[key] = localStorage.getItem(key);
+        });
+
         return {
             version: DB_VERSION,
             date: new Date().toISOString(),
@@ -318,7 +337,8 @@ export const BackupService = {
             marketPicks,
             settings: settings || {},
             manualPrices: manualPrices || [],
-            assetOverrides: assetOverrides || []
+            assetOverrides: assetOverrides || [],
+            storageSnapshot // NEW: Bundle localStorage in the payload
         };
     },
 
@@ -361,7 +381,18 @@ export const BackupService = {
         await Promise.all(promises);
         await tx.done;
 
-        // Force reload / or just let the user reload manually
+        // Restore LocalStorage Data
+        if (backup.storageSnapshot) {
+            Object.entries(backup.storageSnapshot).forEach(([key, value]) => {
+                if (value !== null) {
+                    localStorage.setItem(key, value as string);
+                }
+            });
+            // Notify components that storage changed
+            window.dispatchEvent(new Event('local-storage-update'));
+            window.dispatchEvent(new Event('storage'));
+        }
+
         return true;
     }
 };

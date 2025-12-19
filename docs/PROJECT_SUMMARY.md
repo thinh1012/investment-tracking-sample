@@ -32,12 +32,16 @@ A comprehensive, privacy-focused dashboard for tracking crypto investments, Liqu
 *   **Search**: Real-time search by asset symbol.
 *   **CoinGecko Integration**: Auto-fetches historical prices for simpler data entry.
 
+### 5. Cloud Sync & Security ☁️
+*   **Encrypted Vault**: End-to-end encryption for portfolio data using a private sync password.
+*   **Supabase Integration**: Secure cloud storage for cross-device synchronization (Mobile/Desktop).
+*   **Privacy-First**: No data is stored in plain text outside the local machine.
+
 ## Recent Technical Enhancements
 *   **Architecture Map**: A visual diagram (`docs/ARCHITECTURE.md`) explaining the data flow and entity relationships.
 *   **Self-Healing Logic**: Automated migration scripts to correct localized data issues (e.g., funding offset calibration).
 *   **Interactive UI**: Clickable edit fields for key metrics (Manual Principal, Targets, Notes).
 
 ## Future Roadmap
-*   **Cloud Sync**: Move from LocalStorage to Firebase/Supabase for mobile access.
 *   **Server Deployment**: Dockerize for Proxmox/Home Server hosting.
 *   **Secure Access**: Tailscale or Cloudflare Tunnel for remote viewing.

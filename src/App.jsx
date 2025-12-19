@@ -5,6 +5,7 @@ import { useAlerts } from './hooks/useAlerts';
 import { useNotification } from './context/NotificationContext';
 import { useAppNavigation } from './hooks/useAppNavigation';
 import { useDataStorage } from './hooks/useDataStorage';
+import { useWatchlist } from './hooks/useWatchlist';
 
 import { Dashboard } from './components/dashboard/Dashboard';
 import TransactionForm from './components/TransactionForm';
@@ -13,6 +14,8 @@ import { CloudSyncModal } from './components/CloudSyncModal';
 import { Sidebar } from './components/layout/Sidebar';
 import { BackupToast } from './components/common/BackupToast';
 import { BackupService } from './services/db';
+import { useCloudSync } from './hooks/useCloudSync';
+import { useAutoSync } from './hooks/useAutoSync';
 
 function App() {
   // 1. Core Data & Portfolio
@@ -20,13 +23,52 @@ function App() {
     getAssets, addTransaction, deleteTransaction, updateTransaction,
     transactions, getPortfolioHistory, importTransactions,
     updateAssetPrice, updateAssetOverride, refreshPrices,
-    prices, priceChanges, priceVolumes
+    prices, priceChanges, priceVolumes,
+    assetOverrides, manualPrices
   } = usePortfolio();
 
   const assets = getAssets();
   const { notify } = useNotification();
 
-  // 2. Navigation & UI State
+  // Watchlist State (Lifted for Sync)
+  const watchlistState = useWatchlist(refreshPrices);
+  const { watchlist } = watchlistState;
+
+  // 2. Cloud Sync (New Automated Flow)
+  const { user, syncKey, setSyncKey, uploadVault, downloadVault } = useCloudSync();
+
+  // Auto-Sync Background Worker (Monitoring everything)
+  const syncTrigger = React.useMemo(() => ({
+    transactions,
+    watchlist,
+    assetOverrides,
+    manualPrices
+  }), [transactions, watchlist, assetOverrides, manualPrices]);
+
+  useAutoSync(
+    user,
+    syncKey,
+    syncTrigger,
+    uploadVault
+  );
+
+  // Auto-Hydration Listener
+  React.useEffect(() => {
+    const handleCloudRestore = async (event) => {
+      const data = event.detail;
+      if (data) {
+        if (confirm("Newer data found in Cloud Vault. Restore now? (Local data will be updated)")) {
+          await BackupService.restoreFullBackup(data);
+          window.location.reload();
+        }
+      }
+    };
+
+    window.addEventListener('cloud-vault-downloaded', handleCloudRestore);
+    return () => window.removeEventListener('cloud-vault-downloaded', handleCloudRestore);
+  }, []);
+
+  // 3. Navigation & UI State
   const {
     currentView, navigateTo, isMobileMenuOpen, setIsMobileMenuOpen,
     isDarkMode, toggleTheme, locale
@@ -151,6 +193,7 @@ function App() {
             onAddClick={() => setIsFormOpen(true)}
             onAddCapital={handleAddCapital}
             onUpdateAssetOverride={updateAssetOverride}
+            watchlistState={watchlistState}
           />
         ) : (
           <Settings

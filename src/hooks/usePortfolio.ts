@@ -62,6 +62,8 @@ export const usePortfolio = () => {
         refreshPrices,
         prices,
         priceChanges,
-        priceVolumes
+        priceVolumes,
+        assetOverrides,
+        manualPrices
     };
 };

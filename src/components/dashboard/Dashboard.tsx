@@ -35,6 +35,7 @@ interface Props {
     onUpdateAssetOverride?: (symbol: string, overrides: { avgBuyPrice?: number }) => void;
     priceChanges?: Record<string, number | null>;
     priceVolumes?: Record<string, number | null>;
+    watchlistState?: any;
 }
 
 export const Dashboard: React.FC<Props> = ({
@@ -58,7 +59,8 @@ export const Dashboard: React.FC<Props> = ({
     onAddCapital,
     onUpdateAssetOverride,
     priceChanges = {},
-    priceVolumes = {}
+    priceVolumes = {},
+    watchlistState
 }) => {
     // 1. Hook for Logic
     const {
@@ -144,6 +146,7 @@ export const Dashboard: React.FC<Props> = ({
                         onToggleMute={onToggleMute}
                         assets={assets}
                         onAddCapital={onAddCapital}
+                        {...watchlistState}
                     />
                 </div>
             ) : view === 'analytics' ? (
