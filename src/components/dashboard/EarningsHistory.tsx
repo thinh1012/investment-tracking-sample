@@ -12,6 +12,7 @@ interface EarningsHistoryProps {
 
 export const EarningsHistory: React.FC<EarningsHistoryProps> = ({ assets, transactions, prices, locale, defaultOpen = false }) => {
     const [isEarningsHistoryOpen, setIsEarningsHistoryOpen] = useState(defaultOpen);
+    const [showDetail, setShowDetail] = useState(false);
     const [earningsSearchTerm, setEarningsSearchTerm] = useState('');
     const [earningsSortKey, setEarningsSortKey] = useState<'totalValue' | 'source' | 'roi' | 'apr'>('totalValue');
     const [earningsSortOrder, setEarningsSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -239,7 +240,14 @@ export const EarningsHistory: React.FC<EarningsHistoryProps> = ({ assets, transa
                 <div className="border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20 p-6">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                         <div className="flex-1 w-full">
-                            <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/20 dark:to-slate-800 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-800/30 shadow-sm group hover:scale-[1.01] transition-transform duration-300">
+                            <div
+                                onClick={() => setShowDetail(!showDetail)}
+                                className={`bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/20 dark:to-slate-800 p-6 rounded-2xl border ${showDetail ? 'border-emerald-500 shadow-emerald-500/10' : 'border-emerald-100 dark:border-emerald-800/30'} shadow-sm group hover:scale-[1.01] transition-all duration-300 cursor-pointer relative overflow-hidden`}
+                            >
+                                <div className="absolute top-4 right-4 text-emerald-500/40 group-hover:text-emerald-500 transition-colors">
+                                    {showDetail ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                                </div>
+
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 bg-emerald-500/10 rounded-xl">
                                         <TrendingUp className="text-emerald-500" size={24} />
@@ -253,15 +261,14 @@ export const EarningsHistory: React.FC<EarningsHistoryProps> = ({ assets, transa
                                             <span className="text-xs font-medium text-slate-400">USD</span>
                                         </div>
                                         <p className="text-slate-500 dark:text-slate-400 text-xs mt-2">
-                                            Accumulated across <span className="font-bold text-slate-700 dark:text-slate-200">{totalEarningsByToken.length}</span> reward tokens.
+                                            Accumulated across <span className="font-bold text-slate-700 dark:text-slate-200">{totalEarningsByToken.length}</span> reward tokens. <span className="text-emerald-600 font-medium ml-1">Click to {showDetail ? 'hide' : 'view'} breakdown</span>
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="hidden lg:grid grid-cols-2 gap-3 flex-shrink-0">
-                            {/* Smaller info cards or just empty space to balance */}
                             <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
                                 <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Top Reward</span>
                                 <span className="block text-sm font-bold text-slate-700 dark:text-slate-200">
@@ -276,6 +283,24 @@ export const EarningsHistory: React.FC<EarningsHistoryProps> = ({ assets, transa
                             </div>
                         </div>
                     </div>
+
+                    {/* Detailed Breakdown Transition */}
+                    {showDetail && (
+                        <div className="mt-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-1">Detailed Breakdown</h4>
+                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                                {totalEarningsByToken.map(({ token, quantity, value }) => (
+                                    <div key={token} className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm">
+                                        <div className="text-sm font-bold text-slate-700 dark:text-slate-200">{token}</div>
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{quantity.toLocaleString(locale || 'en-US', { maximumFractionDigits: 4 })}</div>
+                                        <div className="text-xs font-medium text-emerald-600 dark:text-emerald-400 mt-1">
+                                            ${value.toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
