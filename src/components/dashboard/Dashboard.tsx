@@ -7,6 +7,7 @@ import { AssetsTable } from './AssetsTable';
 import { LiquidityPoolsTable } from './LiquidityPoolsTable';
 import { RecentTransactions } from './RecentTransactions';
 import { EarningsHistory } from './EarningsHistory';
+import { LPFeeTracker } from './LPFeeTracker';
 import { MarketPicks } from './MarketPicks';
 import DashboardNotes from '../DashboardNotes';
 import Watchlist from '../Watchlist';
@@ -32,6 +33,7 @@ interface Props {
     onToggleMute?: () => void;
     locale?: string;
     onAddCapital?: (symbol: string) => void;
+    onAddClaim?: (symbol: string) => void;
     onUpdateAssetOverride?: (symbol: string, overrides: { avgBuyPrice?: number }) => void;
     priceChanges?: Record<string, number | null>;
     priceVolumes?: Record<string, number | null>;
@@ -57,11 +59,14 @@ export const Dashboard: React.FC<Props> = ({
     onToggleMute,
     locale,
     onAddCapital,
+    onAddClaim,
     onUpdateAssetOverride,
     priceChanges = {},
     priceVolumes = {},
     watchlistState
 }) => {
+    const [activeAnalyticsTab, setActiveAnalyticsTab] = React.useState<'earnings' | 'yield'>('earnings');
+
     // 1. Hook for Logic
     const {
         totalInvested,
@@ -150,8 +155,40 @@ export const Dashboard: React.FC<Props> = ({
                     />
                 </div>
             ) : view === 'analytics' ? (
-                <div className="animate-in fade-in slide-in-from-bottom-2">
-                    <EarningsHistory assets={assets} transactions={transactions} prices={prices} locale={locale} defaultOpen={false} />
+                <div className="animate-in fade-in slide-in-from-bottom-2 space-y-6">
+                    {/* Analytics Header Tabs */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+                        <div>
+                            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Analytics & Yield</h2>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Track your performance and fee recovery progress.</p>
+                        </div>
+                        <div className="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit">
+                            <button
+                                onClick={() => setActiveAnalyticsTab('earnings')}
+                                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeAnalyticsTab === 'earnings'
+                                    ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                    }`}
+                            >
+                                Earnings History
+                            </button>
+                            <button
+                                onClick={() => setActiveAnalyticsTab('yield')}
+                                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeAnalyticsTab === 'yield'
+                                    ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                    }`}
+                            >
+                                LP Yield Tracker
+                            </button>
+                        </div>
+                    </div>
+
+                    {activeAnalyticsTab === 'earnings' ? (
+                        <EarningsHistory assets={assets} transactions={transactions} prices={prices} locale={locale} defaultOpen={true} />
+                    ) : (
+                        <LPFeeTracker assets={assets} transactions={transactions} prices={prices} locale={locale} onAddClaim={onAddClaim} />
+                    )}
                 </div>
             ) : view === 'market-picks' ? (
                 <div className="animate-in fade-in slide-in-from-bottom-2 h-full">

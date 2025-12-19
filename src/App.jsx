@@ -105,6 +105,12 @@ function App() {
     setIsFormOpen(true);
   };
 
+  const handleAddClaim = (symbol) => {
+    setFormDefaults({ relatedAssetSymbol: symbol, type: 'INTEREST' });
+    setEditingTransaction(null);
+    setIsFormOpen(true);
+  };
+
   const handleFormClose = () => {
     setIsFormOpen(false);
     setEditingTransaction(null);
@@ -192,6 +198,7 @@ function App() {
             locale={locale}
             onAddClick={() => setIsFormOpen(true)}
             onAddCapital={handleAddCapital}
+            onAddClaim={handleAddClaim}
             onUpdateAssetOverride={updateAssetOverride}
             watchlistState={watchlistState}
           />
