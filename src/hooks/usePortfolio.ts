@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import { useTransactionData } from './useTransactionData';
 import { usePriceFeeds } from './usePriceFeeds';
 import { useMarketPicks } from './useMarketPicks';
 import { Asset } from '../types';
 import { calculateAssets, calculatePortfolioHistory } from '../domain/portfolioCalculator';
+import { historicalPriceService } from '../services/historicalPriceService';
 
 export const usePortfolio = () => {
     // 1. Get Transactions
@@ -25,7 +27,35 @@ export const usePortfolio = () => {
     ];
     const activeSymbols = Array.from(new Set(rawSymbols.filter(s => typeof s === 'string' && s.length > 0)));
 
-    // 3. Get Prices
+    // 3. Trigger Historical Price Sync (Exclude LPs, Stablecoins, and Indicators - but ALWAYS include Market Picks)
+    useEffect(() => {
+        const STABLE_COINS = ['USDT', 'USDC', 'FDUSD', 'DAI', 'USDS', 'PYUSD'];
+
+        const tokenSymbols = activeSymbols.filter(sym => {
+            const s = sym.toUpperCase();
+
+            // ALWAYS include if it's in market picks
+            const isInPicks = picks.some(p => p.symbol === s);
+            if (isInPicks) return true;
+
+            // 1. Explicit Stablecoins
+            if (STABLE_COINS.includes(s)) return false;
+            // 2. Stricter LP detection (spaces, hyphens, slashes or keywords)
+            const hasLpChars = s.includes(' ') || s.includes('-') || s.includes('/');
+            const hasLpKeywords = s.includes('LP') || s.includes('POOL') || s.includes('SWAP');
+            if (hasLpChars || hasLpKeywords) return false;
+            // 3. Exclude market indicators (.D)
+            if (s.endsWith('.D')) return false;
+
+            return true;
+        });
+
+        if (tokenSymbols.length > 0) {
+            historicalPriceService.syncHistoricalPrices(tokenSymbols);
+        }
+    }, [activeSymbols.length, picks.length]);
+
+    // 4. Get Prices
     const {
         prices,
         priceChanges,

@@ -2,7 +2,7 @@ import React from 'react';
 import {
     LayoutDashboard, BarChart3, BookOpen, Eye, TrendingUp,
     Settings as LucideSettings, Cloud, Menu, X, Sun, Moon,
-    Upload, Download
+    Upload, Download, Calculator
 } from 'lucide-react';
 import { AppView } from '../../hooks/useAppNavigation';
 
@@ -29,7 +29,7 @@ const NavLinks: React.FC<{
         {[
             { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
             { id: 'analytics', icon: BarChart3, label: 'Analytics' },
-            { id: 'notes', icon: BookOpen, label: 'Notes' },
+            { id: 'notes', icon: BookOpen, label: 'Notes & Dictionary' },
             { id: 'watchlist', icon: Eye, label: 'Watchlist' },
             { id: 'market-picks', icon: TrendingUp, label: 'Market Picks' },
             { id: 'settings', icon: LucideSettings, label: 'Settings' },

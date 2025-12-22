@@ -107,12 +107,14 @@ export const useTransactionFormHandlers = (state: any, props: any) => {
 
             // Save Config if changed
             const enteredSymbols = rewards.map((r: any) => r.symbol.toUpperCase()).filter((s: string) => s);
-            if (enteredSymbols.length > 0 && onUpdateAssetConfig) {
-                const asset = assets.find((a: Asset) => a.symbol === symbol.toUpperCase());
+            const targetAssetSymbol = (relatedAssetSymbol || symbol || '').toUpperCase();
+
+            if (enteredSymbols.length > 0 && onUpdateAssetConfig && targetAssetSymbol) {
+                const asset = assets.find((a: Asset) => a.symbol === targetAssetSymbol);
                 const currentConfig = asset?.rewardTokens || [];
                 const isDifferent = JSON.stringify(enteredSymbols.sort()) !== JSON.stringify([...currentConfig].sort());
                 if (isDifferent) {
-                    onUpdateAssetConfig(symbol.toUpperCase(), { rewardTokens: enteredSymbols });
+                    onUpdateAssetConfig(targetAssetSymbol, { rewardTokens: enteredSymbols });
                 }
             }
 
@@ -125,8 +127,8 @@ export const useTransactionFormHandlers = (state: any, props: any) => {
                     amount: parseFloat(reward.amount),
                     interestType,
                     platform,
-                    relatedAssetSymbol: symbol.toUpperCase(),
-                    notes: `Reward from ${symbol.toUpperCase()}`
+                    relatedAssetSymbol: targetAssetSymbol,
+                    notes: `Reward from ${targetAssetSymbol}`
                 });
             });
             onClose();

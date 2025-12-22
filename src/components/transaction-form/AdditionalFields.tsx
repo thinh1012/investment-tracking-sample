@@ -66,7 +66,14 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = (props) => {
                             </div>
                         </div>
                         <div id="source-dropdown" className="hidden absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg max-h-60 overflow-y-auto">
-                            {assets.filter(a => a.lpRange || a.symbol.startsWith('LP')).map(a => (
+                            {assets.filter(a =>
+                                a.lpRange ||
+                                a.symbol.toUpperCase().startsWith('LP') ||
+                                a.symbol.includes('/') ||
+                                a.symbol.includes('-') ||
+                                a.symbol.toUpperCase().includes('POOL') ||
+                                a.symbol.toUpperCase().includes('SWAP')
+                            ).map(a => (
                                 <div
                                     key={a.symbol}
                                     className="flex items-center px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer"

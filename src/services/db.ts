@@ -49,10 +49,20 @@ interface CryptoDB extends DBSchema {
         key: string;
         value: { symbol: string; avgBuyPrice?: number; rewardTokens?: string[] };
     };
+    historical_prices: {
+        key: string;
+        value: { symbol: string; date: string; open: number; close: number; id: string };
+        indexes: { 'by-symbol': string; 'by-date': string };
+    };
+    manual_historical_prices: {
+        key: string;
+        value: { symbol: string; open: number; date: string; id: string };
+        indexes: { 'by-symbol': string };
+    };
 }
 
 const DB_NAME = 'crypto-investment-db';
-const DB_VERSION = 5;
+const DB_VERSION = 7;
 
 let dbPromise: Promise<IDBPDatabase<CryptoDB>>;
 
@@ -80,6 +90,15 @@ export const initDB = () => {
                 }
                 if (oldVersion < 5) {
                     db.createObjectStore('market_picks', { keyPath: 'symbol' });
+                }
+                if (oldVersion < 6) {
+                    const historicalStore = db.createObjectStore('historical_prices', { keyPath: 'id' });
+                    historicalStore.createIndex('by-symbol', 'symbol');
+                    historicalStore.createIndex('by-date', 'date');
+                }
+                if (oldVersion < 7) {
+                    const manualHistStore = db.createObjectStore('manual_historical_prices', { keyPath: 'id' });
+                    manualHistStore.createIndex('by-symbol', 'symbol');
                 }
             },
         });
@@ -300,6 +319,53 @@ export const AssetOverrideService = {
     }
 };
 
+export const HistoricalPriceService = {
+    async getAll(): Promise<{ symbol: string; date: string; open: number; close: number; id: string }[]> {
+        const db = await initDB();
+        return db.getAll('historical_prices');
+    },
+
+    async getBySymbol(symbol: string): Promise<{ symbol: string; date: string; open: number; close: number; id: string }[]> {
+        const db = await initDB();
+        return db.getAllFromIndex('historical_prices', 'by-symbol', symbol);
+    },
+
+    async saveBulk(items: { symbol: string; date: string; open: number; close: number; id: string }[]) {
+        const db = await initDB();
+        const tx = db.transaction('historical_prices', 'readwrite');
+        await Promise.all(items.map(item => tx.store.put(item)));
+        await tx.done;
+    },
+
+    async clearAll() {
+        const db = await initDB();
+        return db.clear('historical_prices');
+    }
+};
+
+export const ManualHistoricalPriceService = {
+    async getAll(): Promise<{ symbol: string; date: string; open: number; id: string }[]> {
+        const db = await initDB();
+        return db.getAll('manual_historical_prices');
+    },
+
+    async getBySymbol(symbol: string): Promise<{ symbol: string; date: string; open: number; id: string }[]> {
+        const db = await initDB();
+        return db.getAllFromIndex('manual_historical_prices', 'by-symbol', symbol.toUpperCase());
+    },
+
+    async save(item: { symbol: string; open: number; date: string }) {
+        const db = await initDB();
+        const id = `${item.symbol.toUpperCase()}_${item.date}`;
+        return db.put('manual_historical_prices', { ...item, symbol: item.symbol.toUpperCase(), id });
+    },
+
+    async delete(id: string) {
+        const db = await initDB();
+        return db.delete('manual_historical_prices', id);
+    }
+};
+
 export const BackupService = {
     async createFullBackup() {
         const db = await initDB();
@@ -309,6 +375,7 @@ export const BackupService = {
         const settings = await db.get('settings', 'global');
         const manualPrices = await db.getAll('manual_prices');
         const assetOverrides = await db.getAll('asset_overrides');
+        const historicalPrices = await db.getAll('historical_prices');
 
         // Capture Critical LocalStorage Data
         const localStorageKeys = [
@@ -338,13 +405,14 @@ export const BackupService = {
             settings: settings || {},
             manualPrices: manualPrices || [],
             assetOverrides: assetOverrides || [],
+            historicalPrices: historicalPrices || [],
             storageSnapshot // NEW: Bundle localStorage in the payload
         };
     },
 
     async restoreFullBackup(backup: any) {
         const db = await initDB();
-        const tx = db.transaction(['transactions', 'watchlist', 'market_picks', 'settings', 'manual_prices', 'asset_overrides'], 'readwrite');
+        const tx = db.transaction(['transactions', 'watchlist', 'market_picks', 'settings', 'manual_prices', 'asset_overrides', 'historical_prices'], 'readwrite');
 
         // Clear all stores first
         await Promise.all([
@@ -354,6 +422,7 @@ export const BackupService = {
             tx.objectStore('settings').clear(),
             tx.objectStore('manual_prices').clear(),
             tx.objectStore('asset_overrides').clear(),
+            tx.objectStore('historical_prices').clear(),
         ]);
 
         // Restore Data
@@ -376,6 +445,9 @@ export const BackupService = {
         }
         if (Array.isArray(backup.assetOverrides)) {
             promises.push(...backup.assetOverrides.map((o: any) => tx.objectStore('asset_overrides').put(o)));
+        }
+        if (Array.isArray(backup.historicalPrices)) {
+            promises.push(...backup.historicalPrices.map((h: any) => tx.objectStore('historical_prices').put(h)));
         }
 
         await Promise.all(promises);

@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Asset, Transaction } from '../../types';
-import { Wallet, TrendingUp, PiggyBank, ArrowRight, Plus } from 'lucide-react';
+import { Wallet, TrendingUp, PiggyBank, ArrowRight, Plus, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface LPFeeTrackerProps {
     assets: Asset[];
@@ -11,6 +11,9 @@ interface LPFeeTrackerProps {
 }
 
 export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions, prices, locale, onAddClaim }) => {
+    const [sortKey, setSortKey] = useState<string>('claimedUSD');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
     const lpData = useMemo(() => {
         // 1. Identify LPs
         const lps = assets.filter(a =>
@@ -21,9 +24,8 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
             a.symbol.toUpperCase().includes('POOL')
         );
 
-        return lps.map(lp => {
+        const mapped = lps.map(lp => {
             // 2. Calculate Principal (Total Invested)
-            // We use asset.totalInvested which is already calculated in the hook
             const principal = lp.totalInvested;
 
             // 3. Calculate Fees Claimed (INTEREST transactions related to this LP)
@@ -54,8 +56,27 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
                 currentValue,
                 netPosition: claimedUSD + (currentValue - principal)
             };
-        }).sort((a, b) => b.claimedUSD - a.claimedUSD);
-    }, [assets, transactions, prices]);
+        });
+
+        // 5. Sorting
+        return mapped.sort((a, b) => {
+            const order = sortOrder === 'asc' ? 1 : -1;
+            if (sortKey === 'symbol') return a.symbol.localeCompare(b.symbol) * order;
+
+            const valA = (a as any)[sortKey] || 0;
+            const valB = (b as any)[sortKey] || 0;
+            return (valA - valB) * order;
+        });
+    }, [assets, transactions, prices, sortKey, sortOrder]);
+
+    const handleSort = (key: string) => {
+        if (sortKey === key) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortOrder('desc');
+        }
+    };
 
     const totalStats = useMemo(() => {
         return lpData.reduce((acc, lp) => ({
@@ -105,10 +126,26 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
                 <table className="w-full text-sm text-left">
                     <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-widest font-bold">
                         <tr>
-                            <th className="px-6 py-4">Liquidity Pool</th>
-                            <th className="px-6 py-4">Principal</th>
-                            <th className="px-6 py-4">Realized Fees</th>
-                            <th className="px-6 py-4">Payback Progress</th>
+                            <th className="px-6 py-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onClick={() => handleSort('symbol')}>
+                                <div className="flex items-center gap-1">
+                                    Liquidity Pool {sortKey === 'symbol' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                                </div>
+                            </th>
+                            <th className="px-6 py-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onClick={() => handleSort('principal')}>
+                                <div className="flex items-center gap-1">
+                                    Principal {sortKey === 'principal' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                                </div>
+                            </th>
+                            <th className="px-6 py-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onClick={() => handleSort('claimedUSD')}>
+                                <div className="flex items-center gap-1">
+                                    Realized Fees {sortKey === 'claimedUSD' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                                </div>
+                            </th>
+                            <th className="px-6 py-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onClick={() => handleSort('recoveryPercent')}>
+                                <div className="flex items-center gap-1">
+                                    Payback Progress {sortKey === 'recoveryPercent' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                                </div>
+                            </th>
                             <th className="px-6 py-4 text-right">Actions</th>
                         </tr>
                     </thead>

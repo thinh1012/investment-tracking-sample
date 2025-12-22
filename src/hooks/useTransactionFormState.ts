@@ -3,6 +3,7 @@ import { Transaction, TransactionType, InterestType, Asset } from '../types';
 
 export interface DefaultValues {
     assetSymbol?: string;
+    relatedAssetSymbol?: string;
     inputMode?: 'QUANTITY' | 'TOTAL' | 'LP';
     type?: TransactionType;
 }
@@ -93,7 +94,10 @@ export const useTransactionFormState = (params: {
             if (initialData.interestType) setInterestType(initialData.interestType);
             if (initialData.platform) setPlatform(initialData.platform);
             if (initialData.source) setSource(initialData.source);
-            if (initialData.relatedAssetSymbol) setRelatedAssetSymbol(initialData.relatedAssetSymbol);
+            if (initialData.relatedAssetSymbol) {
+                setRelatedAssetSymbol(initialData.relatedAssetSymbol);
+                setRelatedAssetSymbols([initialData.relatedAssetSymbol]);
+            }
             if (initialData.notes) setNotes(initialData.notes);
             if (initialData.lpRange) {
                 setLpRangeMin(initialData.lpRange.min.toString());
@@ -107,6 +111,18 @@ export const useTransactionFormState = (params: {
             setDisplayDate(`${d}/${m}/${y}`);
         } else if (defaultValues) {
             if (defaultValues.assetSymbol) setSymbol(defaultValues.assetSymbol);
+            if (defaultValues.relatedAssetSymbol) {
+                setSymbol(defaultValues.relatedAssetSymbol); // Ensure primary symbol is set to the Source LP
+                setRelatedAssetSymbol(defaultValues.relatedAssetSymbol);
+                setRelatedAssetSymbols([defaultValues.relatedAssetSymbol]);
+
+                // For LP-specific claims, default to FARMING
+                if (defaultValues.relatedAssetSymbol.toUpperCase().startsWith('LP') ||
+                    defaultValues.relatedAssetSymbol.includes('/') ||
+                    defaultValues.relatedAssetSymbol.includes('-')) {
+                    setInterestType('FARMING');
+                }
+            }
             if (defaultValues.inputMode) setInputMode(defaultValues.inputMode);
             if (defaultValues.type) setType(defaultValues.type);
         } else {
@@ -127,29 +143,34 @@ export const useTransactionFormState = (params: {
     useEffect(() => {
         if (!isOpen) return;
 
-        if (type === 'INTEREST' && symbol) {
-            const asset = assets.find(a => a.symbol === symbol.toUpperCase());
+        if (type === 'INTEREST' && (symbol || relatedAssetSymbol)) {
+            const targetSymbol = symbol || relatedAssetSymbol;
+            const asset = assets.find(a => a.symbol === targetSymbol.toUpperCase());
+
             if (asset && asset.rewardTokens && asset.rewardTokens.length > 0) {
                 setRewardSplitMode(true);
-                setRewards(prev => {
-                    const newRewards = [...prev];
-                    while (newRewards.length < asset.rewardTokens!.length) {
-                        newRewards.push({ symbol: '', amount: '' });
-                    }
-                    asset.rewardTokens!.forEach((token, idx) => {
-                        newRewards[idx] = { ...newRewards[idx], symbol: token };
-                    });
-                    return newRewards;
-                });
-            } else if (symbol.toUpperCase().startsWith('LP') || symbol.includes('POOL')) {
+                setRewards(asset.rewardTokens.map(token => ({ symbol: token, amount: '' })));
+            } else if (targetSymbol.toUpperCase().startsWith('LP') || targetSymbol.includes('POOL') || targetSymbol.includes('SWAP') || targetSymbol.includes('/') || targetSymbol.includes('-')) {
                 setRewardSplitMode(true);
+
+                // Smart Inference: Try to guess tokens from symbol if no config found
+                const parts = targetSymbol.split(/[\s\-\/]+/);
+                const tokens = parts.filter(p =>
+                    p.length >= 3 &&
+                    !['LP', 'SWAP', 'POOL', 'PRJX', 'V3', 'V2'].includes(p.toUpperCase()) &&
+                    isNaN(Number(p))
+                );
+
+                if (tokens.length > 0) {
+                    setRewards(tokens.map(t => ({ symbol: t.toUpperCase(), amount: '' })));
+                }
             } else {
                 setRewardSplitMode(false);
             }
         } else {
             setRewardSplitMode(false);
         }
-    }, [symbol, type, assets, isOpen]);
+    }, [symbol, relatedAssetSymbol, type, assets, isOpen]);
 
     // Auto-calc LP total from stablecoin side
     useEffect(() => {

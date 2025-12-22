@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { usePortfolio } from './hooks/usePortfolio';
-import { useAutoBackup } from './hooks/useAutoBackup';
 import { useAlerts } from './hooks/useAlerts';
 import { useNotification } from './context/NotificationContext';
 import { useAppNavigation } from './hooks/useAppNavigation';
@@ -12,7 +11,6 @@ import TransactionForm from './components/TransactionForm';
 import Settings from './components/Settings';
 import { CloudSyncModal } from './components/CloudSyncModal';
 import { Sidebar } from './components/layout/Sidebar';
-import { BackupToast } from './components/common/BackupToast';
 import { BackupService } from './services/db';
 import { useCloudSync } from './hooks/useCloudSync';
 import { useAutoSync } from './hooks/useAutoSync';
@@ -86,14 +84,13 @@ function App() {
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [formDefaults, setFormDefaults] = useState(null);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
-
-  // 6. Auto Backup
-  const {
-    isBackupDue, showCleanupReminder, performBackup,
-    dismissBackup, dismissCleanup
-  } = useAutoBackup();
+  const [simulatorState, setSimulatorState] = useState(null);
 
   // --- Handlers ---
+  const handleSimulate = (symbol, price) => {
+    setSimulatorState({ symbol, price });
+    navigateTo('notes');
+  };
   const handleEditClick = (transaction) => {
     setEditingTransaction(transaction);
     setIsFormOpen(true);
@@ -132,13 +129,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-slate-950 flex flex-col md:flex-row transition-colors duration-200">
-      <BackupToast
-        isBackupDue={isBackupDue}
-        showCleanupReminder={showCleanupReminder}
-        onBackup={performBackup}
-        onDismissBackup={dismissBackup}
-        onDismissCleanup={dismissCleanup}
-      />
 
       {/* Navigation (Mobile Header + Sidebars) */}
       <Sidebar
@@ -201,6 +191,8 @@ function App() {
             onAddClaim={handleAddClaim}
             onUpdateAssetOverride={updateAssetOverride}
             watchlistState={watchlistState}
+            onSimulate={handleSimulate}
+            simulatorState={simulatorState}
           />
         ) : (
           <Settings

@@ -115,6 +115,7 @@ const TransactionForm: React.FC<Props> = (props) => {
                                 mixedCashAmount={mixedCashAmount} setMixedCashAmount={setMixedCashAmount}
                                 mixedAssetSymbol={mixedAssetSymbol} setMixedAssetSymbol={setMixedAssetSymbol}
                                 mixedAssetQty={mixedAssetQty} setMixedAssetQty={setMixedAssetQty}
+                                rewardSplitMode={rewardSplitMode}
                             />
 
                             {type === 'INTEREST' && rewardSplitMode && (

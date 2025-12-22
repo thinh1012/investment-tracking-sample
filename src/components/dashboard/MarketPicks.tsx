@@ -1,28 +1,39 @@
 import React, { useState } from 'react';
-import { Plus, X, TrendingUp, TrendingDown, Search, ArrowRight, Activity, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, X, TrendingUp, TrendingDown, Search, ArrowRight, Activity, ArrowUpDown, ArrowUp, ArrowDown, Calculator } from 'lucide-react';
 import { useMarketPicks } from '../../hooks/useMarketPicks';
+import { deriveOpenPrice } from '../../services/priceService';
 
 interface Props {
     prices: Record<string, number>;
     priceChanges?: Record<string, number | null>;
     priceVolumes?: Record<string, number | null>;
+    locale?: string;
+    onSimulate?: (symbol: string, price: number) => void;
 }
 
 type SortKey = 'symbol' | 'price' | 'change' | 'volume';
 type SortDirection = 'asc' | 'desc';
 
-const formatVolume = (num: number | null | undefined): string => {
+const formatVolume = (num: number | null | undefined, locale?: string): string => {
     if (num === null || num === undefined) return '-';
-    if (num >= 1_000_000_000) return `$${(num / 1_000_000_000).toFixed(2)}B`;
-    if (num >= 1_000_000) return `$${(num / 1_000_000).toFixed(2)}M`;
-    if (num >= 1_000) return `$${(num / 1_000).toFixed(2)}K`;
-    return `$${num.toFixed(2)}`;
+    if (num >= 1_000_000_000) return `$${(num / 1_000_000_000).toLocaleString(locale, { maximumFractionDigits: 2 })}B`;
+    if (num >= 1_000_000) return `$${(num / 1_000_000).toLocaleString(locale, { maximumFractionDigits: 2 })}M`;
+    return `$${num.toLocaleString(locale, { maximumFractionDigits: 2 })}`;
 };
 
-export const MarketPicks: React.FC<Props> = ({ prices, priceChanges = {}, priceVolumes = {} }) => {
-    const { picks, addPick, removePick } = useMarketPicks();
+const formatPrice = (num: number | null | undefined, locale?: string, isIndicator: boolean = false): string => {
+    if (num === null || num === undefined) return '---';
+    if (isIndicator) return `${num.toFixed(2)}%`;
+
+    const decimals = num < 1 ? 6 : 2;
+    return `$${num.toLocaleString(locale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`;
+};
+
+export const MarketPicks: React.FC<Props> = ({ prices, priceChanges = {}, priceVolumes = {}, locale, onSimulate }) => {
+    const { picks, addPick, removePick, historicalData, saveManualOpen } = useMarketPicks();
     const [searchTerm, setSearchTerm] = useState('');
     const [isAdding, setIsAdding] = useState(false);
+    const [editingOpen, setEditingOpen] = useState<{ symbol: string; value: string } | null>(null);
 
     // Sort State
     const [sortKey, setSortKey] = useState<SortKey>('price');
@@ -133,33 +144,34 @@ export const MarketPicks: React.FC<Props> = ({ prices, priceChanges = {}, priceV
                         {/* Header Row Component */}
                         {(() => {
                             const HeaderRow = () => (
-                                <div className="flex items-center justify-between px-3 py-2 text-[10px] uppercase font-semibold text-slate-400 tracking-wider bg-slate-50/50 dark:bg-slate-800/30 rounded-lg mb-1">
+                                <div className="flex items-center justify-between px-3 py-2 text-[10px] uppercase font-semibold text-slate-400 tracking-wider bg-slate-50/50 dark:bg-slate-800/30 rounded-lg mb-1 gap-2">
                                     <span
-                                        className="flex-1 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 flex items-center gap-1 group transition-colors"
+                                        className="w-[160px] min-w-[160px] cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 flex items-center gap-1 group transition-colors"
                                         onClick={() => handleSort('symbol')}
                                     >
                                         Asset <SortIcon column="symbol" />
                                     </span>
-                                    <div className="flex items-center gap-4 text-right">
+                                    <div className="flex-1 flex items-center justify-end gap-6 text-right">
+                                        <span className="w-24 flex items-center justify-end">Open</span>
                                         <span
-                                            className="w-20 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 flex items-center justify-end gap-1 group transition-colors"
+                                            className="w-24 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 flex items-center justify-end gap-1 group transition-colors"
                                             onClick={() => handleSort('price')}
                                         >
-                                            <SortIcon column="price" /> Price
+                                            <SortIcon column="price" /> Current
                                         </span>
                                         <span
-                                            className="w-16 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 flex items-center justify-end gap-1 group transition-colors"
+                                            className="w-20 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 flex items-center justify-end gap-1 group transition-colors"
                                             onClick={() => handleSort('change')}
                                         >
                                             <SortIcon column="change" /> 24h %
                                         </span>
                                         <span
-                                            className="w-16 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 flex items-center justify-end gap-1 group transition-colors"
+                                            className="w-20 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 flex items-center justify-end gap-1 group transition-colors"
                                             onClick={() => handleSort('volume')}
                                         >
                                             <SortIcon column="volume" /> Vol
                                         </span>
-                                        <span className="w-4"></span>
+                                        <span className="w-6"></span>
                                     </div>
                                 </div>
                             );
@@ -168,36 +180,80 @@ export const MarketPicks: React.FC<Props> = ({ prices, priceChanges = {}, priceV
                                 const price = prices[pick.symbol];
                                 const change = priceChanges[pick.symbol];
                                 const volume = priceVolumes[pick.symbol];
+                                const openPrice = historicalData[pick.symbol];
 
                                 return (
-                                    <div key={pick.symbol} className="group flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700/50">
+                                    <div key={pick.symbol} className="group flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700/50 gap-2">
                                         {/* Asset Info */}
-                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                        <div className="flex items-center gap-3 w-[160px] min-w-[160px]">
                                             <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-[10px] font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/30">
                                                 {pick.symbol.substring(0, 3)}
                                             </div>
-                                            <div className="truncate pr-2">
+                                            <div className="truncate">
                                                 <div className="font-bold text-slate-700 dark:text-slate-200 text-sm truncate">{pick.symbol}</div>
                                             </div>
                                         </div>
 
                                         {/* Metrics Grid */}
-                                        <div className="flex items-center gap-4 text-right">
-                                            {/* Price */}
-                                            <div className="w-20 font-mono font-medium text-slate-800 dark:text-slate-100 text-sm">
-                                                {pick.symbol.endsWith('.D') ? (
-                                                    <>{price ? price.toFixed(2) : '---'}%</>
-                                                ) : (
-                                                    <>${price ? price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 }) : '---'}</>
-                                                )}
+                                        <div className="flex-1 flex items-center justify-end gap-6 text-right">
+                                            {/* Open Price */}
+                                            <div className="w-24 font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                                                <span className="md:hidden block text-[8px] uppercase text-slate-400">Open</span>
+                                                {editingOpen?.symbol === pick.symbol ? (
+                                                    <input
+                                                        type="number"
+                                                        step="any"
+                                                        value={editingOpen.value}
+                                                        onChange={(e) => setEditingOpen({ ...editingOpen, value: e.target.value })}
+                                                        onBlur={async () => {
+                                                            const val = parseFloat(editingOpen.value);
+                                                            if (!isNaN(val)) await saveManualOpen(pick.symbol, val);
+                                                            setEditingOpen(null);
+                                                        }}
+                                                        onKeyDown={async (e) => {
+                                                            if (e.key === 'Enter') {
+                                                                const val = parseFloat(editingOpen.value);
+                                                                if (!isNaN(val)) await saveManualOpen(pick.symbol, val);
+                                                                setEditingOpen(null);
+                                                            }
+                                                            if (e.key === 'Escape') setEditingOpen(null);
+                                                        }}
+                                                        className="w-full bg-white dark:bg-slate-800 border border-purple-500 rounded px-1 outline-none text-right"
+                                                        autoFocus
+                                                    />
+                                                ) : (() => {
+                                                    const displayOpen = openPrice || deriveOpenPrice(price, change);
+                                                    const isEstimated = !openPrice && !!displayOpen;
+
+                                                    return (
+                                                        <span
+                                                            onClick={() => setEditingOpen({ symbol: pick.symbol, value: (displayOpen || price || 0).toString() })}
+                                                            className={`cursor-pointer hover:text-purple-500 transition-colors ${!displayOpen ? 'opacity-50' : ''}`}
+                                                            title={isEstimated ? "Estimated from 24h change. Click to set manually." : "Daily Open. Click to override."}
+                                                        >
+                                                            {displayOpen ? (
+                                                                <>
+                                                                    {formatPrice(displayOpen, locale, pick.symbol.endsWith('.D'))}
+                                                                    {isEstimated && <span className="ml-0.5 text-[8px] opacity-70">*</span>}
+                                                                </>
+                                                            ) : '---'}
+                                                        </span>
+                                                    );
+                                                })()}
+                                            </div>
+
+                                            {/* Current Price */}
+                                            <div className="w-24 font-mono font-bold text-slate-800 dark:text-slate-100 text-sm">
+                                                <span className="md:hidden block text-[8px] uppercase text-slate-400">Current</span>
+                                                {formatPrice(price, locale, pick.symbol.endsWith('.D'))}
                                             </div>
 
                                             {/* 24h Change */}
-                                            <div className="w-16 flex justify-end">
+                                            <div className="w-20 flex justify-end">
                                                 {change !== undefined && change !== null ? (
                                                     <div className={`text-xs font-medium flex items-center gap-1 ${change >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                                                         {change >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                                                        {Math.abs(change).toFixed(2)}%
+                                                        {Math.abs(change).toLocaleString(locale, { maximumFractionDigits: 2 })}%
                                                     </div>
                                                 ) : (
                                                     <span className="text-slate-400 text-xs">-</span>
@@ -205,15 +261,34 @@ export const MarketPicks: React.FC<Props> = ({ prices, priceChanges = {}, priceV
                                             </div>
 
                                             {/* Volume */}
-                                            <div className="w-16 font-mono text-xs text-slate-500 dark:text-slate-400">
-                                                {formatVolume(volume)}
+                                            <div className="w-20 font-mono text-[10px] text-slate-500 dark:text-slate-400">
+                                                {formatVolume(volume, locale)}
                                             </div>
 
+                                            {/* Simulate Button */}
+                                            {onSimulate && (
+                                                <div className="w-10 flex justify-end">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            onSimulate(pick.symbol, price);
+                                                        }}
+                                                        className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-400 hover:text-purple-500 transition-all hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg"
+                                                        title="Simulate LP"
+                                                    >
+                                                        <Calculator size={14} />
+                                                    </button>
+                                                </div>
+                                            )}
+
                                             {/* Actions */}
-                                            <div className="w-4 flex justify-end">
+                                            <div className="w-6 flex justify-end">
                                                 <button
-                                                    onClick={() => removePick(pick.symbol)}
-                                                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-500 transition-all"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        removePick(pick.symbol);
+                                                    }}
+                                                    className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-400 hover:text-rose-500 transition-all hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg"
                                                     title="Remove"
                                                 >
                                                     <X size={14} />

@@ -11,6 +11,7 @@ import { LPFeeTracker } from './LPFeeTracker';
 import { MarketPicks } from './MarketPicks';
 import DashboardNotes from '../DashboardNotes';
 import Watchlist from '../Watchlist';
+import { TrendingUp, TrendingDown, History } from 'lucide-react';
 
 interface Props {
     assets: Asset[];
@@ -38,6 +39,8 @@ interface Props {
     priceChanges?: Record<string, number | null>;
     priceVolumes?: Record<string, number | null>;
     watchlistState?: any;
+    onSimulate?: (symbol: string, price: number) => void;
+    simulatorState?: { symbol: string; price: number } | null;
 }
 
 export const Dashboard: React.FC<Props> = ({
@@ -63,7 +66,9 @@ export const Dashboard: React.FC<Props> = ({
     onUpdateAssetOverride,
     priceChanges = {},
     priceVolumes = {},
-    watchlistState
+    watchlistState,
+    onSimulate,
+    simulatorState
 }) => {
     const [activeAnalyticsTab, setActiveAnalyticsTab] = React.useState<'earnings' | 'yield'>('earnings');
 
@@ -185,18 +190,31 @@ export const Dashboard: React.FC<Props> = ({
                     </div>
 
                     {activeAnalyticsTab === 'earnings' ? (
-                        <EarningsHistory assets={assets} transactions={transactions} prices={prices} locale={locale} defaultOpen={true} />
+                        <div className="space-y-6">
+                            <EarningsHistory assets={assets} transactions={transactions} prices={prices} locale={locale} defaultOpen={true} />
+                        </div>
                     ) : (
-                        <LPFeeTracker assets={assets} transactions={transactions} prices={prices} locale={locale} onAddClaim={onAddClaim} />
+                        <div className="space-y-6">
+                            <LPFeeTracker assets={assets} transactions={transactions} prices={prices} locale={locale} onAddClaim={onAddClaim} />
+                        </div>
                     )}
                 </div>
             ) : view === 'market-picks' ? (
                 <div className="animate-in fade-in slide-in-from-bottom-2 h-full">
-                    <MarketPicks prices={prices} priceChanges={priceChanges} priceVolumes={priceVolumes} />
+                    <MarketPicks
+                        prices={prices}
+                        priceChanges={priceChanges}
+                        priceVolumes={priceVolumes}
+                        locale={locale}
+                        onSimulate={onSimulate}
+                    />
                 </div>
             ) : (
                 <div className="animate-in fade-in slide-in-from-bottom-2">
-                    <DashboardNotes />
+                    <DashboardNotes
+                        simulatorInitialData={simulatorState}
+                        locale={locale}
+                    />
                 </div>
             )}
         </div>

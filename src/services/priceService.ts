@@ -6,10 +6,12 @@ const resolveCoinGeckoId = async (symbol: string): Promise<string> => {
 
     // 1. Hardcoded Map (Fastest)
     const COINGECKO_ID_MAP: Record<string, string> = {
-        'HYPE': 'hyperliquid',
         'BTC': 'bitcoin',
         'ETH': 'ethereum',
         'SOL': 'solana',
+        'SUI': 'sui',
+        'PUMP': 'pumpfun',
+        'HYPE': 'hyperliquid',
         'USDT': 'tether',
         'USDC': 'usd-coin',
         'CVX': 'convex-finance',
@@ -377,6 +379,22 @@ export const fetchPrice = async (inputSymbol: string, options?: { skipHyperliqui
     console.warn(`[PriceService] CoinMarketCap fallback: API Key required / CORS limitations. Skipped for ${symbol}.`);
 
     return null;
+};
+
+/**
+ * Derives an approximate Open price if actual historical data is missing.
+ * Open = Current / (1 + (Change% / 100))
+ */
+export const deriveOpenPrice = (currentPrice: number, change24h: number | null | undefined): number | null => {
+    if (typeof currentPrice !== 'number' || currentPrice <= 0) return null;
+    if (typeof change24h !== 'number') return null;
+
+    // Reverse the percentage change calculation
+    // current = open * (1 + change/100) => open = current / (1 + change/100)
+    const factor = 1 + (change24h / 100);
+    if (factor <= 0) return null; // Avoid division by zero or negative open
+
+    return currentPrice / factor;
 };
 
 export const getHistoricalPrice = async (symbol: string, date: string, strategy: 'OPEN' | 'CLOSE' = 'OPEN'): Promise<number | null> => {
