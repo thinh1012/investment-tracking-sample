@@ -9,15 +9,16 @@ import { Asset, Transaction } from '../../types';
 describe('lpEarningsCalculator', () => {
     const mockAssets: Asset[] = [
         {
+            quantity: 1,
+            currentPrice: 1100,
             symbol: 'HLP',
-            name: 'Hyperliquid LP',
-            totalAmount: 1,
+
             totalInvested: 1000,
-            lpRange: '1000-2000',
-            avgBuyPrice: 1000,
+            lpRange: { min: 1000, max: 2000 },
+            averageBuyPrice: 1000,
             currentValue: 1100,
-            unrealizedPL: 100,
-            percentage: 100
+            unrealizedPnL: 100,
+            pnlPercentage: 100
         }
     ];
 
