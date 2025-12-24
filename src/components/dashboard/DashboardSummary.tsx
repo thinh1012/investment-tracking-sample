@@ -20,19 +20,19 @@ const SummaryCard = ({ title, value, subValue, color, icon, index }: SummaryCard
     };
 
     return (
-        <div className={`glass-card p-6 flex items-start justify-between animate-slide-up animate-stagger-${index + 1} group`}>
+        <div className={`glass-card p-4 md:p-6 flex items-start justify-between animate-slide-up animate-stagger-${index + 1} group`}>
             <div>
-                <h3 className="text-slate-400 dark:text-slate-500 text-xs font-black mb-3 uppercase tracking-[0.15em] font-heading">{title}</h3>
-                <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tight font-heading group-hover:text-indigo-500 transition-colors duration-300">{value}</p>
+                <h3 className="text-slate-400 dark:text-slate-500 text-[10px] md:text-xs font-black mb-2 md:mb-3 uppercase tracking-[0.15em] font-heading">{title}</h3>
+                <p className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight font-heading group-hover:text-indigo-500 transition-colors duration-300">{value}</p>
                 {subValue && (
-                    <p className={`text-xs font-bold mt-2 flex items-center gap-1 ${subValue.startsWith('-') ? 'text-rose-500' : 'text-emerald-500'}`}>
+                    <p className={`text-[10px] md:text-xs font-bold mt-1.5 md:mt-2 flex items-center gap-1 ${subValue.startsWith('-') ? 'text-rose-500' : 'text-emerald-500'}`}>
                         <span className="opacity-70">{subValue.startsWith('-') ? '▼' : '▲'}</span>
                         {subValue.startsWith('-') ? '' : '+'}{subValue}
                     </p>
                 )}
             </div>
-            <div className={`p-3.5 rounded-xl border ${colorClasses[color]} group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-${color}-500/5`}>
-                {icon}
+            <div className={`p-2.5 md:p-3.5 rounded-xl border ${colorClasses[color]} group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-${color}-500/5`}>
+                {React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement, { size: 18, className: ((icon as React.ReactElement).props.className || "") + " md:w-[22px] md:h-[22px]" }) : icon}
             </div>
         </div>
     );
@@ -55,7 +55,7 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({ totalInveste
     const profitPct = totalInvested > 0 ? ((totalValue - totalInvested) / totalInvested * 100).toFixed(1) : null;
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-10">
             <SummaryCard
                 index={0}
                 title="Total Invested"

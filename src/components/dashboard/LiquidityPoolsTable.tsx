@@ -31,7 +31,7 @@ export const LiquidityPoolsTable: React.FC<LiquidityPoolsTableProps> = ({ assets
     return (
         <div className="lg:col-span-3 glass-card overflow-hidden animate-slide-up animate-stagger-2 group/lp">
             <div
-                className="p-8 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all duration-500"
+                className="p-4 md:p-8 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all duration-500"
                 onClick={() => setIsAssetListOpen(!isAssetListOpen)}
             >
                 <div className="flex items-center gap-4">
@@ -50,19 +50,19 @@ export const LiquidityPoolsTable: React.FC<LiquidityPoolsTableProps> = ({ assets
             {isAssetListOpen && (
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left border-collapse">
-                        <thead className="bg-slate-50/50 dark:bg-slate-800/30 text-slate-400 dark:text-slate-500 uppercase text-[10px] tracking-[0.2em] font-black font-heading">
+                        <thead className="bg-slate-50/50 dark:bg-slate-800/30 text-slate-400 dark:text-slate-500 uppercase text-[9px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] font-black font-heading">
                             <tr>
                                 <th
-                                    className="px-8 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+                                    className="px-4 py-3 md:px-8 md:py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
                                     onClick={() => handleLpSort('symbol')}
                                 >
                                     <div className="flex items-center gap-2">
                                         LP Position {lpSortKey === 'symbol' && (lpSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
                                     </div>
                                 </th>
-                                <th className="px-6 py-5 whitespace-nowrap">Tokens Earned</th>
+                                <th className="hidden md:table-cell px-6 py-5 whitespace-nowrap">Tokens Earned</th>
                                 <th
-                                    className="px-6 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+                                    className="hidden lg:table-cell px-6 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
                                     onClick={() => handleLpSort('rangeStatus')}
                                 >
                                     <div className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export const LiquidityPoolsTable: React.FC<LiquidityPoolsTableProps> = ({ assets
                                     </div>
                                 </th>
                                 <th
-                                    className="px-6 py-5 text-right cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+                                    className="hidden md:table-cell px-6 py-5 text-right cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
                                     onClick={() => handleLpSort('totalInvested')}
                                 >
                                     <div className="flex items-center justify-end gap-2">
@@ -78,11 +78,11 @@ export const LiquidityPoolsTable: React.FC<LiquidityPoolsTableProps> = ({ assets
                                     </div>
                                 </th>
                                 <th
-                                    className="px-8 py-5 text-right cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+                                    className="px-4 py-3 md:px-8 md:py-5 text-right cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
                                     onClick={() => handleLpSort('currentValue')}
                                 >
                                     <div className="flex items-center justify-end gap-2">
-                                        Market Value {lpSortKey === 'currentValue' && (lpSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
+                                        Value {lpSortKey === 'currentValue' && (lpSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
                                     </div>
                                 </th>
                             </tr>
@@ -114,31 +114,31 @@ export const LiquidityPoolsTable: React.FC<LiquidityPoolsTableProps> = ({ assets
 
                                     return (
                                         <tr key={asset.symbol} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all duration-300 group/row">
-                                            <td className="px-8 py-6">
+                                            <td className="px-4 py-3 md:px-8 md:py-6">
                                                 <div className="flex items-center gap-3">
                                                     <div className="flex flex-col">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="font-black text-slate-800 dark:text-slate-100 text-base tracking-tight">{asset.symbol}</span>
+                                                            <span className="font-black text-slate-800 dark:text-slate-100 text-sm md:text-base tracking-tight">{asset.symbol}</span>
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
                                                                     onAddCapital && onAddCapital(asset.symbol);
                                                                 }}
-                                                                className="p-1 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 transition-all scale-0 group-hover/row:scale-100"
+                                                                className="p-1 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 transition-all scale-100 md:scale-0 group-hover/row:scale-100"
                                                                 title="Add Additional Capital"
                                                             >
                                                                 <Plus size={12} strokeWidth={3} />
                                                             </button>
                                                         </div>
                                                         {fundedFromNote && (
-                                                            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 opacity-70 truncate max-w-[150px]" title={fundedFromNote}>
+                                                            <div className="hidden md:block text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 opacity-70 truncate max-w-[150px]" title={fundedFromNote}>
                                                                 via {fundedFromNote}
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-6">
+                                            <td className="hidden md:table-cell px-6 py-6">
                                                 {(() => {
                                                     const rewards = transactions.filter(t => {
                                                         if (t.type !== 'INTEREST') return false;
@@ -166,8 +166,7 @@ export const LiquidityPoolsTable: React.FC<LiquidityPoolsTableProps> = ({ assets
                                                     );
                                                 })()}
                                             </td>
-                                            <td className="px-6 py-6 text-slate-500 dark:text-slate-400 font-bold font-mono text-xs invisible hidden">GONE</td>
-                                            <td className="px-6 py-6">
+                                            <td className="hidden lg:table-cell px-6 py-6">
                                                 {asset.lpRange ? (
                                                     <div className="flex flex-col gap-2">
                                                         {asset.monitorSymbol ? (
@@ -196,13 +195,13 @@ export const LiquidityPoolsTable: React.FC<LiquidityPoolsTableProps> = ({ assets
                                                     <span className="text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-widest italic">Full Range</span>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-6">
+                                            <td className="hidden md:table-cell px-6 py-6 text-right">
                                                 <div className="flex flex-col items-end gap-1">
                                                     <span className="font-bold font-mono text-slate-800 dark:text-slate-200">${asset.totalInvested.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</span>
                                                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none opacity-60">Principal</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6">
+                                            <td className="px-4 py-3 md:px-8 md:py-6 text-right">
                                                 <div className="flex flex-col items-end group/edit relative">
                                                     {editingLpSymbol === asset.symbol ? (
                                                         <div className="flex items-center justify-end gap-1 mb-2">
@@ -234,7 +233,7 @@ export const LiquidityPoolsTable: React.FC<LiquidityPoolsTableProps> = ({ assets
                                                     ) : (
                                                         <div className="flex flex-col items-end">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="font-black font-heading text-slate-900 dark:text-white text-xl tracking-tighter">
+                                                                <span className="font-black font-heading text-slate-900 dark:text-white text-base md:text-xl tracking-tighter">
                                                                     ${(asset.currentValue || asset.totalInvested).toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
                                                                 </span>
                                                                 <button
@@ -243,14 +242,14 @@ export const LiquidityPoolsTable: React.FC<LiquidityPoolsTableProps> = ({ assets
                                                                         setEditingLpSymbol(asset.symbol);
                                                                         setNewLpValue((asset.currentValue || asset.totalInvested).toString());
                                                                     }}
-                                                                    className="opacity-0 group-hover/row:opacity-100 p-1 text-slate-300 hover:text-indigo-500 transition-all bg-slate-100 dark:bg-slate-800 rounded-lg"
+                                                                    className="opacity-100 md:opacity-0 group-hover/row:opacity-100 p-1 text-slate-300 hover:text-indigo-500 transition-all bg-slate-100 dark:bg-slate-800 rounded-lg"
                                                                     title="Edit Value"
                                                                 >
                                                                     <Pencil size={12} />
                                                                 </button>
                                                             </div>
                                                             {asset.unrealizedPnL !== 0 && (
-                                                                <div className={`text-[10px] font-black tracking-widest px-2 py-0.5 rounded-lg mt-1 ${asset.unrealizedPnL >= 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                                                                <div className={`text-[9px] md:text-[10px] font-black tracking-widest px-2 py-0.5 rounded-lg mt-1 ${asset.unrealizedPnL >= 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
                                                                     {asset.unrealizedPnL >= 0 ? '▲' : '▼'} {Math.abs(asset.pnlPercentage).toFixed(1)}%
                                                                 </div>
                                                             )}

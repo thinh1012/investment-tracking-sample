@@ -57,7 +57,7 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, prices, onRefr
     return (
         <div className="lg:col-span-3 glass-card overflow-hidden animate-slide-up animate-stagger-1 group/table">
             <div
-                className="p-8 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all duration-500"
+                className="p-4 md:p-8 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all duration-500"
                 onClick={() => setIsTokenListOpen(!isTokenListOpen)}
             >
                 <div className="flex items-center gap-4">
@@ -95,29 +95,29 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, prices, onRefr
             {isTokenListOpen && (
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left border-collapse">
-                        <thead className="bg-slate-50/50 dark:bg-slate-800/30 text-slate-400 dark:text-slate-500 uppercase text-[10px] tracking-[0.2em] font-black font-heading">
+                        <thead className="bg-slate-50/50 dark:bg-slate-800/30 text-slate-400 dark:text-slate-500 uppercase text-[9px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] font-black font-heading">
                             <tr>
-                                <th className="px-8 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors" onClick={() => handleAssetSort('symbol')}>
+                                <th className="px-4 py-3 md:px-8 md:py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors" onClick={() => handleAssetSort('symbol')}>
                                     <div className="flex items-center gap-2">
                                         Asset {assetSortKey === 'symbol' && (assetSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
                                     </div>
                                 </th>
-                                <th className="px-6 py-5">Quantity</th>
-                                <th className="px-6 py-5">Avg Buy Price</th>
-                                <th className="px-6 py-5">Current Price</th>
-                                <th className="px-6 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-right" onClick={() => handleAssetSort('totalInvested')}>
+                                <th className="hidden md:table-cell px-6 py-5">Quantity</th>
+                                <th className="hidden md:table-cell px-6 py-5">Avg Buy Price</th>
+                                <th className="px-3 py-3 md:px-6 md:py-5">Price</th>
+                                <th className="hidden lg:table-cell px-6 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-right" onClick={() => handleAssetSort('totalInvested')}>
                                     <div className="flex items-center justify-end gap-2">
                                         Invested {assetSortKey === 'totalInvested' && (assetSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
                                     </div>
                                 </th>
-                                <th className="px-6 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-right" onClick={() => handleAssetSort('currentValue')}>
+                                <th className="px-4 py-3 md:px-6 md:py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-right" onClick={() => handleAssetSort('currentValue')}>
                                     <div className="flex items-center justify-end gap-2">
                                         Value {assetSortKey === 'currentValue' && (assetSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
                                     </div>
                                 </th>
-                                <th className="px-8 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-right" onClick={() => handleAssetSort('pnlValue')}>
+                                <th className="px-4 py-3 md:px-8 md:py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-right" onClick={() => handleAssetSort('pnlValue')}>
                                     <div className="flex items-center justify-end gap-2">
-                                        PnL Change {assetSortKey === 'pnlValue' && (assetSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
+                                        PnL {assetSortKey === 'pnlValue' && (assetSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
                                     </div>
                                 </th>
                             </tr>
@@ -133,17 +133,17 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, prices, onRefr
                                             className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all duration-300 cursor-pointer group/row"
                                             onClick={() => toggleSourceExpansion(asset.symbol)}
                                         >
-                                            <td className="px-8 py-5 font-black text-slate-800 dark:text-slate-100 flex items-center gap-4">
+                                            <td className="px-4 py-3 md:px-8 md:py-5 font-black text-slate-800 dark:text-slate-100 flex items-center gap-2 md:gap-4">
                                                 <div className={`p-1 rounded-lg transition-all duration-300 ${expandedSources.has(asset.symbol) ? 'bg-indigo-500/10 text-indigo-500 rotate-0' : 'text-slate-300 -rotate-90'}`}>
                                                     <ChevronDown size={14} />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-base tracking-tight">{asset.symbol}</span>
-                                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">Token</span>
+                                                    <span className="text-sm md:text-base tracking-tight">{asset.symbol}</span>
+                                                    <span className="hidden md:inline text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">Token</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-5 text-slate-600 dark:text-slate-400 font-bold font-mono tracking-tight">{asset.quantity.toLocaleString(locale || 'en-US')}</td>
-                                            <td className="px-6 py-5 text-slate-500 dark:text-slate-400 group relative">
+                                            <td className="hidden md:table-cell px-6 py-5 text-slate-600 dark:text-slate-400 font-bold font-mono tracking-tight">{asset.quantity.toLocaleString(locale || 'en-US')}</td>
+                                            <td className="hidden md:table-cell px-6 py-5 text-slate-500 dark:text-slate-400 group relative">
                                                 <div className="flex items-center gap-2 font-mono font-medium">
                                                     <span>${asset.averageBuyPrice.toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}</span>
                                                     <button
@@ -160,17 +160,17 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, prices, onRefr
                                                     </button>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-5 text-slate-500 dark:text-slate-400 font-mono font-medium">
-                                                ${currentPrice.toLocaleString(locale || 'en-US', { maximumFractionDigits: 4 })}
+                                            <td className="px-3 py-3 md:px-6 md:py-5 text-slate-500 dark:text-slate-400 font-mono font-medium text-xs md:text-sm">
+                                                ${currentPrice < 1 ? currentPrice.toLocaleString(locale || 'en-US', { maximumFractionDigits: 4 }) : currentPrice.toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}
                                             </td>
-                                            <td className="px-6 py-5 font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight text-right">${asset.totalInvested.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</td>
-                                            <td className="px-6 py-5 font-black text-slate-900 dark:text-white font-mono tracking-tight text-right">${currentValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</td>
-                                            <td className="px-8 py-5 text-right">
-                                                <div className={`p-3 rounded-xl flex flex-col items-end transition-all duration-300 group-hover/row:translate-x-1 shadow-sm ${isPositive ? 'bg-emerald-500/5 text-emerald-500 border border-emerald-500/10' : 'bg-rose-500/5 text-rose-500 border border-rose-500/10'} `}>
-                                                    <span className="font-black font-mono text-sm leading-none">
+                                            <td className="hidden lg:table-cell px-6 py-5 font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight text-right">${asset.totalInvested.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</td>
+                                            <td className="px-4 py-3 md:px-6 md:py-5 font-black text-slate-900 dark:text-white font-mono tracking-tight text-right text-sm md:text-base">${currentValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</td>
+                                            <td className="px-4 py-3 md:px-8 md:py-5 text-right">
+                                                <div className={`p-1.5 md:p-3 rounded-xl flex flex-col items-end transition-all duration-300 group-hover/row:translate-x-1 shadow-sm ${isPositive ? 'bg-emerald-500/5 text-emerald-500 border border-emerald-500/10' : 'bg-rose-500/5 text-rose-500 border border-rose-500/10'} `}>
+                                                    <span className="font-black font-mono text-xs md:text-sm leading-none">
                                                         {isPositive ? '+' : ''}{pnlValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
                                                     </span>
-                                                    <span className="text-[10px] font-black tracking-widest mt-1 opacity-70">
+                                                    <span className="text-[9px] md:text-[10px] font-black tracking-widest mt-0.5 md:mt-1 opacity-70">
                                                         {isPositive ? '▲' : '▼'} {Math.abs(pnlPercent).toFixed(1)}%
                                                     </span>
                                                 </div>

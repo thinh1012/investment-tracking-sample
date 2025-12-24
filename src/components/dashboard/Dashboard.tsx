@@ -88,26 +88,26 @@ export const Dashboard: React.FC<Props> = ({
     } = useDashboardCalculations({ assets, transactions, prices });
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
             {/* Header / Actions */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4">
                 {/* Sync Status Indicator */}
-                <div className="flex items-center gap-3 px-4 py-2 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-sm">
+                <div className="flex items-center gap-3 px-3 py-1.5 md:px-4 md:py-2 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-sm">
                     <div className="relative">
-                        <div className={`w-2.5 h-2.5 rounded-full ${isSyncLoading ? 'bg-indigo-500 animate-pulse' : 'bg-emerald-500'} shadow-[0_0_10px_rgba(16,185,129,0.3)]`}></div>
-                        {isSyncLoading && <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping opacity-75"></div>}
+                        <div className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full ${isSyncLoading ? 'bg-indigo-500 animate-pulse' : 'bg-emerald-500'} shadow-[0_0_10px_rgba(16,185,129,0.3)]`}></div>
+                        {isSyncLoading && <div className="absolute inset-0 w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-indigo-500 animate-ping opacity-75"></div>}
                     </div>
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-1">Vault Status</span>
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 leading-none">
+                    <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
+                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-1">Vault Status</span>
+                        <span className="text-[11px] md:text-xs font-bold text-slate-700 dark:text-slate-200 leading-none">
                             {isSyncLoading ? 'Synchronizing...' : (lastSyncTime ? `Synced ${new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Not Cached Externally')}
                         </span>
-                    </div>
+                    </main>
                 </div>
 
                 <button
                     onClick={onAddClick}
-                    className="text-sm bg-emerald-600 text-white px-5 py-3 rounded-2xl hover:bg-emerald-700 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-emerald-600/20 font-bold flex items-center gap-2"
+                    className="w-full md:w-auto text-sm bg-emerald-600 text-white px-5 py-3 rounded-2xl hover:bg-emerald-700 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-emerald-600/20 font-bold flex items-center justify-center md:justify-start gap-2"
                 >
                     <TrendingUp size={18} /> Add Transaction
                 </button>
@@ -133,7 +133,7 @@ export const Dashboard: React.FC<Props> = ({
                         locale={locale}
                     />
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
                         {/* 4. Assets Table */}
                         <AssetsTable
                             assets={assets}
