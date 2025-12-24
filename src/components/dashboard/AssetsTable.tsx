@@ -22,7 +22,7 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, prices, onRefr
         const currentPrice = (prices && prices[asset.symbol]) || 0;
         const currentValue = asset.quantity * currentPrice;
         const pnlValue = currentValue - asset.totalInvested;
-        const pnlPercent = asset.totalInvested > 0 ? (pnlValue / asset.totalInvested) * 100 : 0;
+        const pnlPercent = asset.totalInvested >= 0.01 ? (pnlValue / asset.totalInvested) * 100 : 0;
         return { ...asset, currentPrice, currentValue, pnlValue, pnlPercent };
     });
 

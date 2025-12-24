@@ -71,6 +71,16 @@ export const calculateAssets = (
             const avgPrice = asset.quantity > 0 ? asset.totalInvested / asset.quantity : 0;
             asset.totalInvested -= (tx.amount * avgPrice);
             asset.quantity -= tx.amount;
+
+            // Sanity check for residuals
+            if (asset.quantity <= 0.00000001) {
+                asset.quantity = 0;
+                asset.totalInvested = 0;
+            }
+            if (asset.totalInvested < 0.00000001) {
+                asset.totalInvested = 0;
+            }
+
             if (tx.notes && tx.notes.includes('Moved to LP')) {
                 asset.lockedInLpQuantity = (asset.lockedInLpQuantity || 0) + tx.amount;
             }
@@ -118,7 +128,9 @@ export const calculateAssets = (
             asset.currentValue = asset.quantity * asset.currentPrice;
         }
         asset.unrealizedPnL = asset.currentValue - asset.totalInvested;
-        asset.pnlPercentage = asset.totalInvested > 0 ? (asset.unrealizedPnL / asset.totalInvested) * 100 : 0;
+        // Logic: If total invested is effectively 0 (less than 1 cent), we show 0% PnL to avoid infinity
+        // In the future we could show "Earned" or "N/A"
+        asset.pnlPercentage = asset.totalInvested >= 0.01 ? (asset.unrealizedPnL / asset.totalInvested) * 100 : 0;
 
         return asset;
     }).filter(a => a.quantity > 0.000001);
