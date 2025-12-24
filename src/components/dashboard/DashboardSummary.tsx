@@ -32,7 +32,7 @@ const SummaryCard = ({ title, value, subValue, color, icon, index }: SummaryCard
                 )}
             </div>
             <div className={`p-2.5 md:p-3.5 rounded-xl border ${colorClasses[color]} group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-${color}-500/5`}>
-                {React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement, { size: 18, className: ((icon as React.ReactElement).props.className || "") + " md:w-[22px] md:h-[22px]" }) : icon}
+                {React.isValidElement(icon) ? React.cloneElement(icon as any, { size: 18, className: ((icon.props as any).className || "") + " md:w-[22px] md:h-[22px]" }) : icon}
             </div>
         </div>
     );
