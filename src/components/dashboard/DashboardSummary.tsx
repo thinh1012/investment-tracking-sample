@@ -10,27 +10,28 @@ interface SummaryCardProps {
     icon: React.ReactNode;
 }
 
-const SummaryCard = ({ title, value, subValue, color, icon }: SummaryCardProps) => {
+const SummaryCard = ({ title, value, subValue, color, icon, index }: SummaryCardProps & { index: number }) => {
     const colorClasses = {
-        indigo: 'bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-400 dark:ring-indigo-900/50',
-        emerald: 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-900/50',
-        violet: 'bg-violet-50 text-violet-600 ring-1 ring-violet-100 dark:bg-violet-900/20 dark:text-violet-400 dark:ring-violet-900/50',
-        rose: 'bg-rose-50 text-rose-600 ring-1 ring-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:ring-rose-900/50',
-        blue: 'bg-blue-50 text-blue-600 ring-1 ring-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:ring-blue-900/50',
+        indigo: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20',
+        emerald: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+        violet: 'bg-violet-500/10 text-violet-500 border-violet-500/20',
+        rose: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
+        blue: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
     };
 
     return (
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-start justify-between hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 hover:border-indigo-100 dark:hover:border-indigo-900/50 transition-all duration-300">
+        <div className={`glass-card p-6 flex items-start justify-between animate-slide-up animate-stagger-${index + 1} group`}>
             <div>
-                <h3 className="text-slate-500 dark:text-slate-400 text-sm font-semibold mb-1 uppercase tracking-wide">{title}</h3>
-                <p className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{value}</p>
+                <h3 className="text-slate-400 dark:text-slate-500 text-xs font-black mb-3 uppercase tracking-[0.15em] font-heading">{title}</h3>
+                <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tight font-heading group-hover:text-indigo-500 transition-colors duration-300">{value}</p>
                 {subValue && (
-                    <p className={`text-sm font-medium mt-1 ${subValue.startsWith('-') ? 'text-rose-500' : 'text-emerald-500'}`}>
+                    <p className={`text-xs font-bold mt-2 flex items-center gap-1 ${subValue.startsWith('-') ? 'text-rose-500' : 'text-emerald-500'}`}>
+                        <span className="opacity-70">{subValue.startsWith('-') ? '▼' : '▲'}</span>
                         {subValue.startsWith('-') ? '' : '+'}{subValue}
                     </p>
                 )}
             </div>
-            <div className={`p-3.5 rounded-xl ${colorClasses[color]}`}>
+            <div className={`p-3.5 rounded-xl border ${colorClasses[color]} group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-${color}-500/5`}>
                 {icon}
             </div>
         </div>
@@ -51,16 +52,19 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({ totalInveste
 
     const assetCount = assets.filter(a => !a.symbol.startsWith('LP') && !a.lpRange).length;
 
+    const profitPct = totalInvested > 0 ? ((totalValue - totalInvested) / totalInvested * 100).toFixed(1) : null;
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <SummaryCard
+                index={0}
                 title="Total Invested"
                 value={isEditingPrincipal ? (
-                    <div className="flex items-center gap-2 " onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                         <input
                             type="number"
                             autoFocus
-                            className="w-32 bg-indigo-50 dark:bg-slate-800 text-indigo-700 dark:text-indigo-400 text-xl font-bold rounded px-1 py-0.5 border border-indigo-200 dark:border-indigo-700 focus:outline-none"
+                            className="w-32 bg-slate-100 dark:bg-slate-800 text-indigo-500 text-2xl font-black rounded-xl px-2 py-1 border border-indigo-200 dark:border-indigo-900/50 focus:outline-none focus:ring-2 ring-indigo-500/20 font-heading"
                             value={tempPrincipal}
                             onChange={e => setTempPrincipal(e.target.value)}
                             onKeyDown={e => {
@@ -85,26 +89,28 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({ totalInveste
                                 setIsEditingPrincipal(false);
                             }}
                         />
-                        <span className="text-xs text-slate-400 font-normal self-end mb-1">(Enter to save)</span>
                     </div>
-                ) : `$${totalInvested.toLocaleString('en-US')} ${manualPrincipal !== null ? '✎' : ''}`}
+                ) : `$${totalInvested.toLocaleString('en-US')}`}
                 color="indigo"
-                icon={<DollarSign size={24} className={isEditingPrincipal ? 'text-indigo-600' : 'cursor-pointer hover:scale-110 transition-transform'} onClick={() => {
+                icon={<DollarSign size={22} className={isEditingPrincipal ? 'text-indigo-500' : 'cursor-pointer'} onClick={() => {
                     setTempPrincipal(manualPrincipal !== null ? manualPrincipal.toString() : totalInvested.toString());
                     setIsEditingPrincipal(true);
                 }} />}
+                subValue={manualPrincipal !== null ? 'Override Active' : undefined}
             />
             <SummaryCard
-                title="Current Value (Est)"
-                value={`$${totalValue.toLocaleString('en-US')} `}
-                color="blue"
-                icon={<Package size={24} />}
+                index={1}
+                title="Portfolio Value"
+                value={`$${totalValue.toLocaleString('en-US')}`}
+                color="emerald"
+                icon={<Package size={22} />}
             />
             <SummaryCard
-                title="Assets Count"
+                index={2}
+                title="Active Assets"
                 value={assetCount.toString()}
                 color="violet"
-                icon={<Layers size={24} />}
+                icon={<Layers size={22} />}
             />
         </div>
     );

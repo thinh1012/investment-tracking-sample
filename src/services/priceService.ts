@@ -290,7 +290,40 @@ export const fetchPrice = async (inputSymbol: string, options?: { skipHyperliqui
         } catch (e) { console.warn(`[PriceService] Priority CC failed for ${symbol}`, e); }
     }
 
-    // 3. DexScreener (Excellent for DeFi/Alts, No Rate Limit)
+    // 3. CryptoCompare (Free Tier)
+    try {
+        const response = await fetch(`https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${symbol.toUpperCase()}&tsyms=USD`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.RAW?.[symbol.toUpperCase()]?.USD) {
+                const raw = data.RAW[symbol.toUpperCase()].USD;
+                return {
+                    price: raw.PRICE,
+                    change24h: raw.CHANGEPCT24HOUR
+                };
+            }
+        }
+    } catch (e) {
+        console.warn(`[PriceService] CryptoCompare failed for ${symbol}`, e);
+    }
+
+    // 4. Binance (Public API)
+    try {
+        const pair = `${symbol.toUpperCase()}USDT`;
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${pair}`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.lastPrice) {
+                console.log(`[PriceService] Fetched ${symbol} from Binance`);
+                return {
+                    price: parseFloat(data.lastPrice),
+                    change24h: parseFloat(data.priceChangePercent)
+                };
+            }
+        }
+    } catch (e) { /* ignore */ }
+
+    // 5. DexScreener (Excellent for DeFi/Alts, No Rate Limit)
     try {
         const response = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${symbol}`);
         if (response.ok) {
@@ -313,39 +346,6 @@ export const fetchPrice = async (inputSymbol: string, options?: { skipHyperliqui
     } catch (e) {
         console.warn(`[PriceService] DexScreener failed for ${symbol}`, e);
     }
-
-    // 4. CryptoCompare (Free Tier)
-    try {
-        const response = await fetch(`https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${symbol.toUpperCase()}&tsyms=USD`);
-        if (response.ok) {
-            const data = await response.json();
-            if (data.RAW?.[symbol.toUpperCase()]?.USD) {
-                const raw = data.RAW[symbol.toUpperCase()].USD;
-                return {
-                    price: raw.PRICE,
-                    change24h: raw.CHANGEPCT24HOUR
-                };
-            }
-        }
-    } catch (e) {
-        console.warn(`[PriceService] CryptoCompare failed for ${symbol}`, e);
-    }
-
-    // 5. Binance (Public API)
-    try {
-        const pair = `${symbol.toUpperCase()}USDT`;
-        const response = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${pair}`);
-        if (response.ok) {
-            const data = await response.json();
-            if (data.lastPrice) {
-                console.log(`[PriceService] Fetched ${symbol} from Binance`);
-                return {
-                    price: parseFloat(data.lastPrice),
-                    change24h: parseFloat(data.priceChangePercent)
-                };
-            }
-        }
-    } catch (e) { /* ignore */ }
 
     // 6. Kraken (Public API)
     try {

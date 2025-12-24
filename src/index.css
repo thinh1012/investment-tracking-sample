@@ -1,34 +1,104 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
     --font-sans: "Inter", "sans-serif";
-    /* Neutral Palette (True Gray - No Blue Tint) */
-    --color-slate-50: #fafafa;
-    --color-slate-100: #f5f5f5;
-    --color-slate-200: #e5e5e5;
-    --color-slate-300: #d4d4d4;
-    --color-slate-400: #a3a3a3;
-    --color-slate-500: #737373;
-    --color-slate-600: #525252;
-    --color-slate-700: #404040;
-    --color-slate-800: #262626;
-    --color-slate-900: #171717;
+    --font-heading: "Outfit", "Inter", "sans-serif";
 
-    /* Emerald Palette (Wealth Green) */
-    --color-indigo-50: #ecfdf5;
-    --color-indigo-100: #d1fae5;
-    --color-indigo-200: #a7f3d0;
-    --color-indigo-500: #10b981;
-    --color-indigo-600: #059669;
-    --color-indigo-700: #047857;
+    /* Neutral Palette (Deep & Sophisticated) */
+    --color-slate-50: #f8fafc;
+    --color-slate-100: #f1f5f9;
+    --color-slate-200: #e2e8f0;
+    --color-slate-300: #cbd5e1;
+    --color-slate-400: #94a3b8;
+    --color-slate-500: #64748b;
+    --color-slate-600: #475569;
+    --color-slate-700: #334155;
+    --color-slate-800: #1e293b;
+    --color-slate-900: #0f172a;
+    --color-slate-950: #020617;
+
+    /* Emerald & Indigo Mesh (Wealth UI) */
+    --color-emerald-500: #10b981;
+    --color-emerald-600: #059669;
+    --color-indigo-500: #6366f1;
+    --color-indigo-600: #4f46e5;
+
+    /* Custom Shadows */
+    --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-glow: 0 0 20px -5px rgba(16, 185, 129, 0.3);
 }
 
-body {
-    font-family: var(--font-sans);
-    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white transition-colors duration-200;
+@layer base {
+    body {
+        font-family: var(--font-sans);
+        @apply bg-slate-50 text-slate-900 dark:bg-[#020617] dark:text-slate-100 transition-colors duration-300;
+        background-image:
+            radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0, transparent 50%),
+            radial-gradient(at 50% 0%, rgba(16, 185, 129, 0.03) 0, transparent 50%);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-family: var(--font-heading);
+    }
+}
+
+@utility material-surface {
+    @apply bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md rounded-xl;
+}
+
+@utility glass {
+    @apply bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-none border border-slate-200 dark:border-slate-800 shadow-md rounded-2xl;
+}
+
+@utility glass-card {
+    @apply glass transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 hover:border-indigo-500/20;
+}
+
+@utility mesh-gradient {
+    background: linear-gradient(135deg, var(--color-indigo-600) 0%, var(--color-emerald-600) 100%);
+}
+
+@utility text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-emerald-500 font-bold;
+}
+
+@utility animate-stagger-1 {
+    animation-delay: 100ms;
+}
+
+@utility animate-stagger-2 {
+    animation-delay: 200ms;
+}
+
+@utility animate-stagger-3 {
+    animation-delay: 300ms;
+}
+
+@utility animate-stagger-4 {
+    animation-delay: 400ms;
+}
+
+@utility animate-slide-up {
+    animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -40,6 +110,5 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: var(--color-slate-200);
-    border-radius: 20px;
+    @apply bg-slate-200 dark:bg-slate-800 rounded-full;
 }

@@ -33,7 +33,8 @@ function App() {
   const { watchlist } = watchlistState;
 
   // 2. Cloud Sync (New Automated Flow)
-  const { user, syncKey, setSyncKey, uploadVault, downloadVault } = useCloudSync();
+  const syncState = useCloudSync();
+  const { user, syncKey, setSyncKey, uploadVault, lastSyncTime, isLoading: isSyncLoading } = syncState;
 
   // Auto-Sync Background Worker (Monitoring everything)
   const syncTrigger = React.useMemo(() => ({
@@ -193,6 +194,8 @@ function App() {
             watchlistState={watchlistState}
             onSimulate={handleSimulate}
             simulatorState={simulatorState}
+            lastSyncTime={lastSyncTime}
+            isSyncLoading={isSyncLoading}
           />
         ) : (
           <Settings
@@ -215,7 +218,7 @@ function App() {
       <CloudSyncModal
         isOpen={isSyncModalOpen}
         onClose={() => setIsSyncModalOpen(false)}
-        currentData={{ assets, transactions, watchlist: [] }}
+        sync={syncState}
         onRestore={async (data) => {
           try {
             if (confirm("This will overwrite your current local data with the Cloud Backup. Continue?")) {

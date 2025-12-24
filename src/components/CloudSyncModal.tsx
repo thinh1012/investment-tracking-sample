@@ -9,10 +9,11 @@ interface Props {
     isOpen: boolean;
     onClose: () => void;
     onRestore?: (data: any) => void; // Callback when data is downloaded
+    sync: any; // Passed from parent to share state
 }
 
-export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore }) => {
-    const { user, isLoading, error, status, syncKey, setSyncKey, signIn, signUp, signOut, uploadVault, downloadVault } = useCloudSync();
+export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore, sync }) => {
+    const { user, isLoading, error, status, syncKey, setSyncKey, signIn, signUp, signOut, uploadVault, downloadVault } = sync;
 
     // Auth State
     const [email, setEmail] = useState('');

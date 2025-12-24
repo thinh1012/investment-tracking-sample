@@ -94,10 +94,9 @@ export const decryptData = async (cipherText: string, password: string): Promise
         const dec = new TextDecoder();
         return JSON.parse(dec.decode(decrypted));
     } catch (e: any) {
-        console.error("Decryption Failed Detail:", e);
         if (e.name === "OperationError") {
             throw new Error("Incorrect Password.");
         }
-        throw new Error(`Decryption Error: ${e.message}`);
+        throw new Error("Decryption failed. Data might be corrupted or key is invalid.");
     }
 };

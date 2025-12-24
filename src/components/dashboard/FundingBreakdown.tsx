@@ -18,23 +18,29 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({ groupedBreak
     return (
         <>
             {Object.keys(groupedBreakdown).length > 0 && (
-                <div className="mt-4 mb-6">
-                    <div className="flex items-center gap-2 mb-2">
-                        <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Funding Breakdown</h4>
+                <div className="mt-8 mb-10 overflow-hidden animate-slide-up animate-stagger-4">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-1 px-2 mesh-gradient rounded-lg text-white text-[10px] font-black tracking-widest uppercase">
+                            Capital
+                        </div>
+                        <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] font-heading">Funding Breakdown</h4>
                         <button
                             onClick={() => setIsFundingHistoryOpen(!isFundingHistoryOpen)}
-                            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                            className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all hover:scale-110 active:scale-95 group"
                             title="View Funding History"
                         >
-                            <Clock size={14} className="text-slate-400 hover:text-indigo-500" />
+                            <Clock size={16} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
                         </button>
                     </div>
 
                     {/* Funding History List */}
                     {isFundingHistoryOpen && (
-                        <div className="mb-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg p-3 animate-in slide-in-from-top-2 duration-200">
-                            <h5 className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">Fresh Capital Transactions</h5>
-                            <div className="max-h-60 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+                        <div className="mb-6 glass border dark:border-slate-800/50 rounded-2xl p-5 animate-in slide-in-from-top-4 fade-in duration-500 shadow-2xl shadow-indigo-500/5 ring-1 ring-indigo-500/10">
+                            <h5 className="text-sm font-black text-slate-700 dark:text-slate-200 mb-4 font-heading flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-glow" />
+                                Fresh Capital Transactions
+                            </h5>
+                            <div className="max-h-60 overflow-y-auto pr-3 space-y-2 custom-scrollbar">
                                 {transactions
                                     .filter(t => {
                                         if (t.type === 'DEPOSIT') return t.paymentAmount || (t.pricePerUnit && t.amount);
@@ -48,7 +54,7 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({ groupedBreak
                                         return false;
                                     })
                                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                                    .map(t => {
+                                    .map((t, idx) => {
                                         let amt = 0;
                                         let curr = 'USD';
                                         let isNegative = false;
@@ -63,38 +69,38 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({ groupedBreak
                                         }
 
                                         return (
-                                            <div key={t.id} className="flex justify-between items-center text-xs py-1 border-b border-slate-50 dark:border-slate-800 last:border-0">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-slate-400 font-mono">{t.date}</span>
-                                                    <span className={`font-semibold ${t.type === 'DEPOSIT' ? 'text-emerald-600' : 'text-rose-500'}`}>
-                                                        {t.type === 'DEPOSIT' ? 'IN' : 'OUT'}
+                                            <div key={t.id} className={`flex justify-between items-center text-xs py-2.5 border-b border-slate-100/50 dark:border-slate-800/30 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 px-2 rounded-lg transition-colors animate-slide-up animate-stagger-${Math.min(idx + 1, 4)}`}>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-slate-400 font-bold tracking-tighter opacity-70">{t.date}</span>
+                                                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${t.type === 'DEPOSIT' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                                                        {t.type === 'DEPOSIT' ? 'INFLOW' : 'OUTFLOW'}
                                                     </span>
-                                                    <span className="text-slate-600 dark:text-slate-400">
-                                                        {t.assetSymbol} {isNegative ? '(Sell/Swap)' : ''}
+                                                    <span className="font-bold text-slate-600 dark:text-slate-300">
+                                                        {t.assetSymbol} {isNegative ? <span className="text-[10px] font-medium text-slate-400">(Sale/Exit)</span> : ''}
                                                     </span>
                                                 </div>
-                                                <div className="font-mono font-medium text-slate-700 dark:text-slate-300">
-                                                    {isNegative ? '-' : '+'}{amt.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })} {curr}
+                                                <div className="font-heading font-black text-slate-800 dark:text-slate-100">
+                                                    {isNegative ? '-' : '+'}{amt.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })} <span className="text-[10px] opacity-50 uppercase tracking-widest">{curr}</span>
                                                 </div>
                                             </div>
                                         );
                                     })}
                             </div>
-                            <div className="mt-2 text-[10px] text-slate-400 text-center border-t border-slate-50 dark:border-slate-800 pt-1">
+                            <div className="mt-4 text-[10px] text-slate-400 text-center border-t border-slate-100/50 dark:border-slate-800/30 pt-3 italic font-medium">
                                 Note: List shows transactions affecting "Fresh Capital". Swaps (Buy A / Sell B) usually net to zero.
                             </div>
                         </div>
                     )}
 
-                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                    <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide no-scrollbar">
                         {Object.entries(groupedBreakdown)
                             .sort((a, b) => b[1] - a[1])
-                            .map(([curr, amt]) => (
-                                <div key={curr} className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg px-3 py-1.5 shadow-sm whitespace-nowrap min-w-fit">
-                                    <div className="bg-indigo-50 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold px-1.5 rounded">
+                            .map(([curr, amt], idx) => (
+                                <div key={curr} className={`flex items-center gap-3 glass border border-slate-200/50 dark:border-slate-800/50 rounded-xl px-4 py-2.5 shadow-lg shadow-slate-200/20 dark:shadow-slate-900/40 whitespace-nowrap min-w-fit hover:border-indigo-500/30 hover:-translate-y-0.5 transition-all duration-300 animate-slide-up animate-stagger-${Math.min(idx + 1, 4)} group`}>
+                                    <div className="p-1 px-2 bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 text-[10px] font-black tracking-widest rounded-lg border border-indigo-500/20 group-hover:mesh-gradient group-hover:text-white transition-all duration-300">
                                         {curr}
                                     </div>
-                                    <div className="text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer" onClick={() => {
+                                    <div className="text-base font-black text-slate-800 dark:text-slate-100 cursor-pointer font-heading" onClick={() => {
                                         if (curr === 'USD Stablecoins') {
                                             setTempFunding(groupedBreakdown['USD Stablecoins']?.toString() || '');
                                             setIsEditingFunding(true);
@@ -104,7 +110,7 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({ groupedBreak
                                             <input
                                                 type="number"
                                                 autoFocus
-                                                className="w-20 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-1 text-sm focus:outline-none"
+                                                className="w-24 bg-slate-100 dark:bg-slate-800 border border-indigo-500/20 rounded-lg px-2 text-sm focus:outline-none focus:ring-2 ring-indigo-500/10 font-black text-indigo-500"
                                                 value={tempFunding}
                                                 onChange={e => setTempFunding(e.target.value)}
                                                 onKeyDown={e => {
@@ -120,6 +126,7 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({ groupedBreak
                                                         }
                                                         setIsEditingFunding(false);
                                                     }
+                                                    if (e.key === 'Escape') setIsEditingFunding(false);
                                                 }}
                                                 onBlur={() => {
                                                     const val = parseFloat(tempFunding);

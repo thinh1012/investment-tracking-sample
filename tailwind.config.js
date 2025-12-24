@@ -8,10 +8,14 @@ export default {
     theme: {
         extend: {
             colors: {
-                // Override default Slate (blue-ish gray) with Neutral (true gray)
-                slate: require('tailwindcss/colors').neutral,
-                // Override default Indigo with Emerald for a "Wealth" feel (Green)
-                indigo: require('tailwindcss/colors').emerald,
+                // Using Slate (cool gray) instead of Neutral for that premium tech/finance look
+                slate: require('tailwindcss/colors').slate,
+                // Reverting indigo/emerald overrides to let the CSS theme handle it, 
+                // or explicitly defining them if needed. 
+                // Let's keep them as standard tailwind names but customize in CSS.
+            },
+            animation: {
+                'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             }
         },
     },

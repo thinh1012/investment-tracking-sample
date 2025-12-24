@@ -55,81 +55,96 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, prices, onRefr
     };
 
     return (
-        <div className="lg:col-span-3 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+        <div className="lg:col-span-3 glass-card overflow-hidden animate-slide-up animate-stagger-1 group/table">
             <div
-                className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                className="p-8 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all duration-500"
                 onClick={() => setIsTokenListOpen(!isTokenListOpen)}
             >
-                <h2 className="font-bold text-slate-800 dark:text-slate-100 text-lg flex items-center gap-2">
-                    <Wallet className="text-emerald-500" size={20} />
-                    Tokens & Assets
-                    <button
-                        onClick={async (e) => {
-                            e.stopPropagation();
-                            if (onRefreshPrices) {
-                                const btn = document.getElementById('refresh-tokens-btn');
-                                if (btn) btn.classList.add('animate-spin');
-                                await onRefreshPrices(true);
-                                setTimeout(() => {
-                                    if (btn) btn.classList.remove('animate-spin');
-                                }, 1000);
-                            }
-                        }}
-                        className="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors bg-slate-100 dark:bg-slate-800 rounded-md ml-2"
-                        title="Refresh Prices"
-                    >
-                        <RefreshCw id="refresh-tokens-btn" size={14} />
-                    </button>
-                </h2>
-                {isTokenListOpen ? <ChevronUp className="text-slate-400" size={20} /> : <ChevronDown className="text-slate-400" size={20} />}
+                <div className="flex items-center gap-4">
+                    <div className="p-2.5 bg-emerald-500/10 rounded-2xl group-hover/table:scale-110 transition-transform duration-500">
+                        <Wallet className="text-emerald-500" size={24} />
+                    </div>
+                    <div>
+                        <h2 className="font-black text-slate-800 dark:text-slate-100 text-xl font-heading tracking-tight flex items-center gap-3">
+                            Tokens & Assets
+                            <button
+                                onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if (onRefreshPrices) {
+                                        const btn = document.getElementById('refresh-tokens-btn');
+                                        if (btn) btn.classList.add('animate-spin');
+                                        await onRefreshPrices(true);
+                                        setTimeout(() => {
+                                            if (btn) btn.classList.remove('animate-spin');
+                                        }, 1000);
+                                    }
+                                }}
+                                className="p-1.5 text-slate-400 hover:text-indigo-500 transition-all bg-slate-100 dark:bg-slate-800/50 rounded-xl"
+                                title="Refresh Prices"
+                            >
+                                <RefreshCw id="refresh-tokens-btn" size={16} />
+                            </button>
+                        </h2>
+                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-0.5">Spot Balance & Performance</p>
+                    </div>
+                </div>
+                <div className={`p-2 rounded-xl transition-all duration-300 ${isTokenListOpen ? 'bg-slate-100 dark:bg-slate-800 rotate-180' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <ChevronDown className="text-slate-400" size={20} />
+                </div>
             </div>
             {isTokenListOpen && (
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-xs tracking-wider font-semibold">
+                    <table className="w-full text-sm text-left border-collapse">
+                        <thead className="bg-slate-50/50 dark:bg-slate-800/30 text-slate-400 dark:text-slate-500 uppercase text-[10px] tracking-[0.2em] font-black font-heading">
                             <tr>
-                                <th className="px-6 py-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors rounded-tl-lg" onClick={() => handleAssetSort('symbol')}>
-                                    <div className="flex items-center gap-1">
-                                        Asset {assetSortKey === 'symbol' && (assetSortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
+                                <th className="px-8 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors" onClick={() => handleAssetSort('symbol')}>
+                                    <div className="flex items-center gap-2">
+                                        Asset {assetSortKey === 'symbol' && (assetSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
                                     </div>
                                 </th>
-                                <th className="px-6 py-4">Quantity</th>
-                                <th className="px-6 py-4">Avg Buy Price</th>
-                                <th className="px-6 py-4">Current Price</th>
-                                <th className="px-6 py-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onClick={() => handleAssetSort('totalInvested')}>
-                                    <div className="flex items-center gap-1">
-                                        Total Invested {assetSortKey === 'totalInvested' && (assetSortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
+                                <th className="px-6 py-5">Quantity</th>
+                                <th className="px-6 py-5">Avg Buy Price</th>
+                                <th className="px-6 py-5">Current Price</th>
+                                <th className="px-6 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-right" onClick={() => handleAssetSort('totalInvested')}>
+                                    <div className="flex items-center justify-end gap-2">
+                                        Invested {assetSortKey === 'totalInvested' && (assetSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
                                     </div>
                                 </th>
-                                <th className="px-6 py-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onClick={() => handleAssetSort('currentValue')}>
-                                    <div className="flex items-center gap-1">
-                                        Current Value {assetSortKey === 'currentValue' && (assetSortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
+                                <th className="px-6 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-right" onClick={() => handleAssetSort('currentValue')}>
+                                    <div className="flex items-center justify-end gap-2">
+                                        Value {assetSortKey === 'currentValue' && (assetSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
                                     </div>
                                 </th>
-                                <th className="px-6 py-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors rounded-tr-lg" onClick={() => handleAssetSort('pnlValue')}>
-                                    <div className="flex items-center gap-1">
-                                        PnL {assetSortKey === 'pnlValue' && (assetSortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
+                                <th className="px-8 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-right" onClick={() => handleAssetSort('pnlValue')}>
+                                    <div className="flex items-center justify-end gap-2">
+                                        PnL Change {assetSortKey === 'pnlValue' && (assetSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
                                     </div>
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {sortedTokenAssets.map((asset) => {
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                            {sortedTokenAssets.map((asset, idx) => {
                                 const { currentPrice, currentValue, pnlValue, pnlPercent } = asset;
+                                const isPositive = pnlValue >= 0;
 
                                 return (
                                     <React.Fragment key={asset.symbol}>
                                         <tr
-                                            className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+                                            className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all duration-300 cursor-pointer group/row"
                                             onClick={() => toggleSourceExpansion(asset.symbol)}
                                         >
-                                            <td className="px-6 py-4 font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
-                                                {expandedSources.has(asset.symbol) ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
-                                                {asset.symbol}
+                                            <td className="px-8 py-5 font-black text-slate-800 dark:text-slate-100 flex items-center gap-4">
+                                                <div className={`p-1 rounded-lg transition-all duration-300 ${expandedSources.has(asset.symbol) ? 'bg-indigo-500/10 text-indigo-500 rotate-0' : 'text-slate-300 -rotate-90'}`}>
+                                                    <ChevronDown size={14} />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-base tracking-tight">{asset.symbol}</span>
+                                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">Token</span>
+                                                </div>
                                             </td>
-                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium">{asset.quantity.toLocaleString(locale || 'en-US')}</td>
-                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400 group relative">
-                                                <div className="flex items-center gap-2">
+                                            <td className="px-6 py-5 text-slate-600 dark:text-slate-400 font-bold font-mono tracking-tight">{asset.quantity.toLocaleString(locale || 'en-US')}</td>
+                                            <td className="px-6 py-5 text-slate-500 dark:text-slate-400 group relative">
+                                                <div className="flex items-center gap-2 font-mono font-medium">
                                                     <span>${asset.averageBuyPrice.toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}</span>
                                                     <button
                                                         onClick={(e) => {
@@ -139,63 +154,66 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, prices, onRefr
                                                                 onUpdateAssetOverride(asset.symbol, { avgBuyPrice: parseFloat(newPrice) });
                                                             }
                                                         }}
-                                                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-indigo-600 transition-opacity"
-                                                        title="Edit Average Buy Price"
+                                                        className="opacity-0 group-hover/row:opacity-100 p-1 text-slate-300 hover:text-indigo-500 transition-all bg-slate-100 dark:bg-slate-800 rounded-lg"
                                                     >
                                                         <Pencil size={12} />
                                                     </button>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
-                                                ${currentPrice.toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}
+                                            <td className="px-6 py-5 text-slate-500 dark:text-slate-400 font-mono font-medium">
+                                                ${currentPrice.toLocaleString(locale || 'en-US', { maximumFractionDigits: 4 })}
                                             </td>
-                                            <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">${asset.totalInvested.toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}</td>
-                                            <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">${currentValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}</td>
-                                            <td className="px-6 py-4">
-                                                <div className={`flex flex-col ${pnlValue >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'} `}>
-                                                    <span className="font-bold">
-                                                        {pnlValue >= 0 ? '+' : ''}${pnlValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}
+                                            <td className="px-6 py-5 font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight text-right">${asset.totalInvested.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</td>
+                                            <td className="px-6 py-5 font-black text-slate-900 dark:text-white font-mono tracking-tight text-right">${currentValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</td>
+                                            <td className="px-8 py-5 text-right">
+                                                <div className={`p-3 rounded-xl flex flex-col items-end transition-all duration-300 group-hover/row:translate-x-1 shadow-sm ${isPositive ? 'bg-emerald-500/5 text-emerald-500 border border-emerald-500/10' : 'bg-rose-500/5 text-rose-500 border border-rose-500/10'} `}>
+                                                    <span className="font-black font-mono text-sm leading-none">
+                                                        {isPositive ? '+' : ''}{pnlValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
                                                     </span>
-                                                    <span className="text-xs font-medium">
-                                                        {pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
+                                                    <span className="text-[10px] font-black tracking-widest mt-1 opacity-70">
+                                                        {isPositive ? '▲' : '▼'} {Math.abs(pnlPercent).toFixed(1)}%
                                                     </span>
                                                 </div>
                                             </td>
                                         </tr>
                                         {expandedSources.has(asset.symbol) && (
-                                            <tr className="bg-slate-50/30 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
-                                                <td colSpan={7} className="px-6 py-4">
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                                        <div className="bg-indigo-50/50 dark:bg-indigo-900/10 p-3 rounded-lg border border-indigo-100 dark:border-indigo-900/30">
-                                                            <h4 className="font-semibold text-indigo-900 dark:text-indigo-300 mb-2 flex items-center gap-2">
-                                                                <TrendingUp size={14} /> Rewards Earned
+                                            <tr className="bg-slate-50/20 dark:bg-slate-900/40 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                <td colSpan={7} className="px-8 py-6">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                                                        <div className="glass border border-indigo-500/10 p-5 rounded-2xl shadow-xl shadow-indigo-500/5">
+                                                            <h4 className="font-black text-indigo-500 dark:text-indigo-300 mb-4 flex items-center gap-3 font-heading uppercase tracking-widest text-xs">
+                                                                <TrendingUp size={16} /> Rewards Portfolio
                                                             </h4>
-                                                            <div className="flex justify-between items-center">
-                                                                <span className="text-slate-500 dark:text-slate-400">Quantity:</span>
-                                                                <span className="font-medium text-slate-700 dark:text-slate-200">
-                                                                    {asset.earnedQuantity ? asset.earnedQuantity.toLocaleString(locale || 'en-US') : '0'} {asset.symbol}
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex justify-between items-center mt-1">
-                                                                <span className="text-slate-500 dark:text-slate-400">Value (Current):</span>
-                                                                <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                                                                    ${((asset.earnedQuantity || 0) * currentPrice).toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}
-                                                                </span>
+                                                            <div className="space-y-3">
+                                                                <div className="flex justify-between items-center text-xs">
+                                                                    <span className="text-slate-400 font-bold">Quantity:</span>
+                                                                    <span className="font-black text-slate-700 dark:text-slate-200">
+                                                                        {asset.earnedQuantity ? asset.earnedQuantity.toLocaleString(locale || 'en-US') : '0'} {asset.symbol}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex justify-between items-center text-xs">
+                                                                    <span className="text-slate-400 font-bold">Market Value:</span>
+                                                                    <span className="font-black text-emerald-500 dark:text-emerald-400 italic">
+                                                                        ${((asset.earnedQuantity || 0) * currentPrice).toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </div>
 
-                                                        <div className="bg-emerald-50/50 dark:bg-emerald-900/10 p-3 rounded-lg border border-emerald-100 dark:border-emerald-900/30">
-                                                            <h4 className="font-semibold text-emerald-900 dark:text-emerald-300 mb-2 flex items-center gap-2">
-                                                                <Layers size={14} /> Allocated to LPs (Initial)
+                                                        <div className="glass border border-emerald-500/10 p-5 rounded-2xl shadow-xl shadow-emerald-500/5">
+                                                            <h4 className="font-black text-emerald-500 dark:text-emerald-300 mb-4 flex items-center gap-3 font-heading uppercase tracking-widest text-xs">
+                                                                <Layers size={16} /> Asset Allocation
                                                             </h4>
-                                                            <div className="flex justify-between items-center">
-                                                                <span className="text-slate-500 dark:text-slate-400">Contributed:</span>
-                                                                <span className="font-medium text-slate-700 dark:text-slate-200">
-                                                                    {asset.lockedInLpQuantity ? asset.lockedInLpQuantity.toLocaleString(locale || 'en-US') : '0'} {asset.symbol}
-                                                                </span>
-                                                            </div>
-                                                            <div className="text-[10px] text-slate-400 mt-2">
-                                                                * Tracks assets moved from Holdings to funding LPs. Does not include fresh capital LP investments.
+                                                            <div className="space-y-3">
+                                                                <div className="flex justify-between items-center text-xs">
+                                                                    <span className="text-slate-400 font-bold">In Liquidity Pools:</span>
+                                                                    <span className="font-black text-slate-700 dark:text-slate-200">
+                                                                        {asset.lockedInLpQuantity ? asset.lockedInLpQuantity.toLocaleString(locale || 'en-US') : '0'} {asset.symbol}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="text-[10px] text-slate-300 dark:text-slate-600 italic font-medium leading-relaxed mt-2 border-t border-slate-100 dark:border-slate-800 pt-2">
+                                                                    * Tracks assets moved from Holdings to fund LPs. Does not include fresh capital buys.
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -207,8 +225,11 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, prices, onRefr
                             })}
                             {tokenAssets.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
-                                        No tokens or regular assets found.
+                                    <td colSpan={7} className="px-8 py-20 text-center">
+                                        <div className="flex flex-col items-center gap-4 animate-pulse">
+                                            <Wallet size={48} className="text-slate-200 dark:text-slate-800" />
+                                            <p className="text-slate-400 dark:text-slate-500 font-black font-heading tracking-widest uppercase text-xs">No active assets detected</p>
+                                        </div>
                                     </td>
                                 </tr>
                             )}

@@ -62,8 +62,8 @@ export const useAutoSync = (
 
         if (!user || !syncKey) return;
 
-        console.log("Auto-Sync: Change detected. Debouncing 2-hour upload...");
-        const timer = setTimeout(() => performSync("Idle window reached"), 7200000);
+        console.log("Auto-Sync: Change detected. Debouncing 15-minute upload...");
+        const timer = setTimeout(() => performSync("Idle window reached"), 900000);
 
         return () => {
             clearTimeout(timer);

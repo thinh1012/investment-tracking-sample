@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Eye, Bell, BellOff } from 'lucide-react';
+import { Plus, Eye, Bell, BellOff, RefreshCw } from 'lucide-react';
 import { PriceAlert, AlertCondition, NotificationChannel, Asset } from '../types';
 import { useWatchlist } from '../hooks/useWatchlist';
 import { WatchlistTable } from './watchlist/WatchlistTable';
@@ -52,6 +52,20 @@ const Watchlist: React.FC<Props> = ({
     startEditing, cancelEditing, saveEditing
 }) => {
 
+    // Loading state for the refresh button
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const handleRefresh = async () => {
+        if (!onRefreshPrices || isRefreshing) return;
+        setIsRefreshing(true);
+        try {
+            await onRefreshPrices(true);
+        } finally {
+            // Add a small delay so the animation is visible
+            setTimeout(() => setIsRefreshing(false), 500);
+        }
+    };
+
     // Alert Modal Local State
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     const [activeAlertSymbol, setActiveAlertSymbol] = useState('');
@@ -80,6 +94,16 @@ const Watchlist: React.FC<Props> = ({
                         >
                             {isMuted ? <BellOff size={18} /> : <Bell size={18} />}
                             <span className="hidden sm:inline">{isMuted ? 'Paused' : 'Active'}</span>
+                        </button>
+                    )}
+                    {onRefreshPrices && (
+                        <button
+                            onClick={handleRefresh}
+                            className={`p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title="Refresh Prices"
+                            disabled={isRefreshing}
+                        >
+                            <RefreshCw size={20} className={isRefreshing ? 'animate-spin' : ''} />
                         </button>
                     )}
                     <button

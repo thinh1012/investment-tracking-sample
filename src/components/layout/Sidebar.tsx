@@ -19,13 +19,14 @@ interface SidebarProps {
     isMobile?: boolean;
 }
 
+// Nav links component (extracted for reuse)
 const NavLinks: React.FC<{
     currentView: AppView;
     navigateTo: (view: AppView) => void;
     onSyncClick: () => void;
     mobile?: boolean;
 }> = ({ currentView, navigateTo, onSyncClick, mobile }) => (
-    <nav className={`flex-1 ${mobile ? 'p-0' : 'p-4'} space-y-2`}>
+    <nav className={`flex-1 ${mobile ? 'p-0' : 'p-4'} space-y-1.5`}>
         {[
             { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
             { id: 'analytics', icon: BarChart3, label: 'Analytics' },
@@ -33,27 +34,30 @@ const NavLinks: React.FC<{
             { id: 'watchlist', icon: Eye, label: 'Watchlist' },
             { id: 'market-picks', icon: TrendingUp, label: 'Market Picks' },
             { id: 'settings', icon: LucideSettings, label: 'Settings' },
-        ].map((item) => (
-            <button
-                key={item.id}
-                onClick={() => navigateTo(item.id as AppView)}
-                className={`flex items-center w-full p-2 rounded-md text-left transition-colors ${currentView === item.id
-                    ? 'bg-blue-500 text-white'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'
-                    }`}
-            >
-                <item.icon className="mr-3 h-5 w-5" />
-                {item.label}
-            </button>
-        ))}
+        ].map((item, idx) => {
+            const isActive = currentView === item.id;
+            return (
+                <button
+                    key={item.id}
+                    onClick={() => navigateTo(item.id as AppView)}
+                    className={`flex items-center w-full p-2.5 rounded-xl text-left transition-all duration-300 animate-slide-up animate-stagger-${Math.min(idx + 1, 4)} group ${isActive
+                        ? 'mesh-gradient text-white shadow-lg shadow-emerald-600/20'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:pl-4'
+                        }`}
+                >
+                    <item.icon className={`mr-3 h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-indigo-500'}`} />
+                    <span className={`font-semibold text-sm tracking-wide ${isActive ? 'text-white' : ''}`}>{item.label}</span>
+                </button>
+            );
+        })}
 
-        <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+        <div className="pt-4 mt-6 border-t border-slate-200/50 dark:border-slate-800/50">
             <button
                 onClick={onSyncClick}
-                className="flex items-center w-full p-2 rounded-md text-left text-xs text-slate-500 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="flex items-center w-full p-2.5 rounded-xl text-left text-xs font-semibold text-slate-500 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all hover:pl-4 group"
             >
-                <div className="mr-3 p-1 rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
-                    <Cloud size={12} />
+                <div className="mr-3 p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+                    <Cloud size={14} />
                 </div>
                 Cloud Vault (Sync)
             </button>
@@ -72,34 +76,39 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
     if (props.isMobile) {
         return (
             <>
-                <header className="md:hidden bg-white dark:bg-slate-900 border-b dark:border-slate-800 p-4 flex justify-between items-center text-gray-900 dark:text-white sticky top-0 z-30 shadow-sm">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-blue-500 rounded-lg">
-                            <LayoutDashboard className="text-white h-5 w-5" />
+                <header className="md:hidden glass border-b dark:border-slate-800/50 p-4 flex justify-between items-center sticky top-0 z-30">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 mesh-gradient rounded-xl shadow-lg shadow-emerald-500/20">
+                            <TrendingUp className="text-white h-5 w-5" />
                         </div>
-                        <h1 className="text-lg font-bold">Crypto Portfolio</h1>
+                        <h1 className="text-xl font-bold font-heading tracking-tight text-gradient">Crypto Portfolio</h1>
                     </div>
                     <button
                         onClick={() => setIsMobileMenuOpen(true)}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-slate-600 dark:text-slate-300"
                     >
                         <Menu className="h-6 w-6" />
                     </button>
                 </header>
 
                 {isMobileMenuOpen && (
-                    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)}>
+                    <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-md md:hidden" onClick={() => setIsMobileMenuOpen(false)}>
                         <div
-                            className="absolute left-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-900 shadow-2xl p-4 flex flex-col animate-in slide-in-from-left duration-200"
+                            className="absolute left-0 top-0 bottom-0 w-80 glass p-6 flex flex-col animate-in slide-in-from-left duration-500"
                             onClick={e => e.stopPropagation()}
                         >
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Menu</h2>
+                            <div className="flex justify-between items-center mb-10">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 mesh-gradient rounded-xl shadow-lg shadow-emerald-500/20">
+                                        <TrendingUp className="text-white h-5 w-5" />
+                                    </div>
+                                    <h1 className="text-xl font-bold font-heading tracking-tight text-gradient">Alpha Vault</h1>
+                                </div>
                                 <button
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg"
+                                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
                                 >
-                                    <X className="h-6 w-6 text-gray-500" />
+                                    <X className="h-6 w-6 text-slate-400" />
                                 </button>
                             </div>
 
@@ -110,25 +119,30 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
                                 mobile={true}
                             />
 
-                            <div className="pt-4 border-t dark:border-slate-800 space-y-2 mt-auto">
-                                <div className="flex gap-2">
+                            <div className="pt-6 border-t dark:border-slate-800/50 space-y-3 mt-auto">
+                                <div className="flex gap-3">
                                     <button
                                         onClick={onImportClick}
-                                        className="flex-1 flex items-center justify-center p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 border border-gray-200 dark:border-slate-700 font-medium"
+                                        className="flex-1 flex items-center justify-center p-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50 border border-slate-200 dark:border-slate-800 transition-all font-bold text-xs"
                                     >
-                                        <Upload className="h-4 w-4" />
-                                        <span className="ml-2 text-xs">Import</span>
+                                        <Upload className="h-4 w-4 mr-2" />
+                                        Import
                                     </button>
                                     <button
                                         onClick={onExportClick}
-                                        className="flex-1 flex items-center justify-center p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 border border-gray-200 dark:border-slate-700 font-medium"
+                                        className="flex-1 flex items-center justify-center p-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50 border border-slate-200 dark:border-slate-800 transition-all font-bold text-xs"
                                     >
-                                        <Download className="h-4 w-4" />
-                                        <span className="ml-2 text-xs">Export</span>
+                                        <Download className="h-4 w-4 mr-2" />
+                                        Export
                                     </button>
                                 </div>
-                                <button onClick={toggleTheme} className="flex items-center w-full p-2 rounded-md text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium">
-                                    {isDarkMode ? <Sun className="mr-3 h-5 w-5" /> : <Moon className="mr-3 h-5 w-5" />}
+                                <button
+                                    onClick={toggleTheme}
+                                    className="flex items-center w-full p-2.5 rounded-xl font-bold text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all"
+                                >
+                                    <div className="mr-3 p-1.5 rounded-lg bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400">
+                                        {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                                    </div>
                                     {isDarkMode ? 'Light Mode' : 'Dark Mode'}
                                 </button>
                             </div>
@@ -141,9 +155,17 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
 
     // Desktop Sidebar
     return (
-        <aside className="w-64 bg-white dark:bg-slate-900 border-r dark:border-slate-800 hidden md:flex flex-col">
-            <div className="p-4 border-b dark:border-slate-800">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Crypto Portfolio</h1>
+        <aside className="w-72 glass border-r dark:border-slate-800/50 hidden md:flex flex-col h-screen sticky top-0">
+            <div className="p-8 pb-10">
+                <div className="flex items-center gap-3 group cursor-pointer">
+                    <div className="p-2.5 mesh-gradient rounded-2xl shadow-xl shadow-emerald-500/20 transition-transform group-hover:scale-110 duration-500">
+                        <TrendingUp className="text-white h-6 w-6" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-black font-heading tracking-tight text-gradient leading-none">ALPHA</h1>
+                        <p className="text-[10px] font-bold text-slate-400 tracking-[0.2em] mt-1 ml-0.5">VAULT PRO</p>
+                    </div>
+                </div>
             </div>
 
             <NavLinks
@@ -152,31 +174,33 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
                 onSyncClick={onSyncClick}
             />
 
-            <div className="p-4 border-t dark:border-slate-800 space-y-2">
-                <div className="flex gap-2">
+            <div className="p-6 pb-8 border-t dark:border-slate-800/50 space-y-3">
+                <div className="flex gap-3">
                     <button
                         onClick={onImportClick}
-                        className="flex-1 flex items-center justify-center p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 border border-gray-200 dark:border-slate-700 transition-colors font-medium"
+                        className="flex-1 flex items-center justify-center p-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 border border-slate-200 dark:border-slate-800 transition-all font-bold text-xs"
                         title="Import Data"
                     >
-                        <Upload className="h-4 w-4" />
-                        <span className="ml-2 text-xs">Import</span>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Import
                     </button>
                     <button
                         onClick={onExportClick}
-                        className="flex-1 flex items-center justify-center p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 border border-gray-200 dark:border-slate-700 transition-colors font-medium"
+                        className="flex-1 flex items-center justify-center p-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 border border-slate-200 dark:border-slate-800 transition-all font-bold text-xs"
                         title="Export Data"
                     >
-                        <Download className="h-4 w-4" />
-                        <span className="ml-2 text-xs">Export</span>
+                        <Download className="h-4 w-4 mr-2" />
+                        Export
                     </button>
                 </div>
 
                 <button
                     onClick={toggleTheme}
-                    className="flex items-center w-full p-2 rounded-md text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 font-medium"
+                    className="flex items-center w-full p-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all font-bold text-sm"
                 >
-                    {isDarkMode ? <Sun className="mr-3 h-5 w-5" /> : <Moon className="mr-3 h-5 w-5" />}
+                    <div className="mr-3 p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                        {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                    </div>
                     {isDarkMode ? 'Light Mode' : 'Dark Mode'}
                 </button>
             </div>

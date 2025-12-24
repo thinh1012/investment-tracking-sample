@@ -8,6 +8,7 @@ export const useCloudSync = () => {
     const [error, setError] = useState<string | null>(null);
     const [status, setStatus] = useState<string>('');
     const [syncKey, setSyncKey] = useState<string>(() => sessionStorage.getItem('vault_sync_key') || '');
+    const [lastSyncTime, setLastSyncTime] = useState<string | null>(() => localStorage.getItem('investment_tracker_last_sync'));
 
     // Check auth state on mount
     useEffect(() => {
@@ -98,11 +99,13 @@ export const useCloudSync = () => {
 
             if (error) throw error;
             if (providedKey) setSyncKey(providedKey);
+            const now = new Date().toISOString();
+            setLastSyncTime(now);
+            localStorage.setItem('investment_tracker_last_sync', now);
             setStatus("✅ Cloud Updated!");
             setTimeout(() => setStatus(''), 2000);
         } catch (e: any) {
-            console.error(e);
-            setError("Sync Failed: " + e.message);
+            setError("Sync Failed. Please check your connection.");
         } finally {
             setIsLoading(false);
         }
@@ -132,14 +135,16 @@ export const useCloudSync = () => {
             }
 
             const decryptedData = await decryptData(data.encrypted_data, key);
+            const now = new Date().toISOString();
+            setLastSyncTime(now);
+            localStorage.setItem('investment_tracker_last_sync', now);
             if (providedKey) setSyncKey(providedKey);
             setStatus("✅ Data Restored!");
             setTimeout(() => setStatus(''), 2000);
             return decryptedData;
 
         } catch (e: any) {
-            console.error(e);
-            setError("Restore Failed: " + (e.message.includes('JSON') ? "Wrong Sync Password" : e.message));
+            setError("Restore Failed: " + (e.message.includes('JSON') ? "Wrong Sync Password" : "Unknown Error"));
             return null;
         } finally {
             setIsLoading(false);
@@ -172,6 +177,7 @@ export const useCloudSync = () => {
         signUp,
         signIn,
         signOut,
+        lastSyncTime,
         uploadVault,
         downloadVault
     };

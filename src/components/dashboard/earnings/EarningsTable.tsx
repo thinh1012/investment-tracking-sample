@@ -83,10 +83,10 @@ export const EarningsTable: React.FC<EarningsTableProps> = ({
                                     )}
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className="flex flex-col gap-1">
+                                    <div className="flex flex-col gap-1 items-start">
                                         {Object.entries(item.tokens).map(([token, amount]) => (
-                                            <div key={token} className="text-sm text-slate-600 dark:text-slate-300">
-                                                <span className="font-bold">{amount.toLocaleString(locale || 'en-US', { maximumFractionDigits: 4 })}</span> <span className="text-xs text-slate-500">{token}</span>
+                                            <div key={token} className="px-2 py-0.5 rounded-md bg-indigo-500/5 border border-indigo-500/10 text-[11px] font-black text-slate-700 dark:text-slate-300 font-mono tracking-tighter">
+                                                {amount.toLocaleString(locale || 'en-US', { maximumFractionDigits: 4 })} <span className="text-indigo-400 opacity-70 ml-0.5">{token}</span>
                                             </div>
                                         ))}
                                     </div>

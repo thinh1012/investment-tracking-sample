@@ -41,6 +41,8 @@ interface Props {
     watchlistState?: any;
     onSimulate?: (symbol: string, price: number) => void;
     simulatorState?: { symbol: string; price: number } | null;
+    lastSyncTime?: string | null;
+    isSyncLoading?: boolean;
 }
 
 export const Dashboard: React.FC<Props> = ({
@@ -68,7 +70,9 @@ export const Dashboard: React.FC<Props> = ({
     priceVolumes = {},
     watchlistState,
     onSimulate,
-    simulatorState
+    simulatorState,
+    lastSyncTime,
+    isSyncLoading
 }) => {
     const [activeAnalyticsTab, setActiveAnalyticsTab] = React.useState<'earnings' | 'yield'>('earnings');
 
@@ -86,12 +90,26 @@ export const Dashboard: React.FC<Props> = ({
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             {/* Header / Actions */}
-            <div className="flex justify-end">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                {/* Sync Status Indicator */}
+                <div className="flex items-center gap-3 px-4 py-2 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-sm">
+                    <div className="relative">
+                        <div className={`w-2.5 h-2.5 rounded-full ${isSyncLoading ? 'bg-indigo-500 animate-pulse' : 'bg-emerald-500'} shadow-[0_0_10px_rgba(16,185,129,0.3)]`}></div>
+                        {isSyncLoading && <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping opacity-75"></div>}
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-1">Vault Status</span>
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 leading-none">
+                            {isSyncLoading ? 'Synchronizing...' : (lastSyncTime ? `Synced ${new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Not Cached Externally')}
+                        </span>
+                    </div>
+                </div>
+
                 <button
                     onClick={onAddClick}
-                    className="text-sm bg-emerald-600 text-white px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-600/20 font-medium flex items-center gap-2"
+                    className="text-sm bg-emerald-600 text-white px-5 py-3 rounded-2xl hover:bg-emerald-700 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-emerald-600/20 font-bold flex items-center gap-2"
                 >
-                    + Add Transaction
+                    <TrendingUp size={18} /> Add Transaction
                 </button>
             </div>
 
