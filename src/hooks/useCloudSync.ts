@@ -9,6 +9,7 @@ export const useCloudSync = () => {
     const [status, setStatus] = useState<string>('');
     const [syncKey, setSyncKey] = useState<string>(() => sessionStorage.getItem('vault_sync_key') || '');
     const [lastSyncTime, setLastSyncTime] = useState<string | null>(() => localStorage.getItem('investment_tracker_last_sync'));
+    const [isCloudNewer, setIsCloudNewer] = useState(false);
 
     // Check auth state on mount
     useEffect(() => {
@@ -229,6 +230,32 @@ export const useCloudSync = () => {
         lastSyncTime,
         uploadVault,
         downloadVault,
-        inspectVault
+        inspectVault,
+        isCloudNewer,
+        checkSyncStatus: useCallback(async () => {
+            if (!user || !syncKey) return false;
+            try {
+                const { data, error } = await supabase
+                    .from('user_vaults')
+                    .select('updated_at')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (error || !data) return false;
+
+                const cloudDate = new Date(data.updated_at).getTime();
+                const localDate = lastSyncTime ? new Date(lastSyncTime).getTime() : 0;
+
+                // If cloud is more than 5 seconds newer than local, mark as "new data available"
+                if (cloudDate > localDate + 5000) {
+                    setIsCloudNewer(true);
+                    return true;
+                }
+                setIsCloudNewer(false);
+                return false;
+            } catch (e) {
+                return false;
+            }
+        }, [user, syncKey, lastSyncTime])
     };
 };

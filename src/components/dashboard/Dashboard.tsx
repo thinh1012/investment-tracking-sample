@@ -43,6 +43,7 @@ interface Props {
     simulatorState?: { symbol: string; price: number } | null;
     lastSyncTime?: string | null;
     isSyncLoading?: boolean;
+    isCloudNewer?: boolean;
 }
 
 export const Dashboard: React.FC<Props> = ({
@@ -72,7 +73,8 @@ export const Dashboard: React.FC<Props> = ({
     onSimulate,
     simulatorState,
     lastSyncTime,
-    isSyncLoading
+    isSyncLoading,
+    isCloudNewer
 }) => {
     const [activeAnalyticsTab, setActiveAnalyticsTab] = React.useState<'earnings' | 'yield'>('earnings');
 
@@ -99,9 +101,12 @@ export const Dashboard: React.FC<Props> = ({
                     </div>
                     <div className="flex flex-col">
                         <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-1">Vault Status</span>
-                        <span className="text-[11px] md:text-xs font-bold text-slate-700 dark:text-slate-200 leading-none">
-                            {isSyncLoading ? 'Synchronizing...' : (lastSyncTime ? `Synced ${new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Not Cached Externally')}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                            <span className={`text-[11px] md:text-xs font-bold leading-none ${isCloudNewer ? 'text-rose-500' : 'text-slate-700 dark:text-slate-200'}`}>
+                                {isSyncLoading ? 'Synchronizing...' : (isCloudNewer ? 'Cloud has Newer Data' : (lastSyncTime ? `Synced ${new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Not Cached Externally'))}
+                            </span>
+                            {isCloudNewer && <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.5)]"></div>}
+                        </div>
                     </div>
                 </div>
 

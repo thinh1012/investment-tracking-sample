@@ -34,7 +34,7 @@ function App() {
 
   // 2. Cloud Sync (New Automated Flow)
   const syncState = useCloudSync();
-  const { user, syncKey, setSyncKey, uploadVault, lastSyncTime, isLoading: isSyncLoading } = syncState;
+  const { user, syncKey, setSyncKey, uploadVault, lastSyncTime, isLoading: isSyncLoading, isCloudNewer, checkSyncStatus } = syncState;
 
   // Auto-Sync Background Worker (Monitoring everything)
   const syncTrigger = React.useMemo(() => ({
@@ -48,7 +48,8 @@ function App() {
     user,
     syncKey,
     syncTrigger,
-    uploadVault
+    uploadVault,
+    checkSyncStatus
   );
 
   // Auto-Hydration Listener
@@ -196,6 +197,7 @@ function App() {
             simulatorState={simulatorState}
             lastSyncTime={lastSyncTime}
             isSyncLoading={isSyncLoading}
+            isCloudNewer={isCloudNewer}
           />
         ) : (
           <Settings

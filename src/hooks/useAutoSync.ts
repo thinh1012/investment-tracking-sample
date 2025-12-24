@@ -9,7 +9,8 @@ export const useAutoSync = (
     user: any,
     syncKey: string,
     triggerData: any, // Used to trigger the effect
-    uploadVault: (data: any) => Promise<void>
+    uploadVault: (data: any) => Promise<void>,
+    checkSyncStatus?: () => Promise<boolean>
 ) => {
     const isFirstRun = useRef(true);
     const lastUploadData = useRef<string | null>(null);
@@ -30,6 +31,17 @@ export const useAutoSync = (
 
     const performSync = useCallback(async (reason: string) => {
         if (!user || !syncKey) return;
+
+        // CONFLICT GUARD: Don't auto-upload if cloud is newer
+        if (checkSyncStatus) {
+            console.log(`Auto-Sync: Pre-flight check... (${reason})`);
+            const isConflict = await checkSyncStatus();
+            if (isConflict) {
+                console.warn(`Auto-Sync: Blocking upload. Cloud contains newer data. Manual restore required.`);
+                return;
+            }
+        }
+
         try {
             const fullData = await BackupService.createFullBackup();
             const dataStr = JSON.stringify(fullData);
@@ -47,7 +59,7 @@ export const useAutoSync = (
         } catch (e) {
             console.error("Auto-Sync failed", e);
         }
-    }, [user, syncKey, uploadVault]);
+    }, [user, syncKey, uploadVault, checkSyncStatus]);
 
     useEffect(() => {
         // Skip the very first run (initial data load)

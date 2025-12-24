@@ -46,4 +46,16 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-charts': ['recharts'],
+          'vendor-lucide': ['lucide-react'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+        }
+      }
+    }
+  },
 })
