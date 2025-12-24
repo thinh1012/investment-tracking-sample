@@ -206,11 +206,15 @@ export const useTransactionFormHandlers = (state: any, props: any) => {
                 onSave({
                     id: newLpTransactionId,
                     ...commonData,
+                    // If we already generated a withdrawal (HOLDINGS), don't subtract again via paymentAmount
+                    paymentAmount: (lpTokenASource === 'HOLDINGS' || lpTokenBSource === 'HOLDINGS') ? 0 : commonData.paymentAmount,
                     type: 'DEPOSIT',
                     assetSymbol: symbol.toUpperCase(),
-                    amount: 1,
+                    amount: 1, // Traditional representation for LP position unit
                     pricePerUnit: result.finalCostBasis,
-                    notes: `Funded from: ${result.description}. ${commonData.notes}`
+                    notes: `Pool Creation: ${result.description}`,
+                    lpRange: commonData.lpRange || undefined,
+                    monitorSymbol: commonData.monitorSymbol || undefined
                 });
                 onClose();
                 return;

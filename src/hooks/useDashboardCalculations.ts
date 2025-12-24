@@ -36,7 +36,7 @@ export const useDashboardCalculations = ({ assets, transactions, prices }: UseDa
                 if (t.type === 'WITHDRAWAL') {
                     if (t.linkedTransactionId) {
                         const parent = transactions.find(Lx => Lx.id === t.linkedTransactionId);
-                        if (parent && parent.paymentAmount) return 0;
+                        if (parent && parent.paymentAmount) return sum;
                     }
                     const amt = -(t.pricePerUnit && t.amount ? t.pricePerUnit * t.amount : 0);
                     return sum + amt;
@@ -127,6 +127,11 @@ export const useDashboardCalculations = ({ assets, transactions, prices }: UseDa
         }
     };
 
+    const resetBaseline = () => {
+        localStorage.removeItem('investment_tracker_base_fix_13580_applied');
+        window.location.reload();
+    };
+
     return {
         totalInvested,
         totalValue,
@@ -134,6 +139,7 @@ export const useDashboardCalculations = ({ assets, transactions, prices }: UseDa
         manualPrincipal,
         fundingOffset,
         updateManualPrincipal,
-        updateFundingOffset
+        updateFundingOffset,
+        resetBaseline
     };
 };

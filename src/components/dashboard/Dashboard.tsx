@@ -86,7 +86,8 @@ export const Dashboard: React.FC<Props> = ({
         manualPrincipal,
         fundingOffset,
         updateManualPrincipal,
-        updateFundingOffset
+        updateFundingOffset,
+        resetBaseline
     } = useDashboardCalculations({ assets, transactions, prices });
 
     return (
@@ -110,12 +111,21 @@ export const Dashboard: React.FC<Props> = ({
                     </div>
                 </div>
 
-                <button
-                    onClick={onAddClick}
-                    className="w-full md:w-auto text-sm bg-emerald-600 text-white px-5 py-3 rounded-2xl hover:bg-emerald-700 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-emerald-600/20 font-bold flex items-center justify-center md:justify-start gap-2"
-                >
-                    <TrendingUp size={18} /> Add Transaction
-                </button>
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <button
+                        onClick={resetBaseline}
+                        className="flex-1 md:flex-none text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-rose-500 transition-colors"
+                        title="Recalculate 13580 Baseline"
+                    >
+                        Sync Baseline
+                    </button>
+                    <button
+                        onClick={onAddClick}
+                        className="flex-1 md:flex-none text-sm bg-emerald-600 text-white px-5 py-3 rounded-2xl hover:bg-emerald-700 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-emerald-600/20 font-bold flex items-center justify-center md:justify-start gap-2"
+                    >
+                        <TrendingUp size={18} /> Add Transaction
+                    </button>
+                </div>
             </div>
 
             {view === 'dashboard' ? (

@@ -38,8 +38,10 @@ export const calculateAssets = (
         const asset = assets[normalizedSymbol];
 
         if (tx.type === 'DEPOSIT') {
-            asset.quantity += tx.amount;
-            const cost = tx.amount * (tx.pricePerUnit || 0);
+            const txAmount = Number(tx.amount);
+            const txPrice = Number(tx.pricePerUnit || 0);
+            asset.quantity += txAmount;
+            const cost = txAmount * txPrice;
             asset.totalInvested += cost;
             if (tx.lpRange) asset.lpRange = tx.lpRange;
             if (tx.monitorSymbol) asset.monitorSymbol = tx.monitorSymbol;
@@ -59,18 +61,21 @@ export const calculateAssets = (
                     };
                 }
                 const paymentAsset = assets[normalizedPaymentSymbol];
+                const paymentAmount = Number(tx.paymentAmount);
                 const avgPrice = paymentAsset.quantity > 0 ? paymentAsset.totalInvested / paymentAsset.quantity : 0;
-                paymentAsset.totalInvested -= (tx.paymentAmount * avgPrice);
-                paymentAsset.quantity -= tx.paymentAmount;
+                paymentAsset.totalInvested -= (paymentAmount * avgPrice);
+                paymentAsset.quantity -= paymentAmount;
             }
 
         } else if (tx.type === 'INTEREST') {
-            asset.quantity += tx.amount;
-            asset.earnedQuantity = (asset.earnedQuantity || 0) + tx.amount;
+            const txAmount = Number(tx.amount);
+            asset.quantity += txAmount;
+            asset.earnedQuantity = (asset.earnedQuantity || 0) + txAmount;
         } else if (tx.type === 'WITHDRAWAL') {
+            const txAmount = Number(tx.amount);
             const avgPrice = asset.quantity > 0 ? asset.totalInvested / asset.quantity : 0;
-            asset.totalInvested -= (tx.amount * avgPrice);
-            asset.quantity -= tx.amount;
+            asset.totalInvested -= (txAmount * avgPrice);
+            asset.quantity -= txAmount;
 
             // Sanity check for residuals
             if (asset.quantity <= 0.00000001) {
