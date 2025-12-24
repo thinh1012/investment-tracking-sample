@@ -1,5 +1,5 @@
 import { initDB } from './core';
-import { Transaction } from '../types';
+import { Transaction } from '../../types';
 
 export const TransactionService = {
     async getAll(): Promise<Transaction[]> {

@@ -1,6 +1,6 @@
 import { initDB } from './core';
 import { WatchlistItem, MarketPick } from './types';
-import { NotificationLog, NotificationSettings } from '../types';
+import { NotificationLog, NotificationSettings } from '../../types';
 
 export const LogService = {
     async add(log: NotificationLog) {

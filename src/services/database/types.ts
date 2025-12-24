@@ -1,5 +1,5 @@
 import { DBSchema } from 'idb';
-import { Transaction, NotificationLog, NotificationSettings } from '../types';
+import { Transaction, NotificationLog, NotificationSettings } from '../../types';
 
 export interface WatchlistItem {
     id: string;
