@@ -48,6 +48,14 @@ export const BackupService = {
         };
     },
 
+    async isLocalDataEmpty() {
+        const db = await initDB();
+        const transactions = await db.count('transactions');
+        const watchlist = await db.count('watchlist');
+        const marketPicks = await db.count('market_picks');
+        return transactions === 0 && watchlist === 0 && marketPicks === 0;
+    },
+
     async restoreFullBackup(backup: any) {
         const db = await initDB();
         const tx = db.transaction(['transactions', 'watchlist', 'market_picks', 'settings', 'manual_prices', 'asset_overrides', 'historical_prices', 'manual_historical_prices', 'logs'], 'readwrite');

@@ -56,7 +56,7 @@ function App() {
     const handleCloudRestore = async (event) => {
       const data = event.detail;
       if (data) {
-        if (confirm("Newer data found in Cloud Vault. Restore now? (Local data will be updated)")) {
+        if (confirm("Data found in Cloud Vault. Restore now? (Local data will be replaced)")) {
           await BackupService.restoreFullBackup(data);
           window.location.reload();
         }

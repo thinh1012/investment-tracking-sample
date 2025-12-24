@@ -22,6 +22,14 @@ export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore, sy
 
     // Sync State
     const [showPassword, setShowPassword] = useState(false);
+    const [localIsEmpty, setLocalIsEmpty] = useState(false);
+
+    // Detect empty state on open
+    React.useEffect(() => {
+        if (isOpen) {
+            BackupService.isLocalDataEmpty().then(setLocalIsEmpty);
+        }
+    }, [isOpen]);
 
 
     const handleUpload = async () => {
@@ -158,13 +166,24 @@ export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore, sy
 
                             <div className="grid grid-cols-2 gap-4">
                                 <button
-                                    onClick={handleUpload}
+                                    onClick={() => {
+                                        if (localIsEmpty) {
+                                            if (confirm("Your local vault is empty. Are you sure you want to upload zeros to the cloud? This will overwrite your cloud backup.")) {
+                                                handleUpload();
+                                            }
+                                        } else {
+                                            handleUpload();
+                                        }
+                                    }}
                                     disabled={!syncKey || isLoading}
-                                    className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-all disabled:opacity-50"
+                                    className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all disabled:opacity-50 ${localIsEmpty
+                                        ? 'bg-slate-50 dark:bg-slate-800/20 border-slate-200 dark:border-slate-800 text-slate-400'
+                                        : 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/40'
+                                        }`}
                                 >
                                     <RefreshCw size={24} className={isLoading ? "animate-spin" : ""} />
-                                    <span className="font-bold">Sync Now</span>
-                                    <span className="text-[10px] opacity-70">Manual Trigger</span>
+                                    <span className="font-bold">Save to Cloud</span>
+                                    <span className="text-[10px] opacity-70">{localIsEmpty ? "Wipe Warning" : "Upload Local"}</span>
                                 </button>
 
                                 <button
@@ -173,11 +192,14 @@ export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore, sy
                                         if (data && onRestore) onRestore(data);
                                     }}
                                     disabled={!syncKey || isLoading}
-                                    className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all disabled:opacity-50"
+                                    className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all disabled:opacity-50 ${localIsEmpty
+                                        ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 scale-105 ring-2 ring-emerald-500/20'
+                                        : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40'
+                                        }`}
                                 >
                                     <Download size={24} />
-                                    <span className="font-bold">Restore</span>
-                                    <span className="text-[10px] opacity-70">Force Download</span>
+                                    <span className="font-bold">Restore Data</span>
+                                    <span className="text-[10px] opacity-70">{localIsEmpty ? "Recommended" : "Force Download"}</span>
                                 </button>
                             </div>
 

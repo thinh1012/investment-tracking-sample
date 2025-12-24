@@ -71,7 +71,8 @@ export const useCloudSync = () => {
     // The "Vault" Logic
     const uploadVault = useCallback(async (
         data: any,
-        providedKey?: string
+        providedKey?: string,
+        force: boolean = false
     ) => {
         const key = providedKey || syncKey;
         if (!user) {
@@ -81,6 +82,28 @@ export const useCloudSync = () => {
         if (!key) {
             setError("Sync Password required.");
             return;
+        }
+
+        // Safety Gate: Prevent overwriting a populated vault with empty data unless forced
+        try {
+            const hasData = data.transactions?.length > 0 || data.watchlist?.length > 0 || data.marketPicks?.length > 0;
+            if (!hasData && !force) {
+                // Check if a cloud vault already exists
+                const { data: existing } = await supabase
+                    .from('user_vaults')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (existing) {
+                    throw new Error("EMPTY_DATA_PROTECTION");
+                }
+            }
+        } catch (gateError: any) {
+            if (gateError.message === "EMPTY_DATA_PROTECTION") {
+                setError("Safety Gate: Your local data is empty. Uploading now would wipe your cloud vault. Download first or add data locally.");
+                return;
+            }
         }
 
         setIsLoading(true);
