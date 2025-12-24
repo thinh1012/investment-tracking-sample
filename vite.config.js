@@ -16,31 +16,33 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      injectRegister: null, // Disable auto injection
       registerType: 'autoUpdate',
       includeAssets: ['vite.svg'],
       devOptions: {
-        enabled: false // Disable in dev
+        enabled: true
       },
       manifest: {
         name: 'Crypto Investment Tracker',
-        short_name: 'CryptoTracker',
-        description: 'Track your crypto investments and portfolio',
-        theme_color: '#ffffff',
+        short_name: 'Tracker',
+        description: 'Premium Portfolio Performance Tracking',
+        theme_color: '#6366f1',
+        background_color: '#020617',
+        display: 'standalone',
+        orientation: 'portrait',
         icons: [
           {
             src: 'vite.svg',
             sizes: '192x192',
-            type: 'image/svg+xml'
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
           },
           {
             src: 'vite.svg',
             sizes: '512x512',
-            type: 'image/svg+xml'
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
           }
-        ],
-        background_color: '#ffffff',
-        display: 'standalone'
+        ]
       }
     })
   ],
