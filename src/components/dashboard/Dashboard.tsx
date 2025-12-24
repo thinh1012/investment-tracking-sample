@@ -97,12 +97,12 @@ export const Dashboard: React.FC<Props> = ({
                         <div className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full ${isSyncLoading ? 'bg-indigo-500 animate-pulse' : 'bg-emerald-500'} shadow-[0_0_10px_rgba(16,185,129,0.3)]`}></div>
                         {isSyncLoading && <div className="absolute inset-0 w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-indigo-500 animate-ping opacity-75"></div>}
                     </div>
-                    <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
+                    <div className="flex flex-col">
                         <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-1">Vault Status</span>
                         <span className="text-[11px] md:text-xs font-bold text-slate-700 dark:text-slate-200 leading-none">
                             {isSyncLoading ? 'Synchronizing...' : (lastSyncTime ? `Synced ${new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Not Cached Externally')}
                         </span>
-                    </main>
+                    </div>
                 </div>
 
                 <button

@@ -11,8 +11,9 @@ This document outlines the non-negotiable architectural and developmental rules 
 - **Approval Gateway**: The AI must **wait for explicit user approval** on the implementation plan before moving to the EXECUTION phase.
 - **No "Over-Clutching"**: Do not skip the planning phase or proceed straight to implementation even if the task seems "simple" unless explicitly told to "just do it."
 
-## 3. Execution & Deployment
-- **No Automatic Pushes**: Only execute `git push` when explicitly requested by the user. Do not suggest pushing to the user; wait for their command.
+## 3. Deployment & Git Policy
+- **Hard Rule: No Unrequested Pushes**: The AI is **strictly prohibited** from executing `git push` unless the user explicitly requests a deployment or a push.
+- **Local-First Development**: All work must be committed locally; the user will manage the deployment cadence.
 - **Local Verification First**: Always attempt to verify changes locally before considering a task complete.
 - **Resilience Audit**: Before completing a feature, ask: "If the network fails or the phone crashes right now, will the user lose data?" If the answer is yes, propose a fix.
 
