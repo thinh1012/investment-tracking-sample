@@ -20,41 +20,39 @@ export const useDashboardCalculations = ({ assets, transactions, prices }: UseDa
     });
 
     // --- Effects ---
-    // Migration / Correction Effect for 13580 baseline
+    // Migration / Correction Effect for 16008 baseline
     useEffect(() => {
         if (transactions.length === 0) return;
 
-        const hasFixed = localStorage.getItem('investment_tracker_base_fix_13580_applied');
+        const hasFixed = localStorage.getItem('investment_tracker_base_fix_16008_applied');
 
         if (!hasFixed) {
-            const target = 13580;
+            const target = 16008;
             const actualSum = transactions.reduce((sum, t) => {
-                if (t.type === 'DEPOSIT' && ['USDT', 'USDC', 'USD', 'DAI'].includes(t.paymentCurrency || 'USD')) {
-                    const amt = t.paymentAmount || (t.pricePerUnit && t.amount ? t.pricePerUnit * t.amount : 0);
-                    return sum + amt;
-                }
-                if (t.type === 'WITHDRAWAL') {
+                let amt = 0;
+                if (t.type === 'DEPOSIT') {
+                    amt = Number(t.paymentAmount || (t.pricePerUnit && t.amount ? t.pricePerUnit * t.amount : 0));
+                } else if (t.type === 'WITHDRAWAL') {
                     if (t.linkedTransactionId) {
                         const parent = transactions.find(Lx => Lx.id === t.linkedTransactionId);
                         if (parent && parent.paymentAmount) return sum;
                     }
-                    const amt = -(t.pricePerUnit && t.amount ? t.pricePerUnit * t.amount : 0);
-                    return sum + amt;
+                    amt = -Number(t.pricePerUnit && t.amount ? t.pricePerUnit * t.amount : 0);
                 }
-                return sum;
+                return sum + amt;
             }, 0);
 
             const newOffset = target - actualSum;
             setFundingOffset(newOffset);
             localStorage.setItem('investment_tracker_funding_offset', newOffset.toString());
-            localStorage.setItem('investment_tracker_base_fix_13580_applied', 'true');
+            localStorage.setItem('investment_tracker_base_fix_16008_applied', 'true');
+            localStorage.removeItem('investment_tracker_manual_principal'); // Clear override
+            setManualPrincipal(null);
             localStorage.removeItem('investment_tracker_manual_funding');
         }
     }, [transactions]);
 
     // --- Calculations ---
-    const calculatedTotalInvested = useMemo(() => assets.reduce((sum, a) => sum + a.totalInvested, 0), [assets]);
-    const totalInvested = manualPrincipal !== null ? manualPrincipal : calculatedTotalInvested;
     const totalValue = useMemo(() => assets.reduce((sum, a) => sum + (a.currentValue || a.totalInvested), 0), [assets]);
 
     // Funding Breakdown
@@ -108,6 +106,9 @@ export const useDashboardCalculations = ({ assets, transactions, prices }: UseDa
         return grouped;
     }, [fundingBreakdown, fundingOffset]);
 
+    const totalPrincipal = useMemo(() => Object.values(groupedBreakdown).reduce((sum, val) => sum + val, 0), [groupedBreakdown]);
+    const totalInvested = manualPrincipal !== null ? manualPrincipal : totalPrincipal;
+
     // Actions
     const updateManualPrincipal = (val: number | null) => {
         setManualPrincipal(val);
@@ -128,7 +129,7 @@ export const useDashboardCalculations = ({ assets, transactions, prices }: UseDa
     };
 
     const resetBaseline = () => {
-        localStorage.removeItem('investment_tracker_base_fix_13580_applied');
+        localStorage.removeItem('investment_tracker_base_fix_16008_applied');
         window.location.reload();
     };
 

@@ -8,9 +8,10 @@ interface SummaryCardProps {
     subValue?: string;
     color: 'indigo' | 'emerald' | 'violet' | 'rose' | 'blue';
     icon: React.ReactNode;
+    onValueClick?: () => void;
 }
 
-const SummaryCard = ({ title, value, subValue, color, icon, index }: SummaryCardProps & { index: number }) => {
+const SummaryCard = ({ title, value, subValue, color, icon, index, onValueClick }: SummaryCardProps & { index: number }) => {
     const colorClasses = {
         indigo: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20',
         emerald: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
@@ -21,9 +22,11 @@ const SummaryCard = ({ title, value, subValue, color, icon, index }: SummaryCard
 
     return (
         <div className={`glass-card p-4 md:p-6 flex items-start justify-between animate-slide-up animate-stagger-${index + 1} group`}>
-            <div>
+            <div className={onValueClick ? 'cursor-pointer' : ''} onClick={onValueClick}>
                 <h3 className="text-slate-400 dark:text-slate-500 text-[10px] md:text-xs font-black mb-2 md:mb-3 uppercase tracking-[0.15em] font-heading">{title}</h3>
-                <p className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight font-heading group-hover:text-indigo-500 transition-colors duration-300">{value}</p>
+                <div className="text-xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight font-heading group-hover:text-indigo-500 transition-colors duration-300">
+                    {value}
+                </div>
                 {subValue && (
                     <p className={`text-[10px] md:text-xs font-bold mt-1.5 md:mt-2 flex items-center gap-1 ${subValue.startsWith('-') ? 'text-rose-500' : 'text-emerald-500'}`}>
                         <span className="opacity-70">{subValue.startsWith('-') ? '▼' : '▲'}</span>
@@ -59,16 +62,32 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({ totalInveste
             <SummaryCard
                 index={0}
                 title="Total Invested"
+                onValueClick={!isEditingPrincipal ? () => {
+                    setTempPrincipal(manualPrincipal !== null ? manualPrincipal.toString() : totalInvested.toString());
+                    setIsEditingPrincipal(true);
+                } : undefined}
                 value={isEditingPrincipal ? (
-                    <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                        <input
-                            type="number"
-                            autoFocus
-                            className="w-32 bg-slate-100 dark:bg-slate-800 text-indigo-500 text-2xl font-black rounded-xl px-2 py-1 border border-indigo-200 dark:border-indigo-900/50 focus:outline-none focus:ring-2 ring-indigo-500/20 font-heading"
-                            value={tempPrincipal}
-                            onChange={e => setTempPrincipal(e.target.value)}
-                            onKeyDown={e => {
-                                if (e.key === 'Enter') {
+                    <div className="flex flex-col gap-2" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="number"
+                                autoFocus
+                                className="w-32 bg-slate-100 dark:bg-slate-800 text-indigo-500 text-2xl font-black rounded-xl px-2 py-1 border border-indigo-200 dark:border-indigo-900/50 focus:outline-none focus:ring-2 ring-indigo-500/20 font-heading"
+                                value={tempPrincipal}
+                                onChange={e => setTempPrincipal(e.target.value)}
+                                onKeyDown={e => {
+                                    if (e.key === 'Enter') {
+                                        const val = parseFloat(tempPrincipal);
+                                        if (!isNaN(val)) {
+                                            onUpdatePrincipal(val);
+                                        } else if (tempPrincipal === '') {
+                                            onUpdatePrincipal(null);
+                                        }
+                                        setIsEditingPrincipal(false);
+                                    }
+                                    if (e.key === 'Escape') setIsEditingPrincipal(false);
+                                }}
+                                onBlur={() => {
                                     const val = parseFloat(tempPrincipal);
                                     if (!isNaN(val)) {
                                         onUpdatePrincipal(val);
@@ -76,26 +95,25 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({ totalInveste
                                         onUpdatePrincipal(null);
                                     }
                                     setIsEditingPrincipal(false);
-                                }
-                                if (e.key === 'Escape') setIsEditingPrincipal(false);
-                            }}
-                            onBlur={() => {
-                                const val = parseFloat(tempPrincipal);
-                                if (!isNaN(val)) {
-                                    onUpdatePrincipal(val);
-                                } else if (tempPrincipal === '') {
+                                }}
+                            />
+                        </div>
+                        {manualPrincipal !== null && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
                                     onUpdatePrincipal(null);
-                                }
-                                setIsEditingPrincipal(false);
-                            }}
-                        />
+                                    setIsEditingPrincipal(false);
+                                }}
+                                className="text-[10px] font-black uppercase text-rose-500 hover:text-rose-600 self-start"
+                            >
+                                Reset to 16,008
+                            </button>
+                        )}
                     </div>
                 ) : `$${totalInvested.toLocaleString('en-US')}`}
                 color="indigo"
-                icon={<DollarSign size={22} className={isEditingPrincipal ? 'text-indigo-500' : 'cursor-pointer'} onClick={() => {
-                    setTempPrincipal(manualPrincipal !== null ? manualPrincipal.toString() : totalInvested.toString());
-                    setIsEditingPrincipal(true);
-                }} />}
+                icon={<DollarSign size={22} />}
                 subValue={manualPrincipal !== null ? 'Override Active' : undefined}
             />
             <SummaryCard
