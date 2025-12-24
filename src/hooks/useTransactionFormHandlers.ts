@@ -157,19 +157,29 @@ export const useTransactionFormHandlers = (state: any, props: any) => {
                 const newLpTransactionId = crypto.randomUUID();
 
                 // Use Service for LP calculation
-                const result = TransactionProcessingService.processLpFunding({
-                    date,
-                    lpSymbol: symbol.toUpperCase(),
-                    tokenA: lpTokenA,
-                    sourceA: lpTokenASource,
-                    fundingSourceA,
-                    tokenB: lpTokenB,
-                    sourceB: lpTokenBSource,
-                    fundingSourceB,
-                    assets,
-                    freshCapitalAmount: (lpMode === 'TOTAL' && paymentMode === 'MIXED') ? (parseFloat(mixedCashAmount) || 0) : (parseFloat(totalSpent) || 0),
-                    lpTransactionId: newLpTransactionId
-                });
+                const result = lpMode === 'SPLIT'
+                    ? TransactionProcessingService.processLpFunding({
+                        date,
+                        lpSymbol: symbol.toUpperCase(),
+                        tokenA: lpTokenA,
+                        sourceA: lpTokenASource,
+                        fundingSourceA,
+                        tokenB: lpTokenB,
+                        sourceB: lpTokenBSource,
+                        fundingSourceB,
+                        assets,
+                        freshCapitalAmount: parseFloat(totalSpent) || 0,
+                        lpTransactionId: newLpTransactionId
+                    })
+                    : TransactionProcessingService.processLpTotalFunding({
+                        date,
+                        lpSymbol: symbol.toUpperCase(),
+                        source: lpTokenASource,
+                        fundingAssetSymbol: fundingSourceA,
+                        amount: lpTokenASource === 'HOLDINGS' ? (assets.find((a: Asset) => a.symbol === fundingSourceA)?.quantity || 0) : (parseFloat(totalSpent) || 0),
+                        assets,
+                        lpTransactionId: newLpTransactionId
+                    });
 
                 // Handle additional mixed funding for TOTAL mode if needed (withdrawals)
                 if (lpMode === 'TOTAL' && paymentMode === 'MIXED' && mixedAssetSymbol && mixedAssetQty) {

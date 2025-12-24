@@ -91,6 +91,56 @@ export const TransactionProcessingService = {
     },
 
     /**
+     * Processes LP funding for Total mode where a single source (asset or cash) is used.
+     */
+    processLpTotalFunding(params: {
+        date: string;
+        lpSymbol: string;
+        source: 'FRESH' | 'HOLDINGS';
+        fundingAssetSymbol: string;
+        amount: number;
+        assets: Asset[];
+        lpTransactionId: string;
+    }): LpProcessingResult {
+        const { date, lpSymbol, source, fundingAssetSymbol, amount, assets, lpTransactionId } = params;
+        const withdrawals: Transaction[] = [];
+        let finalCostBasis = amount;
+        let description = '';
+
+        if (source === 'HOLDINGS') {
+            const asset = assets.find(a => a.symbol === fundingAssetSymbol);
+            if (asset) {
+                // If we move the whole amount from holdings, the cost basis is the historical cost
+                // amount here represents the VALUE we are moving.
+                // However, usually the user knows HOW MANY tokens they moved.
+                // Let's assume 'amount' is the quantity of the funding asset.
+                const qty = amount;
+                finalCostBasis = qty * asset.averageBuyPrice;
+                description = `${qty} ${fundingAssetSymbol} (Holdings)`;
+
+                withdrawals.push({
+                    id: crypto.randomUUID(),
+                    date,
+                    type: 'WITHDRAWAL',
+                    assetSymbol: fundingAssetSymbol,
+                    amount: qty,
+                    pricePerUnit: asset.averageBuyPrice,
+                    notes: `Moved to LP ${lpSymbol}`,
+                    linkedTransactionId: lpTransactionId
+                });
+            }
+        } else {
+            description = `$${amount} Fresh Capital`;
+        }
+
+        return {
+            transactions: withdrawals,
+            description,
+            finalCostBasis
+        };
+    },
+
+    /**
      * Formats batch transactions from raw input
      */
     processBatchItems(items: Array<{ symbol: string, amount: string, price: string }>, commonData: Partial<Transaction>): Transaction[] {
