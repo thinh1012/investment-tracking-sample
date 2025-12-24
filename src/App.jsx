@@ -220,12 +220,18 @@ function App() {
         onClose={() => setIsSyncModalOpen(false)}
         sync={syncState}
         onRestore={async (data) => {
+          console.log("App: onRestore triggered from Modal. Data size:", !!data);
           try {
-            if (confirm("This will overwrite your current local data with the Cloud Backup. Continue?")) {
+            if (confirm("Data found in Cloud Vault. Restore now? (Local data will be replaced)")) {
+              console.log("App: User confirmed restore. Starting BackupService...");
               await BackupService.restoreFullBackup(data);
+              console.log("App: BackupService complete. Reloading...");
               window.location.reload();
+            } else {
+              console.log("App: User canceled restore.");
             }
           } catch (e) {
+            console.error("App: Restore sequence failed:", e);
             alert("Restore failed: " + e)
           }
         }}

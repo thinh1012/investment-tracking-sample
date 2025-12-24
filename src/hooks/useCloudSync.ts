@@ -227,7 +227,6 @@ export const useCloudSync = () => {
         signIn,
         signOut,
         lastSyncTime,
-        lastSyncTime,
         uploadVault,
         downloadVault,
         inspectVault
