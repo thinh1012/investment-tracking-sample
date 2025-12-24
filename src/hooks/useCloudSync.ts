@@ -134,6 +134,32 @@ export const useCloudSync = () => {
         }
     }, [user, syncKey]);
 
+    const inspectVault = useCallback(async (providedKey?: string) => {
+        const key = providedKey || syncKey;
+        if (!user || !key) return null;
+
+        try {
+            const { data, error } = await supabase
+                .from('user_vaults')
+                .select('encrypted_data, updated_at')
+                .eq('user_id', user.id)
+                .single();
+
+            if (error || !data?.encrypted_data) return null;
+
+            const decryptedData = await decryptData(data.encrypted_data, key);
+            return {
+                updated_at: data.updated_at,
+                transactionCount: decryptedData.transactions?.length || 0,
+                watchlistCount: decryptedData.watchlist?.length || 0,
+                picksCount: decryptedData.marketPicks?.length || 0,
+                isLegacy: !decryptedData.version
+            };
+        } catch (e) {
+            return null;
+        }
+    }, [user, syncKey]);
+
     const downloadVault = useCallback(async (providedKey?: string) => {
         const key = providedKey || syncKey;
         if (!user) return null;
@@ -201,7 +227,9 @@ export const useCloudSync = () => {
         signIn,
         signOut,
         lastSyncTime,
+        lastSyncTime,
         uploadVault,
-        downloadVault
+        downloadVault,
+        inspectVault
     };
 };

@@ -57,6 +57,10 @@ export const BackupService = {
     },
 
     async restoreFullBackup(backup: any) {
+        console.group("🚀 Vault Restoration Audit");
+        console.log("Restoration Path: Cloud -> Local DB");
+        console.log("Timestamp:", backup.date);
+
         const db = await initDB();
         const tx = db.transaction(['transactions', 'watchlist', 'market_picks', 'settings', 'manual_prices', 'asset_overrides', 'historical_prices', 'manual_historical_prices', 'logs'], 'readwrite');
 
@@ -75,12 +79,15 @@ export const BackupService = {
         const promises = [];
 
         if (Array.isArray(backup.transactions)) {
+            console.log(`Writing ${backup.transactions.length} Transactions...`);
             promises.push(...backup.transactions.map((t: any) => tx.objectStore('transactions').put(t)));
         }
         if (Array.isArray(backup.watchlist)) {
+            console.log(`Writing ${backup.watchlist.length} Watchlist items...`);
             promises.push(...backup.watchlist.map((w: any) => tx.objectStore('watchlist').put(w)));
         }
         if (Array.isArray(backup.marketPicks)) {
+            console.log(`Writing ${backup.marketPicks.length} Market Picks...`);
             promises.push(...backup.marketPicks.map((p: any) => tx.objectStore('market_picks').put(p)));
         }
         if (backup.settings) {
@@ -106,6 +113,7 @@ export const BackupService = {
         await tx.done;
 
         if (backup.storageSnapshot) {
+            console.log(`Applying system preferences snapshot...`);
             Object.entries(backup.storageSnapshot).forEach(([key, value]) => {
                 if (value !== null) {
                     localStorage.setItem(key, value as string);
@@ -115,6 +123,8 @@ export const BackupService = {
             window.dispatchEvent(new Event('storage'));
         }
 
+        console.log("✅ Restoration Complete. Reloading environment.");
+        console.groupEnd();
         return true;
     }
 };

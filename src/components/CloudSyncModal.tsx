@@ -13,7 +13,7 @@ interface Props {
 }
 
 export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore, sync }) => {
-    const { user, isLoading, error, status, syncKey, setSyncKey, signIn, signUp, signOut, uploadVault, downloadVault } = sync;
+    const { user, isLoading, error, status, syncKey, setSyncKey, signIn, signUp, signOut, uploadVault, downloadVault, inspectVault } = sync;
 
     // Auth State
     const [email, setEmail] = useState('');
@@ -23,13 +23,17 @@ export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore, sy
     // Sync State
     const [showPassword, setShowPassword] = useState(false);
     const [localIsEmpty, setLocalIsEmpty] = useState(false);
+    const [vaultStats, setVaultStats] = useState<any>(null);
 
-    // Detect empty state on open
+    // Detect empty state and inspect vault on open
     React.useEffect(() => {
         if (isOpen) {
             BackupService.isLocalDataEmpty().then(setLocalIsEmpty);
+            if (syncKey && user) {
+                inspectVault().then(setVaultStats);
+            }
         }
-    }, [isOpen]);
+    }, [isOpen, syncKey, user]);
 
 
     const handleUpload = async () => {
@@ -158,10 +162,39 @@ export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore, sy
                                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                     </button>
                                 </div>
-                                <p className="text-[10px] text-orange-500 flex items-start gap-1 mt-1 leading-relaxed">
-                                    <AlertTriangle size={10} className="mt-0.5 flex-shrink-0" />
-                                    <span>This password is the <strong>only way</strong> to unlock your data. It is stored for this session only.</span>
-                                </p>
+
+                                {vaultStats ? (
+                                    <div className="mt-3 p-3 bg-indigo-500/5 rounded-xl border border-indigo-500/10 animate-in slide-in-from-top-2">
+                                        <div className="flex justify-between items-center text-[10px] font-bold text-indigo-500 uppercase tracking-tighter mb-2">
+                                            <span>Cloud Vault Blueprint</span>
+                                            <span>{new Date(vaultStats.updated_at).toLocaleDateString()}</span>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-indigo-100/50 dark:border-indigo-500/10 text-center">
+                                                <div className="text-xs font-bold text-slate-700 dark:text-slate-200">{vaultStats.transactionCount}</div>
+                                                <div className="text-[8px] text-slate-400 uppercase">Tx</div>
+                                            </div>
+                                            <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-indigo-100/50 dark:border-indigo-500/10 text-center">
+                                                <div className="text-xs font-bold text-slate-700 dark:text-slate-200">{vaultStats.watchlistCount}</div>
+                                                <div className="text-[8px] text-slate-400 uppercase">Watch</div>
+                                            </div>
+                                            <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-indigo-100/50 dark:border-indigo-500/10 text-center">
+                                                <div className="text-xs font-bold text-slate-700 dark:text-slate-200">{vaultStats.picksCount}</div>
+                                                <div className="text-[8px] text-slate-400 uppercase">Picks</div>
+                                            </div>
+                                        </div>
+                                        {localIsEmpty && vaultStats.transactionCount > 0 && (
+                                            <div className="mt-2 text-[10px] text-emerald-500 font-medium flex items-center gap-1">
+                                                <Check size={10} /> Data detected! Click Restore to hydrate.
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p className="text-[10px] text-orange-500 flex items-start gap-1 mt-1 leading-relaxed">
+                                        <AlertTriangle size={10} className="mt-0.5 flex-shrink-0" />
+                                        <span>This password is the <strong>only way</strong> to unlock your data. It is stored for this session only.</span>
+                                    </p>
+                                )}
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
