@@ -4,6 +4,7 @@ import { Asset } from '../../types';
 
 interface AssetsTableProps {
     assets: Asset[];
+    transactions: import('../../types').Transaction[];
     prices: Record<string, number>;
     onRefreshPrices?: (force?: boolean) => Promise<void>;
     onUpdateAssetOverride?: (symbol: string, overrides: { avgBuyPrice?: number }) => void;
@@ -12,7 +13,7 @@ interface AssetsTableProps {
 
 import { TableShell } from '../common/TableShell';
 
-export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, prices, onRefreshPrices, onUpdateAssetOverride, locale }) => {
+export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, transactions, prices, onRefreshPrices, onUpdateAssetOverride, locale }) => {
     const [isTokenListOpen, setIsTokenListOpen] = useState(false); // Default closed
     const [assetSortKey, setAssetSortKey] = useState<string>('currentValue');
     const [assetSortOrder, setAssetSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -169,42 +170,96 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, prices, onRefr
                                 </tr>
                                 {expandedSources.has(asset.symbol) && (
                                     <tr className="bg-slate-50/20 dark:bg-slate-900/40 animate-in fade-in slide-in-from-top-2 duration-300">
-                                        <td colSpan={7} className="px-8 py-6">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                                                <div className="glass border border-indigo-500/10 p-5 rounded-2xl shadow-xl shadow-indigo-500/5">
-                                                    <h4 className="font-black text-indigo-500 dark:text-indigo-300 mb-4 flex items-center gap-3 font-heading uppercase tracking-widest text-xs">
-                                                        <TrendingUp size={16} /> Rewards Portfolio
-                                                    </h4>
-                                                    <div className="space-y-3">
-                                                        <div className="flex justify-between items-center text-xs">
-                                                            <span className="text-slate-400 font-bold">Quantity:</span>
-                                                            <span className="font-black text-slate-700 dark:text-slate-200">
-                                                                {asset.earnedQuantity ? asset.earnedQuantity.toLocaleString(locale || 'en-US') : '0'} {asset.symbol}
-                                                            </span>
+                                        <td colSpan={7} className="px-4 py-6 md:px-8">
+                                            <div className="flex flex-col gap-6">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                                                    <div className="glass border border-indigo-500/10 p-5 rounded-2xl shadow-xl shadow-indigo-500/5">
+                                                        <h4 className="font-black text-indigo-500 dark:text-indigo-300 mb-4 flex items-center gap-3 font-heading uppercase tracking-widest text-xs">
+                                                            <TrendingUp size={16} /> Rewards Portfolio
+                                                        </h4>
+                                                        <div className="space-y-3">
+                                                            <div className="flex justify-between items-center text-xs">
+                                                                <span className="text-slate-400 font-bold">Quantity:</span>
+                                                                <span className="font-black text-slate-700 dark:text-slate-200">
+                                                                    {asset.earnedQuantity ? asset.earnedQuantity.toLocaleString(locale || 'en-US') : '0'} {asset.symbol}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center text-xs">
+                                                                <span className="text-slate-400 font-bold">Market Value:</span>
+                                                                <span className="font-black text-emerald-500 dark:text-emerald-400 italic">
+                                                                    ${((asset.earnedQuantity || 0) * currentPrice).toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}
+                                                                </span>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex justify-between items-center text-xs">
-                                                            <span className="text-slate-400 font-bold">Market Value:</span>
-                                                            <span className="font-black text-emerald-500 dark:text-emerald-400 italic">
-                                                                ${((asset.earnedQuantity || 0) * currentPrice).toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}
-                                                            </span>
+                                                    </div>
+
+                                                    <div className="glass border border-emerald-500/10 p-5 rounded-2xl shadow-xl shadow-emerald-500/5">
+                                                        <h4 className="font-black text-emerald-500 dark:text-emerald-300 mb-4 flex items-center gap-3 font-heading uppercase tracking-widest text-xs">
+                                                            <Layers size={16} /> Asset Allocation
+                                                        </h4>
+                                                        <div className="space-y-3">
+                                                            <div className="flex justify-between items-center text-xs">
+                                                                <span className="text-slate-400 font-bold">In Liquidity Pools:</span>
+                                                                <span className="font-black text-slate-700 dark:text-slate-200">
+                                                                    {asset.lockedInLpQuantity ? asset.lockedInLpQuantity.toLocaleString(locale || 'en-US') : '0'} {asset.symbol}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-[10px] text-slate-300 dark:text-slate-600 italic font-medium leading-relaxed mt-2 border-t border-slate-100 dark:border-slate-800 pt-2">
+                                                                * Tracks assets moved from Holdings to fund LPs. Does not include fresh capital buys.
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="glass border border-emerald-500/10 p-5 rounded-2xl shadow-xl shadow-emerald-500/5">
-                                                    <h4 className="font-black text-emerald-500 dark:text-emerald-300 mb-4 flex items-center gap-3 font-heading uppercase tracking-widest text-xs">
-                                                        <Layers size={16} /> Asset Allocation
+                                                {/* Audit Trail Section */}
+                                                <div className="glass border border-slate-200/50 dark:border-slate-800/50 p-5 rounded-2xl shadow-lg">
+                                                    <h4 className="font-black text-slate-400 dark:text-slate-500 mb-4 flex items-center gap-3 font-heading uppercase tracking-widest text-xs">
+                                                        <Wallet size={16} /> Transaction Audit: {asset.symbol}
                                                     </h4>
-                                                    <div className="space-y-3">
-                                                        <div className="flex justify-between items-center text-xs">
-                                                            <span className="text-slate-400 font-bold">In Liquidity Pools:</span>
-                                                            <span className="font-black text-slate-700 dark:text-slate-200">
-                                                                {asset.lockedInLpQuantity ? asset.lockedInLpQuantity.toLocaleString(locale || 'en-US') : '0'} {asset.symbol}
-                                                            </span>
-                                                        </div>
-                                                        <div className="text-[10px] text-slate-300 dark:text-slate-600 italic font-medium leading-relaxed mt-2 border-t border-slate-100 dark:border-slate-800 pt-2">
-                                                            * Tracks assets moved from Holdings to fund LPs. Does not include fresh capital buys.
-                                                        </div>
+                                                    <div className="overflow-x-auto">
+                                                        <table className="w-full text-[10px] md:text-xs">
+                                                            <thead className="text-slate-400 uppercase font-black tracking-widest">
+                                                                <tr className="border-b border-slate-100 dark:border-slate-800">
+                                                                    <th className="py-2 text-left">Date</th>
+                                                                    <th className="py-2 text-left">Type</th>
+                                                                    <th className="py-2 text-right">Amount</th>
+                                                                    <th className="py-2 text-right">Price</th>
+                                                                    <th className="py-2 text-right">Running Qty</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-slate-100/50 dark:divide-slate-800/30">
+                                                                {(() => {
+                                                                    let runningQty = 0;
+                                                                    return transactions
+                                                                        .filter(t => t.assetSymbol.toUpperCase() === asset.symbol.toUpperCase())
+                                                                        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                                                                        .map((t, tIdx) => {
+                                                                            if (t.type === 'DEPOSIT' || t.type === 'INTEREST') runningQty += Number(t.amount);
+                                                                            else if (t.type === 'WITHDRAWAL') runningQty -= Number(t.amount);
+
+                                                                            return (
+                                                                                <tr key={t.id || tIdx} className="text-slate-600 dark:text-slate-400">
+                                                                                    <td className="py-2">{new Date(t.date).toLocaleDateString()}</td>
+                                                                                    <td className="py-2 font-black">
+                                                                                        <span className={t.type === 'DEPOSIT' ? 'text-emerald-500' : t.type === 'WITHDRAWAL' ? 'text-rose-500' : 'text-indigo-500'}>
+                                                                                            {t.type}
+                                                                                        </span>
+                                                                                    </td>
+                                                                                    <td className="py-2 text-right font-mono font-bold">
+                                                                                        {t.type === 'WITHDRAWAL' ? '-' : '+'}{Number(t.amount).toLocaleString()}
+                                                                                    </td>
+                                                                                    <td className="py-2 text-right font-mono">
+                                                                                        {t.pricePerUnit ? `$${t.pricePerUnit.toLocaleString()}` : '-'}
+                                                                                    </td>
+                                                                                    <td className="py-2 text-right font-mono font-black text-slate-800 dark:text-slate-200">
+                                                                                        {runningQty.toLocaleString()}
+                                                                                    </td>
+                                                                                </tr>
+                                                                            );
+                                                                        }).reverse(); // Show newest first for audit
+                                                                })()}
+                                                            </tbody>
+                                                        </table>
                                                     </div>
                                                 </div>
                                             </div>

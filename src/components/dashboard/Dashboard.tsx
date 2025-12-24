@@ -152,6 +152,7 @@ export const Dashboard: React.FC<Props> = ({
                         {/* 4. Assets Table */}
                         <AssetsTable
                             assets={assets}
+                            transactions={transactions}
                             prices={prices}
                             onRefreshPrices={onRefreshPrices}
                             onUpdateAssetOverride={onUpdateAssetOverride}
