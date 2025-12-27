@@ -5,6 +5,7 @@ This document outlines the non-negotiable architectural and developmental rules 
 ## 1. Security First Principle
 - **No Compromise**: Any feature, no matter how "cool," must be rejected if it introduces a foreseeable security vulnerability.
 - **Data Privacy**: User investment data must be treated as highly sensitive. Avoid logging any private symbols, quantities, or personal identifiers to external services unless explicitly required and anonymized.
+- **Zero-Hardcode Policy**: **NEVER** hardcode credentials, API keys, Bot Tokens, or secrets in the codebase. All sensitive configurations must be managed through the app's Settings UI and stored in the localized `settings` database.
 
 ## 2. Planning & Approval
 - **Mandatory Implementation Plans**: Before making any significant code changes (new features, major refactors, or multi-file edits), the AI must provide a detailed `implementation_plan.md`.
