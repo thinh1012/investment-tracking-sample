@@ -110,6 +110,7 @@ export const SettingsService = {
 
     async save(settings: NotificationSettings) {
         const db = await initDB();
+        localStorage.setItem('investment_tracker_notification_settings', JSON.stringify(settings));
         return db.put('settings', settings, 'global');
     }
 };

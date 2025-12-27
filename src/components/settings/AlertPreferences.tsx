@@ -1,6 +1,7 @@
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
 import { NotificationSettings } from '../../types';
+import { useNotification } from '../../context/NotificationContext';
 
 interface Props {
     settings: NotificationSettings;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export const AlertPreferences: React.FC<Props> = ({ settings, setSettings }) => {
+    const { notify } = useNotification();
     return (
         <div className="space-y-6 md:col-span-2">
             <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-2">
@@ -40,6 +42,17 @@ export const AlertPreferences: React.FC<Props> = ({ settings, setSettings }) => 
                     <p className="text-sm text-slate-500 dark:text-slate-400">Receive a status summary of your conviction plays every few hours.</p>
                 </div>
                 <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => {
+                            localStorage.setItem('investment_tracker_last_picks_notif', '0');
+                            window.dispatchEvent(new Event('force-market-picks-notif'));
+                            notify.success('Market Update dispatched! 🔭');
+                        }}
+                        className="text-[10px] bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 px-2 py-1 rounded transition-colors"
+                        title="Force trigger update now"
+                    >
+                        Force Send
+                    </button>
                     <select
                         value={settings.marketPicksNotifInterval || 2 * 60 * 60 * 1000}
                         onChange={(e) => setSettings({ ...settings, marketPicksNotifInterval: parseInt(e.target.value) })}

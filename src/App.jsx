@@ -35,8 +35,8 @@ function App() {
   const { watchlist } = watchlistState;
 
   // Market Picks State (For notifications)
-  const { picks } = useMarketPicks();
-  useMarketPicksNotifications(picks, prices, priceChanges);
+  const { picks, historicalData: picksHistory } = useMarketPicks();
+  useMarketPicksNotifications(picks, prices, priceChanges, picksHistory);
 
   // 2. Cloud Sync (New Automated Flow)
   const syncState = useCloudSync();
