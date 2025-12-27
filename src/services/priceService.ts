@@ -225,7 +225,7 @@ export const fetchPrice = async (inputSymbol: string, options?: { skipHyperliqui
         if (data && data.market_cap_percentage) {
             const dominance = data.market_cap_percentage[base];
             if (typeof dominance === 'number') {
-                return { price: dominance, change24h: null }; // TODO: Calculate change if history available
+                return { price: dominance, change24h: null };
             }
         }
         return null; // Don't fall through to price search for metrics

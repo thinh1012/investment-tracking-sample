@@ -160,7 +160,7 @@ export const LiquidityPoolsTable: React.FC<LiquidityPoolsTableProps> = ({ assets
                                     <td className="hidden lg:table-cell px-6 py-6">
                                         {asset.lpRange ? (
                                             <div className="flex flex-col gap-2">
-                                                {asset.monitorSymbol ? (
+                                                {asset.monitorSymbol && (
                                                     <div className="flex items-center gap-2">
                                                         <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg ${asset.inRange
                                                             ? 'bg-emerald-500/10 text-emerald-500 shadow-emerald-500/10 ring-1 ring-emerald-500/20'
@@ -169,8 +169,23 @@ export const LiquidityPoolsTable: React.FC<LiquidityPoolsTableProps> = ({ assets
                                                             <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${asset.inRange ? 'bg-emerald-500' : 'bg-rose-500'}`} />
                                                             {asset.inRange ? 'In Range' : 'Out of Range'}
                                                         </div>
+
+                                                        {asset.monitorPrice !== undefined && asset.monitorPrice > 0 && (
+                                                            <div className="flex flex-col items-start leading-none">
+                                                                <span className="text-[10px] font-mono font-bold text-slate-700 dark:text-slate-300">
+                                                                    {asset.monitorPrice < 1
+                                                                        ? asset.monitorPrice.toLocaleString(locale || 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 8 })
+                                                                        : asset.monitorPrice.toLocaleString(locale || 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })
+                                                                    }
+                                                                </span>
+                                                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">
+                                                                    {asset.monitorSymbol}
+                                                                </span>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                ) : (
+                                                )}
+                                                {!asset.monitorSymbol && asset.lpRange && (
                                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 dark:bg-slate-800/50 dark:text-slate-500 italic">
                                                         Static Range
                                                     </span>

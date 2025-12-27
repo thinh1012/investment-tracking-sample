@@ -1,6 +1,22 @@
 # Development Changelog
 
 All notable changes to this project will be documented in this file.
+ 
+## [2025-12-26] - Strategist Intelligence & SQL Engine
+ 
+### Added
+- **Native SQL Intelligence Engine**: Integrated `better-sqlite3` to store ecosystem research in a physical `intelligence.db` file. This moves high-density scraping data outside of the browser's IndexedDB for better performance and persistence.
+- **Strategist Intelligence Brief**: New dashboard component for "Daily Intelligence" scrapes (HYPE, SUI).
+- **Automated Scraping Job**: Implemented a daily check mechanism in `App.jsx` that signals the AI agent to perform fresh scrapes if data is older than 24 hours.
+- **Architectural Reference Layer**: Created `SCHEMA.md` and `DOCUMENTATION_MAP.md` to provide a complete map of the vault's hybrid data model (SQL + NoSQL).
+- **AI Role Orchestration**: Formalized the 5-role system ([STRATEGIST], [ARCHITECT], [BUILDER], [CRITIC], [EXECUTIVE MANAGER]) with a dedicated `ROLES.md` and maintenance schedule.
+- **Electronic IPC Bridge**: Implemented secure Inter-Process Communication handlers and a Preload bridge to safely connect the frontend to the local filesystem.
+ 
+### Fixed
+- **Vite/ESM Compatibility**: Fixed a "require is not defined" crash in the main app entry by transitioning to standard ESM imports for core services.
+- **Schema Alignment**: Resolved a timestamp naming mismatch (`timestamp` vs `updatedAt`) that was causing data persistence glitches in the UI.
+ 
+---
 
 ## [2025-12-19] - Reliability, Scalability & Visual Excellence
 

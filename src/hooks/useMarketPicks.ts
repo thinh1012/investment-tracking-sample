@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { MarketPicksService, MarketPick, ManualHistoricalPriceService } from '../services/db';
 import { historicalPriceService, HistoricalPriceEntry } from '../services/historicalPriceService';
-import { deriveOpenPrice } from '../services/priceService';
+import { deriveOpenPrice, ChartPoint, fetchMarketChart } from '../services/priceService';
+import { StrategistIntelligenceService, StrategistIntel } from '../services/StrategistIntelligenceService';
 
 export const useMarketPicks = () => {
     const [picks, setPicks] = useState<MarketPick[]>([]);
     const [historicalData, setHistoricalData] = useState<Record<string, number>>({});
     const [manualHistoricalData, setManualHistoricalData] = useState<Record<string, number>>({});
+    const [intelData, setIntelData] = useState<Record<string, StrategistIntel>>({});
+    const [sparklines, setSparklines] = useState<Record<string, ChartPoint[]>>({});
     const [isLoading, setIsLoading] = useState(true);
 
     const loadPicks = async () => {
@@ -24,17 +27,30 @@ export const useMarketPicks = () => {
 
             // 2. Load latest daily open prices for all picks
             const historyMap: Record<string, number> = {};
-            const todayStr = new Date().toISOString().split('T')[0];
+            const intelMap: Record<string, StrategistIntel> = {};
+            const sparkMap: Record<string, ChartPoint[]> = {};
 
             for (const pick of data) {
-                const history = await historicalPriceService.getPerformance(pick.symbol);
+                const sym = pick.symbol;
+
+                // Fetch Historical Open
+                const history = await historicalPriceService.getPerformance(sym);
                 if (history && history.length > 0) {
-                    // Get the most recent entry
                     const latest = history.sort((a, b) => b.date.localeCompare(a.date))[0];
-                    historyMap[pick.symbol] = latest.open;
+                    historyMap[sym] = latest.open;
                 }
+
+                // Fetch Intel
+                const intel = await StrategistIntelligenceService.getIntel(sym);
+                if (intel) intelMap[sym] = intel;
+
+                // Fetch Sparkline (7 days)
+                const chart = await fetchMarketChart(sym, 7);
+                if (chart && chart.length > 0) sparkMap[sym] = chart;
             }
             setHistoricalData(historyMap);
+            setIntelData(intelMap);
+            setSparklines(sparkMap);
         } catch (e) {
             console.error("Failed to load market picks", e);
         } finally {
@@ -94,6 +110,8 @@ export const useMarketPicks = () => {
     return {
         picks,
         historicalData: { ...historicalData, ...manualHistoricalData },
+        intelData,
+        sparklines,
         isLoading,
         addPick,
         removePick,

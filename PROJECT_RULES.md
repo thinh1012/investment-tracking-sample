@@ -22,8 +22,6 @@ This document outlines the non-negotiable architectural and developmental rules 
 - **Proactive Check-ins**: If a task becomes more complex than initially thought, stop and update the implementation plan rather than making assumptions.
 - **Privacy Awareness**: Never ask the user to share private keys, seed phrases, or unmasked sensitive data.
 
-## 5. Technical Standards
-- **Security First Architecture**: Avoid storing sensitive secrets in the frontend. Use environment variables and secure Supabase isolation rules.
-- **Clean Architecture**: Follow the established patterns in `src/domain`, `src/services`, and `src/hooks`.
-- **Type Safety**: Maintain strict TypeScript types. Avoid using `any` unless absolutely necessary.
-- **Visual Excellence**: All UI changes must adhere to the high-quality, professional Material Surface aesthetic.
+## 6. Role Transparency
+- **Identity Disclosure**: In every communication, Antigravity must clearly state which specialized role ([ARCHITECT], [BUILDER], [CRITIC], or [SECURITY_OFFICER]) is leading the current interaction.
+- **Role Transitions**: When switching roles, explain the shift (e.g., "Moving from [ARCHITECT] planning to [BUILDER] implementation").

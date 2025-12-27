@@ -33,12 +33,11 @@ export const initDB = () => {
                     historicalStore.createIndex('by-symbol', 'symbol');
                     historicalStore.createIndex('by-date', 'date');
                 }
-                if (oldVersion < 7) {
-                    const manualHistStore = db.createObjectStore('manual_historical_prices', { keyPath: 'id' });
-                    manualHistStore.createIndex('by-symbol', 'symbol');
+                if (oldVersion < 8) {
+                    db.createObjectStore('strategist_intel', { keyPath: 'symbol' });
                 }
             },
         });
     }
     return dbPromise;
-};
+}

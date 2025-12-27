@@ -9,14 +9,14 @@ interface UseDashboardCalculationsProps {
 
 export const useDashboardCalculations = ({ assets, transactions, prices }: UseDashboardCalculationsProps) => {
     // --- State ---
-    const [manualPrincipal, setManualPrincipal] = useState<number | null>(() => {
-        const saved = localStorage.getItem('investment_tracker_manual_principal');
-        return saved ? parseFloat(saved) : null;
-    });
-
     const [fundingOffset, setFundingOffset] = useState<number | null>(() => {
         const saved = localStorage.getItem('investment_tracker_funding_offset');
         return saved ? parseFloat(saved) : null;
+    });
+
+    const [bucketOverrides, setBucketOverrides] = useState<Record<string, number>>(() => {
+        const saved = localStorage.getItem('investment_tracker_bucket_overrides');
+        return saved ? JSON.parse(saved) : {};
     });
 
     // --- Effects ---
@@ -46,8 +46,9 @@ export const useDashboardCalculations = ({ assets, transactions, prices }: UseDa
             setFundingOffset(newOffset);
             localStorage.setItem('investment_tracker_funding_offset', newOffset.toString());
             localStorage.setItem('investment_tracker_base_fix_16008_applied', 'true');
-            localStorage.removeItem('investment_tracker_manual_principal'); // Clear override
-            setManualPrincipal(null);
+            if (localStorage.getItem('investment_tracker_manual_principal')) {
+                localStorage.removeItem('investment_tracker_manual_principal');
+            }
             localStorage.removeItem('investment_tracker_manual_funding');
         }
     }, [transactions]);
@@ -55,41 +56,43 @@ export const useDashboardCalculations = ({ assets, transactions, prices }: UseDa
     // --- Calculations ---
     const totalValue = useMemo(() => assets.reduce((sum, a) => sum + (a.currentValue || a.totalInvested), 0), [assets]);
 
-    // Funding Breakdown
-    const fundingBreakdown = useMemo(() => {
-        return transactions.reduce((acc, t) => {
-            let amount = 0;
-            let currency = 'USD';
+    // 1. Principal Buckets (Cumulative Funding Ledger)
+    // This tracks WHERE the money came from, ignoring internal spend/swaps.
+    const principalBuckets = useMemo(() => {
+        const stableSymbols = ['USD', 'USDT', 'USDC', 'DAI', 'BUSD'];
+        const buckets = transactions.reduce((acc, t) => {
+            const symbol = t.assetSymbol.toUpperCase();
+            if (!stableSymbols.includes(symbol)) return acc;
 
             if (t.type === 'DEPOSIT') {
-                if (t.paymentCurrency) {
-                    currency = t.paymentCurrency;
-                    amount = t.paymentAmount || (t.pricePerUnit && t.amount ? t.pricePerUnit * t.amount : 0);
-                } else {
-                    amount = t.pricePerUnit && t.amount ? t.pricePerUnit * t.amount : 0;
+                // RULE: Only External Injections count towards Principal.
+                const isFresh = !t.paymentCurrency || stableSymbols.includes(t.paymentCurrency.toUpperCase());
+                if (isFresh) {
+                    acc[symbol] = (acc[symbol] || 0) + t.amount;
                 }
             } else if (t.type === 'WITHDRAWAL') {
-                if (t.linkedTransactionId) {
-                    const parent = transactions.find(Lx => Lx.id === t.linkedTransactionId);
-                    if (parent && parent.paymentAmount) {
-                        return acc;
-                    }
+                // RULE: Only True System Exits (No buy/swap notes) reduce Principal.
+                const isExit = !t.linkedTransactionId &&
+                    !t.notes?.toLowerCase().includes('buy') &&
+                    !t.notes?.toLowerCase().includes('swap');
+                if (isExit) {
+                    acc[symbol] = (acc[symbol] || 0) - t.amount;
                 }
-                amount = -(t.pricePerUnit && t.amount ? t.pricePerUnit * t.amount : 0);
-            } else {
-                return acc;
-            }
-
-            if (amount !== 0) {
-                acc[currency] = (acc[currency] || 0) + amount;
             }
             return acc;
         }, {} as Record<string, number>);
-    }, [transactions]);
+
+        // Initialize with Baseline Offset if set
+        if (fundingOffset !== null) {
+            buckets['USD'] = (buckets['USD'] || 0) + fundingOffset;
+        }
+
+        return buckets;
+    }, [transactions, fundingOffset]);
 
     const groupedBreakdown = useMemo(() => {
         const grouped: Record<string, number> = {};
-        Object.entries(fundingBreakdown).forEach(([currency, amount]) => {
+        Object.entries(principalBuckets).forEach(([currency, amount]) => {
             if (['USDT', 'USDC', 'USD', 'DAI'].includes(currency)) {
                 grouped['USD Stablecoins'] = (grouped['USD Stablecoins'] || 0) + amount;
             } else {
@@ -97,26 +100,35 @@ export const useDashboardCalculations = ({ assets, transactions, prices }: UseDa
             }
         });
 
-        // Apply Offset
-        if (grouped['USD Stablecoins'] !== undefined) {
-            grouped['USD Stablecoins'] += (fundingOffset || 0);
-        } else if (fundingOffset !== null) {
-            grouped['USD Stablecoins'] = fundingOffset;
-        }
+        // Apply Correction Deltas
+        // bucketOverrides now store the "Adjustment" needed to reach the target.
+        Object.entries(bucketOverrides).forEach(([curr, delta]) => {
+            if (delta !== 0) {
+                grouped[curr] = (grouped[curr] || 0) + delta;
+            }
+        });
         return grouped;
-    }, [fundingBreakdown, fundingOffset]);
+    }, [principalBuckets, bucketOverrides]);
 
-    const totalPrincipal = useMemo(() => Object.values(groupedBreakdown).reduce((sum, val) => sum + val, 0), [groupedBreakdown]);
-    const totalInvested = manualPrincipal !== null ? manualPrincipal : totalPrincipal;
+    // 2. Global Principal (Total Invested)
+    const totalInvested = useMemo(() => {
+        // Total Invested is ALWAYS the sum of all principal buckets.
+        // This ensures the Summary Card and the Buckets section are in sync.
+        return Object.values(groupedBreakdown).reduce((sum, val) => sum + val, 0);
+    }, [groupedBreakdown]);
 
     // Actions
-    const updateManualPrincipal = (val: number | null) => {
-        setManualPrincipal(val);
-        if (val !== null) {
-            localStorage.setItem('investment_tracker_manual_principal', val.toString());
-        } else {
-            localStorage.removeItem('investment_tracker_manual_principal');
+    const updateGlobalPrincipal = (targetVal: number | null) => {
+        if (targetVal === null) {
+            updateFundingOffset(null);
+            return;
         }
+        // Calculate the gap needed to reach targetVal from the current ledger
+        const currentTotal = Object.values(groupedBreakdown).reduce((sum, val) => sum + val, 0);
+        const currentOffset = fundingOffset || 0;
+        const rawLedger = currentTotal - currentOffset; // What the transactions say
+        const newOffset = targetVal - rawLedger;
+        updateFundingOffset(newOffset);
     };
 
     const updateFundingOffset = (newOffset: number | null) => {
@@ -128,6 +140,24 @@ export const useDashboardCalculations = ({ assets, transactions, prices }: UseDa
         }
     };
 
+    const updateBucketOverride = (currency: string, targetVal: number | null) => {
+        if (targetVal === null) {
+            const newOverrides = { ...bucketOverrides };
+            delete newOverrides[currency];
+            setBucketOverrides(newOverrides);
+            localStorage.setItem('investment_tracker_bucket_overrides', JSON.stringify(newOverrides));
+            return;
+        }
+
+        // Calculate the Delta between the current raw value and the target.
+        const rawVal = groupedBreakdown[currency] - (bucketOverrides[currency] || 0);
+        const delta = targetVal - rawVal;
+
+        const newOverrides = { ...bucketOverrides, [currency]: delta };
+        setBucketOverrides(newOverrides);
+        localStorage.setItem('investment_tracker_bucket_overrides', JSON.stringify(newOverrides));
+    };
+
     const resetBaseline = () => {
         localStorage.removeItem('investment_tracker_base_fix_16008_applied');
         window.location.reload();
@@ -137,10 +167,11 @@ export const useDashboardCalculations = ({ assets, transactions, prices }: UseDa
         totalInvested,
         totalValue,
         groupedBreakdown,
-        manualPrincipal,
         fundingOffset,
-        updateManualPrincipal,
+        bucketOverrides,
+        updateGlobalPrincipal,
         updateFundingOffset,
+        updateBucketOverride,
         resetBaseline
     };
 };

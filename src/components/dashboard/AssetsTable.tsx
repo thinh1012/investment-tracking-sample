@@ -94,7 +94,7 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, transactions, 
                                 Asset {assetSortKey === 'symbol' && (assetSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
                             </div>
                         </th>
-                        <th className="hidden md:table-cell px-6 py-5">Quantity</th>
+
                         <th className="hidden md:table-cell px-6 py-5">Avg Buy Price</th>
                         <th className="px-3 py-3 md:px-6 md:py-5">Price</th>
                         <th className="hidden lg:table-cell px-6 py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-right" onClick={() => handleAssetSort('totalInvested')}>
@@ -134,7 +134,7 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, transactions, 
                                             <span className="hidden md:inline text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">Token</span>
                                         </div>
                                     </td>
-                                    <td className="hidden md:table-cell px-6 py-5 text-slate-600 dark:text-slate-400 font-bold font-mono tracking-tight">{asset.quantity.toLocaleString(locale || 'en-US')}</td>
+
                                     <td className="hidden md:table-cell px-6 py-5 text-slate-500 dark:text-slate-400 group relative">
                                         <div className="flex items-center gap-2 font-mono font-medium">
                                             <span>${asset.averageBuyPrice.toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}</span>
@@ -222,7 +222,6 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, transactions, 
                                                                 <tr className="border-b border-slate-100 dark:border-slate-800">
                                                                     <th className="py-2 text-left">Date</th>
                                                                     <th className="py-2 text-left">Type</th>
-                                                                    <th className="py-2 text-right">Amount</th>
                                                                     <th className="py-2 text-right">Price</th>
                                                                     <th className="py-2 text-right">Running Qty</th>
                                                                 </tr>
@@ -231,25 +230,46 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ assets, transactions, 
                                                                 {(() => {
                                                                     let runningQty = 0;
                                                                     return transactions
-                                                                        .filter(t => t.assetSymbol.toUpperCase() === asset.symbol.toUpperCase())
+                                                                        .filter(t =>
+                                                                            t.assetSymbol.toUpperCase() === asset.symbol.toUpperCase() ||
+                                                                            (t.paymentCurrency && t.paymentCurrency.toUpperCase() === asset.symbol.toUpperCase())
+                                                                        )
                                                                         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                                                                         .map((t, tIdx) => {
-                                                                            if (t.type === 'DEPOSIT' || t.type === 'INTEREST') runningQty += Number(t.amount);
-                                                                            else if (t.type === 'WITHDRAWAL') runningQty -= Number(t.amount);
+                                                                            const isSource = t.assetSymbol.toUpperCase() === asset.symbol.toUpperCase();
+                                                                            let amountChange = 0;
+                                                                            let typeLabel: string = t.type;
+                                                                            let priceLabel = t.pricePerUnit ? `$${t.pricePerUnit.toLocaleString()}` : '-';
+
+                                                                            if (isSource) {
+                                                                                // Standard Deposit/Withdrawal/Interest
+                                                                                if (t.type === 'DEPOSIT' || t.type === 'INTEREST') amountChange = Number(t.amount);
+                                                                                else if (t.type === 'WITHDRAWAL') amountChange = -Number(t.amount);
+                                                                            } else {
+                                                                                // This asset was used as Payment (Spent)
+                                                                                amountChange = -Number(t.paymentAmount || 0);
+                                                                                typeLabel = `BOUGHT ${t.assetSymbol}`; // e.g., "BOUGHT ETH"
+                                                                                priceLabel = '-'; // Price irrelevant here, or could show implied price
+                                                                            }
+
+                                                                            if (isNaN(amountChange)) amountChange = 0; // Safety net
+                                                                            runningQty += amountChange;
 
                                                                             return (
                                                                                 <tr key={t.id || tIdx} className="text-slate-600 dark:text-slate-400">
                                                                                     <td className="py-2">{new Date(t.date).toLocaleDateString()}</td>
                                                                                     <td className="py-2 font-black">
-                                                                                        <span className={t.type === 'DEPOSIT' ? 'text-emerald-500' : t.type === 'WITHDRAWAL' ? 'text-rose-500' : 'text-indigo-500'}>
-                                                                                            {t.type}
+                                                                                        <span className={
+                                                                                            t.type === 'DEPOSIT' ? 'text-emerald-500' :
+                                                                                                t.type === 'WITHDRAWAL' ? 'text-rose-500' :
+                                                                                                    !isSource ? 'text-amber-500' : // Spent color
+                                                                                                        'text-indigo-500'
+                                                                                        }>
+                                                                                            {typeLabel}
                                                                                         </span>
                                                                                     </td>
-                                                                                    <td className="py-2 text-right font-mono font-bold">
-                                                                                        {t.type === 'WITHDRAWAL' ? '-' : '+'}{Number(t.amount).toLocaleString()}
-                                                                                    </td>
                                                                                     <td className="py-2 text-right font-mono">
-                                                                                        {t.pricePerUnit ? `$${t.pricePerUnit.toLocaleString()}` : '-'}
+                                                                                        {priceLabel}
                                                                                     </td>
                                                                                     <td className="py-2 text-right font-mono font-black text-slate-800 dark:text-slate-200">
                                                                                         {runningQty.toLocaleString()}

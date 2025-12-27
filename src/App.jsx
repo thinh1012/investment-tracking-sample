@@ -5,13 +5,15 @@ import { useNotification } from './context/NotificationContext';
 import { useAppNavigation } from './hooks/useAppNavigation';
 import { useDataStorage } from './hooks/useDataStorage';
 import { useWatchlist } from './hooks/useWatchlist';
+import { useMarketPicks } from './hooks/useMarketPicks';
+import { useMarketPicksNotifications } from './hooks/useMarketPicksNotifications';
 
 import { Dashboard } from './components/dashboard/Dashboard';
 import TransactionForm from './components/TransactionForm';
 import Settings from './components/Settings';
 import { CloudSyncModal } from './components/CloudSyncModal';
 import { Sidebar } from './components/layout/Sidebar';
-import { BackupService } from './services/db';
+import { BackupService, StrategistIntelligenceService } from './services/db';
 import { useCloudSync } from './hooks/useCloudSync';
 import { useAutoSync } from './hooks/useAutoSync';
 
@@ -32,9 +34,13 @@ function App() {
   const watchlistState = useWatchlist(refreshPrices);
   const { watchlist } = watchlistState;
 
+  // Market Picks State (For notifications)
+  const { picks } = useMarketPicks();
+  useMarketPicksNotifications(picks, prices, priceChanges);
+
   // 2. Cloud Sync (New Automated Flow)
   const syncState = useCloudSync();
-  const { user, syncKey, setSyncKey, uploadVault, lastSyncTime, isLoading: isSyncLoading, isCloudNewer, checkSyncStatus } = syncState;
+  const { user, syncKey, uploadVault, lastSyncTime, isLoading: isSyncLoading, isCloudNewer, checkSyncStatus } = syncState;
 
   // Auto-Sync Background Worker (Monitoring everything)
   const syncTrigger = React.useMemo(() => ({
@@ -68,6 +74,27 @@ function App() {
     return () => window.removeEventListener('cloud-vault-downloaded', handleCloudRestore);
   }, []);
 
+  // 4. Strategist Intelligence Service (Daily Job)
+  React.useEffect(() => {
+    const runCheck = async () => {
+      const needsJob = await StrategistIntelligenceService.runDailyCheck();
+      if (needsJob) {
+        console.log("App: Triggering Daily Scrape via Strategist Job Event");
+        window.dispatchEvent(new CustomEvent('strategist-job-requested'));
+      }
+    };
+
+    runCheck();
+
+    const handleJobRequest = () => {
+      console.log("App: Strategist Intelligence Job Signaled. Agent should perform scrape now.");
+      // This log is a signal for the Overseer/Agent to perform the subagent actions.
+    };
+
+    window.addEventListener('strategist-job-requested', handleJobRequest);
+    return () => window.removeEventListener('strategist-job-requested', handleJobRequest);
+  }, []);
+
   // 3. Navigation & UI State
   const {
     currentView, navigateTo, isMobileMenuOpen, setIsMobileMenuOpen,
@@ -75,7 +102,7 @@ function App() {
   } = useAppNavigation();
 
   // 3. Data Storage & Import/Export
-  const { downloadJSON, handleFileUpload } = useDataStorage(transactions, importTransactions, notify);
+  const { downloadJSON, downloadCSV, handleFileUpload } = useDataStorage(transactions, importTransactions, notify);
   const fileInputRef = useRef(null);
 
   // 4. Alerts
@@ -192,12 +219,15 @@ function App() {
             onAddCapital={handleAddCapital}
             onAddClaim={handleAddClaim}
             onUpdateAssetOverride={updateAssetOverride}
+            onExportCSV={downloadCSV}
             watchlistState={watchlistState}
             onSimulate={handleSimulate}
             simulatorState={simulatorState}
             lastSyncTime={lastSyncTime}
             isSyncLoading={isSyncLoading}
             isCloudNewer={isCloudNewer}
+            user={user}
+            syncKey={syncKey}
           />
         ) : (
           <Settings

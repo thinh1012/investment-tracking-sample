@@ -11,7 +11,9 @@ import { LPFeeTracker } from './LPFeeTracker';
 import { MarketPicks } from './MarketPicks';
 import DashboardNotes from '../DashboardNotes';
 import Watchlist from '../Watchlist';
-import { TrendingUp, TrendingDown, History } from 'lucide-react';
+import { DailyIntelligenceBrief } from './DailyIntelligenceBrief';
+import { TrendingUp, TrendingDown, History, Download, Book, Filter } from 'lucide-react';
+import { AccountingJournal } from './AccountingJournal';
 
 interface Props {
     assets: Asset[];
@@ -44,6 +46,9 @@ interface Props {
     lastSyncTime?: string | null;
     isSyncLoading?: boolean;
     isCloudNewer?: boolean;
+    onExportCSV?: () => void;
+    user?: any;
+    syncKey?: string;
 }
 
 export const Dashboard: React.FC<Props> = ({
@@ -74,7 +79,10 @@ export const Dashboard: React.FC<Props> = ({
     simulatorState,
     lastSyncTime,
     isSyncLoading,
-    isCloudNewer
+    isCloudNewer,
+    onExportCSV,
+    user,
+    syncKey
 }) => {
     const [activeAnalyticsTab, setActiveAnalyticsTab] = React.useState<'earnings' | 'yield'>('earnings');
 
@@ -83,12 +91,15 @@ export const Dashboard: React.FC<Props> = ({
         totalInvested,
         totalValue,
         groupedBreakdown,
-        manualPrincipal,
         fundingOffset,
-        updateManualPrincipal,
+        bucketOverrides,
+        updateGlobalPrincipal,
         updateFundingOffset,
+        updateBucketOverride,
         resetBaseline
     } = useDashboardCalculations({ assets, transactions, prices });
+
+    const isSyncPaused = user && !syncKey;
 
     return (
         <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
@@ -97,14 +108,22 @@ export const Dashboard: React.FC<Props> = ({
                 {/* Sync Status Indicator */}
                 <div className="flex items-center gap-3 px-3 py-1.5 md:px-4 md:py-2 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-sm">
                     <div className="relative">
-                        <div className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full ${isSyncLoading ? 'bg-indigo-500 animate-pulse' : 'bg-emerald-500'} shadow-[0_0_10px_rgba(16,185,129,0.3)]`}></div>
+                        <div className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full ${isSyncLoading ? 'bg-indigo-500 animate-pulse' :
+                            isSyncPaused ? 'bg-amber-500' :
+                                'bg-emerald-500'
+                            } shadow-[0_0_10px_rgba(16,185,129,0.3)]`}></div>
                         {isSyncLoading && <div className="absolute inset-0 w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-indigo-500 animate-ping opacity-75"></div>}
                     </div>
                     <div className="flex flex-col">
                         <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-1">Vault Status</span>
                         <div className="flex items-center gap-1.5">
-                            <span className={`text-[11px] md:text-xs font-bold leading-none ${isCloudNewer ? 'text-rose-500' : 'text-slate-700 dark:text-slate-200'}`}>
-                                {isSyncLoading ? 'Synchronizing...' : (isCloudNewer ? 'Cloud has Newer Data' : (lastSyncTime ? `Synced ${new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Not Cached Externally'))}
+                            <span className={`text-[11px] md:text-xs font-bold leading-none ${isCloudNewer ? 'text-rose-500' :
+                                isSyncPaused ? 'text-amber-600 dark:text-amber-400' :
+                                    'text-slate-700 dark:text-slate-200'
+                                }`}>
+                                {isSyncLoading ? 'Synchronizing...' :
+                                    isSyncPaused ? 'Sync Paused (Key Required)' :
+                                        (isCloudNewer ? 'Cloud has Newer Data' : (lastSyncTime ? `Synced ${new Date(lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Not Cached Externally'))}
                             </span>
                             {isCloudNewer && <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.5)]"></div>}
                         </div>
@@ -129,36 +148,42 @@ export const Dashboard: React.FC<Props> = ({
             </div>
 
             {view === 'dashboard' ? (
-                <div>
+                <div className="space-y-6 md:space-y-8">
+                    {/* Strategist Intelligence Brief */}
+                    {/* <DailyIntelligenceBrief /> */}
+
                     {/* 2. Summary Cards */}
                     <DashboardSummary
                         totalInvested={totalInvested}
                         totalValue={totalValue}
                         assets={assets}
-                        manualPrincipal={manualPrincipal}
-                        onUpdatePrincipal={updateManualPrincipal}
+                        fundingOffset={fundingOffset}
+                        onUpdatePrincipal={updateGlobalPrincipal}
                     />
+
+                    <div className="flex justify-end px-1 mb-2">
+                        <button
+                            onClick={onExportCSV}
+                            className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-500 transition-colors flex items-center gap-1.5"
+                            title="Export Transactions to CSV"
+                        >
+                            <History size={12} />
+                            Export CSV
+                        </button>
+                    </div>
 
                     {/* 3. Funding Breakdown */}
                     <FundingBreakdown
                         groupedBreakdown={groupedBreakdown}
                         fundingOffset={fundingOffset}
+                        bucketOverrides={bucketOverrides}
                         transactions={transactions}
                         onUpdateFundingOffset={updateFundingOffset}
+                        onUpdateBucketOverride={updateBucketOverride}
                         locale={locale}
                     />
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
-                        {/* 4. Assets Table */}
-                        <AssetsTable
-                            assets={assets}
-                            transactions={transactions}
-                            prices={prices}
-                            onRefreshPrices={onRefreshPrices}
-                            onUpdateAssetOverride={onUpdateAssetOverride}
-                            locale={locale}
-                        />
-
                         {/* 5. Liquidity Pools Table */}
                         <LiquidityPoolsTable
                             assets={assets}
@@ -174,6 +199,11 @@ export const Dashboard: React.FC<Props> = ({
                         transactions={transactions}
                         onEditClick={onEditClick}
                         onDeleteClick={onDeleteClick}
+                        locale={locale}
+                    />
+
+                    <AccountingJournal
+                        transactions={transactions}
                         locale={locale}
                     />
                 </div>

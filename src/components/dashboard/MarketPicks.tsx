@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Plus, X, Activity, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, X, Activity, ArrowUpDown, ArrowUp, ArrowDown, Bell, BellOff } from 'lucide-react';
+import { useSettings } from '../../hooks/useSettings';
+import { useNotification } from '../../context/NotificationContext';
 import { useMarketPicks } from '../../hooks/useMarketPicks';
 import { AddPickForm } from './market-picks/AddPickForm';
 import { MarketPickRow } from './market-picks/MarketPickRow';
@@ -16,10 +18,21 @@ type SortKey = 'symbol' | 'price' | 'change' | 'volume';
 type SortDirection = 'asc' | 'desc';
 
 export const MarketPicks: React.FC<Props> = ({ prices, priceChanges = {}, priceVolumes = {}, locale, onSimulate }) => {
-    const { picks, addPick, removePick, historicalData, saveManualOpen } = useMarketPicks();
+    const { picks, addPick, removePick, historicalData, intelData, sparklines, saveManualOpen } = useMarketPicks();
+    const { settings, setSettings, handleSave } = useSettings();
+    const { notify } = useNotification();
     const [searchTerm, setSearchTerm] = useState('');
     const [isAdding, setIsAdding] = useState(false);
     const [editingOpenSymbol, setEditingOpenSymbol] = useState<string | null>(null);
+
+    const togglePicksNotif = async () => {
+        const newValue = !settings.marketPicksNotifEnabled;
+        setSettings({ ...settings, marketPicksNotifEnabled: newValue });
+        // We'll call save logic immediately for persistence since this is a quick toggle
+        const { SettingsService } = await import('../../services/db');
+        await SettingsService.save({ ...settings, marketPicksNotifEnabled: newValue });
+        notify.info(newValue ? 'Picks notifications enabled 🔔' : 'Picks notifications muted 🔕');
+    };
 
     // Sort State
     const [sortKey, setSortKey] = useState<SortKey>('price');
@@ -103,6 +116,7 @@ export const MarketPicks: React.FC<Props> = ({ prices, priceChanges = {}, priceV
                     <SortIcon column="change" />
                     <span>24h %</span>
                 </span>
+                <span className="w-20 flex items-center justify-end">Perf</span>
                 <span
                     className="w-20 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 flex items-center justify-end gap-1 group transition-colors"
                     onClick={() => handleSort('volume')}
@@ -110,6 +124,7 @@ export const MarketPicks: React.FC<Props> = ({ prices, priceChanges = {}, priceV
                     <SortIcon column="volume" />
                     <span>Vol</span>
                 </span>
+                <span className="w-24 flex items-center justify-end">Trend</span>
                 <span className="w-10"></span>
                 <span className="w-6"></span>
             </div>
@@ -126,12 +141,24 @@ export const MarketPicks: React.FC<Props> = ({ prices, priceChanges = {}, priceV
                     <Activity size={18} className="text-purple-500" />
                     Market Picks
                 </h3>
-                <button
-                    onClick={() => setIsAdding(!isAdding)}
-                    className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-500 transition-colors"
-                >
-                    {isAdding ? <X size={16} /> : <Plus size={16} />}
-                </button>
+                <div className="flex items-center gap-1">
+                    <button
+                        onClick={togglePicksNotif}
+                        className={`p-1.5 rounded-lg transition-colors ${settings.marketPicksNotifEnabled
+                            ? 'text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'
+                            : 'text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                            }`}
+                        title={settings.marketPicksNotifEnabled ? "Disable Updates" : "Enable Updates"}
+                    >
+                        {settings.marketPicksNotifEnabled ? <Bell size={16} /> : <BellOff size={16} />}
+                    </button>
+                    <button
+                        onClick={() => setIsAdding(!isAdding)}
+                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-500 transition-colors"
+                    >
+                        {isAdding ? <X size={16} /> : <Plus size={16} />}
+                    </button>
+                </div>
             </div>
 
             {isAdding && (
@@ -168,6 +195,8 @@ export const MarketPicks: React.FC<Props> = ({ prices, priceChanges = {}, priceV
                                             change={priceChanges[pick.symbol]}
                                             volume={priceVolumes[pick.symbol]}
                                             openPrice={historicalData[pick.symbol]}
+                                            intel={intelData[pick.symbol]}
+                                            sparkline={sparklines[pick.symbol]}
                                             locale={locale}
                                             editingOpen={editingOpenSymbol === pick.symbol}
                                             onEditOpen={() => setEditingOpenSymbol(pick.symbol)}
@@ -197,6 +226,8 @@ export const MarketPicks: React.FC<Props> = ({ prices, priceChanges = {}, priceV
                                             change={priceChanges[pick.symbol]}
                                             volume={priceVolumes[pick.symbol]}
                                             openPrice={historicalData[pick.symbol]}
+                                            intel={intelData[pick.symbol]}
+                                            sparkline={sparklines[pick.symbol]}
                                             locale={locale}
                                             editingOpen={editingOpenSymbol === pick.symbol}
                                             onEditOpen={() => setEditingOpenSymbol(pick.symbol)}

@@ -76,8 +76,50 @@ export const useDataStorage = (
         }
     };
 
+    const downloadCSV = () => {
+        const headers = [
+            'ID', 'Date', 'Asset', 'Type', 'Amount', 'Price', 'Currency',
+            'Platform', 'Source', 'Fee', 'Fee Currency', 'Notes',
+            'LP Range', 'Monitor Symbol', 'Related Assets'
+        ];
+
+        const rows = transactions.map(tx => [
+            tx.id,
+            tx.date,
+            tx.assetSymbol,
+            tx.type,
+            tx.amount,
+            tx.pricePerUnit || tx.paymentAmount || '',
+            tx.paymentCurrency || '',
+            tx.platform || '',
+            tx.source || '',
+            tx.fee || '',
+            tx.feeCurrency || '',
+            tx.notes || '',
+            tx.lpRange ? `${tx.lpRange.min} - ${tx.lpRange.max}` : '',
+            tx.monitorSymbol || '',
+            tx.relatedAssetSymbols ? tx.relatedAssetSymbols.join('; ') : (tx.relatedAssetSymbol || '')
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `crypto_transactions_backup_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        notify.success('CSV Exported successfully');
+    };
+
     return {
         downloadJSON,
+        downloadCSV,
         handleFileUpload,
         sanitizeData // Exported for testing
     };

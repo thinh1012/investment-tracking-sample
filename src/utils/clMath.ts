@@ -52,8 +52,8 @@ export const calculateRequiredAmounts = (
         // totalValue = x * P + y
         // x = L * (sqrtPb - sqrtP) / (sqrtP * sqrtPb)
         // y = L * (sqrtP - sqrtPa)
-        // totalValue = L * [(sqrtPb - sqrtP) / sqrtPb + (sqrtP - sqrtPa)]
-        const multiplier = ((sqrtPb - sqrtP) / sqrtPb) + (sqrtP - sqrtPa);
+        // x * P = L * (sqrtPb - sqrtP) * sqrtP / sqrtPb
+        const multiplier = ((sqrtPb - sqrtP) * sqrtP / sqrtPb) + (sqrtP - sqrtPa);
         liquidity = depositValueUsdc / multiplier;
     }
 
@@ -167,4 +167,30 @@ export const getPriceForTargetSplit = (
     }
 
     return (low + high) / 2;
+};
+
+/**
+ * Calculates the Delta (exposure to Token 0) of a concentrated liquidity position.
+ * This represents how many units of Token 0 the position "effectively" owns.
+ */
+export const calculateDelta = (
+    currentPrice: number,
+    lowerPrice: number,
+    upperPrice: number,
+    liquidity: number
+): number => {
+    const sqrtP = Math.sqrt(currentPrice);
+    const sqrtPa = Math.sqrt(lowerPrice);
+    const sqrtPb = Math.sqrt(upperPrice);
+
+    if (currentPrice <= lowerPrice) {
+        // Entirely Token 0
+        return liquidity * (sqrtPb - sqrtPa) / (sqrtPa * sqrtPb);
+    } else if (currentPrice >= upperPrice) {
+        // Entirely Token 1 (effectively 0 delta to Token 0)
+        return 0;
+    } else {
+        // Partial exposure
+        return liquidity * (sqrtPb - sqrtP) / (sqrtP * sqrtPb);
+    }
 };

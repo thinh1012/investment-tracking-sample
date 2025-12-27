@@ -7,7 +7,9 @@ A robust, local-first portfolio tracking application built with React, Vite, and
 *   **Portfolio Tracking**: Track current holdings across Wallets and Liquidity Pools (LP).
 *   **Accumulation Goals**: Set targets and track your progress automatically.
 *   **Performance Analytics**: PnL calculation, Average Buy Price, and ROI tracking.
-*   **Data Privacy**: All data is stored locally in your browser (IndexedDB).
+*   **Data Privacy**: All core portfolio data is stored locally in your browser (IndexedDB).
+*   **Intelligence Engine**: Native **SQLite**-powered ecosystem research with high-density data persistence.
+*   **Desktop App**: Electron-powered desktop experience with native filesystem access.
 *   **Notifications**: Set price alerts via Telegram or Email.
 
 ## Getting Started
@@ -53,9 +55,11 @@ Since data is stored locally, you need to manually export/import it when switchi
 4.  Confirm the restore action. The app will reload with all your data intact.
 
 ## Tech Stack
-*   **Frontend**: React, TypeScript, Vite
-*   **Styling**: Tailwind CSS
-*   **State/Storage**: React Context, IndexedDB (`idb`)
+*   **Frontend**: React (v19), TypeScript, Vite
+*   **Desktop**: Electron
+*   **Storage**: SQLite (`better-sqlite3`), IndexedDB (`idb`)
+*   **Styling**: Tailwind CSS (v4)
+*   **Analytics/Charts**: Recharts
 *   **Icons**: Lucide React
 *   **Testing**: Vitest
 

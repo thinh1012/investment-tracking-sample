@@ -86,6 +86,11 @@ export interface NotificationSettings {
     // Custom Templates
     priceAlertTemplate?: string;
     lpAlertTemplate?: string;
+
+    // Periodic Market Updates
+    marketPicksNotifEnabled?: boolean;
+    marketPicksNotifInterval?: number; // in milliseconds
+    marketPicksAlertTemplate?: string;
 }
 
 export type AlertCondition = 'ABOVE' | 'BELOW';

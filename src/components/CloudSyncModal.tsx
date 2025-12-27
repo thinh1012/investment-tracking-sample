@@ -142,6 +142,16 @@ export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore, sy
                                 </button>
                             </div>
 
+                            {user && !syncKey && (
+                                <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl flex items-start gap-2 shadow-sm animate-in slide-in-from-top-1">
+                                    <AlertTriangle size={16} className="text-amber-500 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                        <p className="text-xs font-bold text-amber-800 dark:text-amber-300">Auto-Sync Paused</p>
+                                        <p className="text-[10px] text-amber-700 dark:text-amber-400 mt-0.5">Please enter your private password below to resume background protection.</p>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1">
                                     <Lock size={12} /> Sync Password (The Key)
@@ -244,7 +254,7 @@ export const CloudSyncModal: React.FC<Props> = ({ isOpen, onClose, onRestore, sy
                         </div>
                     )}
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };

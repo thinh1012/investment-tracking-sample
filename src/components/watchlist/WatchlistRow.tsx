@@ -45,15 +45,15 @@ export const WatchlistRow: React.FC<Props> = (props) => {
 
     return (
         <tr className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-            <td className="py-3 font-bold text-slate-700 dark:text-slate-200">
+            <td className="py-4 px-4 font-black text-slate-800 dark:text-white text-base">
                 {item.symbol}
             </td>
-            <td className="py-3 text-right text-slate-900 dark:text-white font-mono">
-                {currentPrice > 0 ? `$${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 4 })}` : <span className="text-xs text-slate-400">Loading...</span>}
+            <td className="py-4 px-4 text-right text-slate-900 dark:text-white font-mono text-base font-bold">
+                {currentPrice > 0 ? `$${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : <span className="text-xs text-slate-400">Loading...</span>}
             </td>
 
             {/* Target Buy */}
-            <td className="py-3 text-right font-mono">
+            <td className="py-4 px-4 text-right font-mono">
                 {isEditing ? (
                     <input
                         type="number"
@@ -64,13 +64,13 @@ export const WatchlistRow: React.FC<Props> = (props) => {
                     />
                 ) : (
                     item.targetBuyPrice ? (
-                        <span className="text-slate-700 dark:text-slate-300">${item.targetBuyPrice.toLocaleString()}</span>
+                        <span className="text-slate-800 dark:text-slate-100 font-bold">${item.targetBuyPrice.toLocaleString()}</span>
                     ) : <span className="text-slate-300">-</span>
                 )}
             </td>
 
             {/* Target Sell */}
-            <td className="py-3 text-right font-mono">
+            <td className="py-4 px-4 text-right font-mono">
                 {isEditing ? (
                     <input
                         type="number"
@@ -80,7 +80,7 @@ export const WatchlistRow: React.FC<Props> = (props) => {
                     />
                 ) : (
                     item.targetSellPrice ? (
-                        <span className="text-slate-700 dark:text-slate-300">${item.targetSellPrice.toLocaleString()}</span>
+                        <span className="text-slate-800 dark:text-slate-100 font-bold">${item.targetSellPrice.toLocaleString()}</span>
                     ) : <span className="text-slate-300">-</span>
                 )}
             </td>
@@ -118,7 +118,7 @@ export const WatchlistRow: React.FC<Props> = (props) => {
             </td>
 
             {/* Note */}
-            <td className="py-3 pl-4 text-slate-500 dark:text-slate-400 max-w-[150px]">
+            <td className="py-4 px-4 text-slate-600 dark:text-slate-100 max-w-[200px]">
                 {isEditing ? (
                     <input
                         type="text"
@@ -127,7 +127,7 @@ export const WatchlistRow: React.FC<Props> = (props) => {
                         className="w-full p-1 text-sm border border-indigo-200 rounded focus:border-indigo-500 outline-none dark:bg-slate-800 dark:border-slate-600"
                     />
                 ) : (
-                    <div className="truncate" title={item.note}>{item.note || '-'}</div>
+                    <div className="truncate font-bold italic opacity-90" title={item.note}>{item.note || '-'}</div>
                 )}
             </td>
 
@@ -146,23 +146,23 @@ export const WatchlistRow: React.FC<Props> = (props) => {
             </td>
 
             {/* Actions */}
-            <td className="py-3 text-right">
+            <td className="py-4 px-4 text-right">
                 {isEditing ? (
-                    <div className="flex justify-end gap-1">
-                        <button onClick={() => onSaveEdit(item.id)} className="px-2 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                    <div className="flex justify-end gap-2">
+                        <button onClick={() => onSaveEdit(item.id)} className="px-3 py-1 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold shadow-lg shadow-indigo-500/20">
                             Save
                         </button>
-                        <button onClick={onCancelEdit} className="px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded">
+                        <button onClick={onCancelEdit} className="px-3 py-1 text-sm text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
                             Cancel
                         </button>
                     </div>
                 ) : (
-                    <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => onEdit(item)} className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" title="Edit">
-                            <Pencil size={16} />
+                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                        <button onClick={() => onEdit(item)} className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" title="Edit">
+                            <Pencil size={18} />
                         </button>
-                        <button onClick={() => onDelete(item.id)} className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors" title="Remove">
-                            <Trash2 size={16} />
+                        <button onClick={() => onDelete(item.id)} className="p-2 text-slate-400 hover:text-rose-500 transition-colors" title="Remove">
+                            <Trash2 size={18} />
                         </button>
                     </div>
                 )}

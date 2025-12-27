@@ -1,6 +1,6 @@
-import React from 'react';
-import { TrendingUp, TrendingDown, X, Calculator } from 'lucide-react';
-import { deriveOpenPrice } from '../../../services/priceService';
+import { TrendingUp, TrendingDown, X, Calculator, Zap } from 'lucide-react';
+import { deriveOpenPrice, ChartPoint } from '../../../services/priceService';
+import { StrategistIntel } from '../../../services/StrategistIntelligenceService';
 
 interface Props {
     pick: { symbol: string };
@@ -8,6 +8,8 @@ interface Props {
     change: number | null | undefined;
     volume: number | null | undefined;
     openPrice?: number;
+    intel?: StrategistIntel;
+    sparkline?: ChartPoint[];
     locale?: string;
     editingOpen: boolean;
     onEditOpen: (value: string) => void;
@@ -32,18 +34,22 @@ const formatPrice = (num: number | null | undefined, locale?: string, isIndicato
 };
 
 export const MarketPickRow: React.FC<Props> = ({
-    pick, price, change, volume, openPrice, locale,
+    pick, price, change, volume, openPrice, intel, sparkline, locale,
     editingOpen, onEditOpen, onSaveOpen, onCancelEdit, onRemove, onSimulate
 }) => {
     return (
         <div className="group flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700/50 gap-2">
             {/* Asset Info */}
             <div className="flex items-center gap-3 w-[160px] min-w-[160px]">
-                <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-[10px] font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/30">
-                    {pick.symbol.substring(0, 3)}
+                <div className="relative">
+                    <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-[10px] font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/30">
+                        {pick.symbol.substring(0, 3)}
+                    </div>
                 </div>
                 <div className="truncate">
-                    <div className="font-bold text-slate-700 dark:text-slate-200 text-sm truncate">{pick.symbol}</div>
+                    <div className="font-bold text-slate-700 dark:text-slate-200 text-sm truncate">
+                        {pick.symbol}
+                    </div>
                 </div>
             </div>
 
@@ -74,19 +80,29 @@ export const MarketPickRow: React.FC<Props> = ({
                             autoFocus
                         />
                     ) : (() => {
-                        const displayOpen = openPrice || deriveOpenPrice(price, change);
-                        const isEstimated = !openPrice && !!displayOpen;
+                        // Current logic:
+                        // 'openPrice' contains either a daily open from history OR a manual override.
+                        // 'rollingOpen' is derived from (currentPrice, 24hChange).
+
+                        const rollingOpen = deriveOpenPrice(price, change);
+
+                        // To be "correct" in a live dashboard, the Open price MUST match the 24h change.
+                        // We prioritize the derived rolling open so it remains consistent with the % change.
+                        // If we have a manual override (or historical data) and NO change data, we fall back to history.
+                        const displayOpen = rollingOpen || openPrice;
+
+                        const isRolling = !!rollingOpen;
 
                         return (
                             <span
                                 onClick={() => onEditOpen((displayOpen || price || 0).toString())}
                                 className={`cursor-pointer hover:text-purple-500 transition-colors ${!displayOpen ? 'opacity-50' : ''}`}
-                                title={isEstimated ? "Estimated from 24h change. Click to set manually." : "Daily Open. Click to override."}
+                                title={isRolling ? "Rolling 24h Open (matches % change). Click to override." : "Daily Open. Click to override."}
                             >
                                 {displayOpen ? (
                                     <>
                                         {formatPrice(displayOpen, locale, pick.symbol.endsWith('.D'))}
-                                        {isEstimated && <span className="ml-0.5 text-[8px] opacity-70">*</span>}
+                                        {isRolling && <span className="ml-0.5 text-[8px] opacity-70">*</span>}
                                     </>
                                 ) : '---'}
                             </span>
@@ -112,9 +128,50 @@ export const MarketPickRow: React.FC<Props> = ({
                     )}
                 </div>
 
+                {/* Perf since Open */}
+                <div className="w-20 font-mono text-[11px] font-bold">
+                    {(() => {
+                        const displayOpen = deriveOpenPrice(price, change) || openPrice;
+                        if (displayOpen && price) {
+                            const perf = ((price - displayOpen) / displayOpen) * 100;
+                            return (
+                                <span className={perf >= 0 ? 'text-emerald-500' : 'text-rose-500'}>
+                                    {perf >= 0 ? '+' : ''}{perf.toFixed(1)}%
+                                </span>
+                            );
+                        }
+                        return <span className="text-slate-300">—</span>;
+                    })()}
+                </div>
+
                 {/* Volume */}
                 <div className="w-20 font-mono text-[10px] text-slate-500 dark:text-slate-400">
                     {formatVolume(volume, locale)}
+                </div>
+
+                {/* Sparkline Trend */}
+                <div className="w-24 h-8 flex items-center justify-end">
+                    {sparkline && sparkline.length > 1 ? (
+                        <svg className="w-full h-full" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path
+                                d={`M ${sparkline.map((p, i) => {
+                                    const x = (i / (sparkline.length - 1)) * 100;
+                                    const pricesArray = sparkline.map(sp => sp.price);
+                                    const min = Math.min(...pricesArray);
+                                    const max = Math.max(...pricesArray);
+                                    const y = 30 - ((p.price - min) / (max - min || 1)) * 30;
+                                    return `${x} ${y}`;
+                                }).join(' L ')}`}
+                                fill="none"
+                                stroke={sparkline[sparkline.length - 1].price >= sparkline[0].price ? '#10b981' : '#f43f5e'}
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                    ) : (
+                        <div className="h-px w-10 bg-slate-100 dark:bg-slate-800" />
+                    )}
                 </div>
 
                 {/* Simulate Button */}

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Calculator, ArrowRight, TrendingUp, TrendingDown, Info, HelpCircle } from 'lucide-react';
-import { calculateRequiredAmounts, projectPositionValue, calculateIL, getPriceForTargetSplit } from '../../utils/clMath';
+import { Calculator, ArrowRight, TrendingUp, TrendingDown, Info, HelpCircle, Layers } from 'lucide-react';
+import { calculateRequiredAmounts, projectPositionValue, calculateIL, getPriceForTargetSplit, calculateDelta } from '../../utils/clMath';
+import { fetchPrice } from '../../services/priceService';
 
 interface Props {
     initialBaseSymbol?: string;
@@ -20,6 +21,8 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
     const [duration, setDuration] = useState(30); // in days
     const [targetPrice, setTargetPrice] = useState(initialPrice * 1.1);
 
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
     // Sync with initial props if they change
     useEffect(() => {
         if (initialBaseSymbol) setTokenA(initialBaseSymbol);
@@ -31,7 +34,22 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
         }
     }, [initialBaseSymbol, initialPrice]);
 
-    // Calculations
+    const syncWithMarket = async () => {
+        setIsRefreshing(true);
+        try {
+            const data = await fetchPrice(tokenA);
+            if (data && data.price > 0) {
+                setEntryPrice(data.price);
+                // Also update target price relative to new entry
+                setTargetPrice(data.price * (targetPrice / entryPrice));
+            }
+        } catch (e) {
+            console.error("Failed to sync price:", e);
+        } finally {
+            setIsRefreshing(false);
+        }
+    };
+
     const results = useMemo(() => {
         if (entryPrice <= 0 || rangeMin <= 0 || rangeMax <= 0 || rangeMin >= rangeMax) {
             return null;
@@ -45,12 +63,31 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
         const totalFees = projection.lpValue * dailyRate * duration;
         const netPnl = projection.ilUsdc + totalFees;
 
+        // Delta-Neutral / Hedge Logic
+        const deltaAtEntry = calculateDelta(entryPrice, rangeMin, rangeMax, initial.liquidity);
+
+        // Days to break even (to cover current IL with fees)
+        const dailyFeeReturn = projection.lpValue * dailyRate;
+        const daysToBreakEven = dailyFeeReturn > 0 && projection.ilUsdc < 0
+            ? Math.abs(projection.ilUsdc) / dailyFeeReturn
+            : 0;
+
+        // Range Check
+        const isOutOfRangeLow = targetPrice <= rangeMin;
+        const isOutOfRangeHigh = targetPrice >= rangeMax;
+        const isOutOfRange = isOutOfRangeLow || isOutOfRangeHigh;
+        const rangeStatus = isOutOfRangeLow ? 'DEVALUED' : (isOutOfRangeHigh ? 'CAPPED' : 'ACTIVE');
+
         return {
             initial,
             projection,
             estimatedFees: totalFees,
             netPnl,
-            targetChange: ((targetPrice / entryPrice) - 1) * 100
+            targetChange: ((targetPrice / entryPrice) - 1) * 100,
+            deltaAtEntry,
+            daysToBreakEven,
+            isOutOfRange,
+            rangeStatus
         };
     }, [entryPrice, rangeMin, rangeMax, depositValue, targetPrice, feeApr, duration]);
 
@@ -106,7 +143,16 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase">Entry Price ({tokenB})</label>
+                            <div className="flex justify-between items-center">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase">Entry Price ({tokenB})</label>
+                                <button
+                                    onClick={syncWithMarket}
+                                    disabled={isRefreshing}
+                                    className="text-[9px] font-black uppercase text-purple-500 hover:text-purple-600 transition-colors flex items-center gap-1"
+                                >
+                                    {isRefreshing ? 'Syncing...' : 'Sync Market'}
+                                </button>
+                            </div>
                             <input
                                 type="number"
                                 value={entryPrice}
@@ -166,8 +212,14 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
                         </div>
 
                         <div className="flex justify-between text-[10px] font-mono text-slate-400">
-                            <span>{results.initial.amount0.toFixed(4)} {tokenA}</span>
-                            <span>{results.initial.amount1.toFixed(2)} {tokenB}</span>
+                            <div className="flex flex-col">
+                                <span>{results.initial.amount0.toFixed(4)} {tokenA}</span>
+                                <span className="text-[9px] opacity-70">${(results.initial.amount0 * entryPrice).toLocaleString(locale, { maximumFractionDigits: 2 })}</span>
+                            </div>
+                            <div className="flex flex-col items-end">
+                                <span>{results.initial.amount1.toFixed(2)} {tokenB}</span>
+                                <span className="text-[9px] opacity-70">${(results.initial.amount1).toLocaleString(locale, { maximumFractionDigits: 2 })}</span>
+                            </div>
                         </div>
                     </div>
 
@@ -246,9 +298,33 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
                                 ({((results.projection.lpValue / depositValue - 1) * 100).toFixed(2)}%)
                             </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-1 font-mono">
-                            {projectPositionValue(targetPrice, rangeMin, rangeMax, results.initial.liquidity).amount0.toFixed(4)} {tokenA} + {projectPositionValue(targetPrice, rangeMin, rangeMax, results.initial.liquidity).amount1.toFixed(2)} {tokenB}
-                        </p>
+                        <div className="text-[11px] text-slate-500 mt-1 font-mono flex gap-x-2 flex-wrap">
+                            <span>{projectPositionValue(targetPrice, rangeMin, rangeMax, results.initial.liquidity).amount0.toFixed(4)} {tokenA} (${(projectPositionValue(targetPrice, rangeMin, rangeMax, results.initial.liquidity).amount0 * targetPrice).toLocaleString(locale, { maximumFractionDigits: 2 })})</span>
+                            <span className="opacity-30">+</span>
+                            <span>{projectPositionValue(targetPrice, rangeMin, rangeMax, results.initial.liquidity).amount1.toFixed(2)} {tokenB} (${(projectPositionValue(targetPrice, rangeMin, rangeMax, results.initial.liquidity).amount1).toLocaleString(locale, { maximumFractionDigits: 2 })})</span>
+                        </div>
+
+                        {results.isOutOfRange && (
+                            <div className={`mt-4 p-3 rounded-xl border flex gap-3 animate-in fade-in slide-in-from-top-2 ${results.rangeStatus === 'CAPPED'
+                                ? 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-500'
+                                : 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-500'
+                                }`}>
+                                <div className="mt-0.5">
+                                    <TrendingDown size={14} />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black uppercase tracking-widest leading-none">
+                                        Out of Range: {results.rangeStatus}
+                                    </p>
+                                    <p className="text-[11px] font-medium leading-snug">
+                                        {results.rangeStatus === 'CAPPED'
+                                            ? `Profit Cap Reached. You are now 100% ${tokenB}. You've stopped exposure to ${tokenA}'s upside.`
+                                            : `Max Exposure Reached. You are now 100% ${tokenA}. You are suffering full exposure to the price crash.`
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* IL Box */}
@@ -268,6 +344,47 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
                                 <p className="font-bold mb-1 text-rose-400">Why does it magnify risk?</p>
                                 Concentrated Liquidity acts like leverage. Because your capital is "efficiently" deployed in a narrow range, price movement outside that range affects your portfolio value more drastically than in standard (0 to ∞) pools.
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Hedge & Delta Analysis */}
+                    <div className="bg-slate-800 dark:bg-slate-900 p-6 rounded-2xl border border-slate-700 shadow-xl overflow-hidden relative">
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                            <Layers className="text-white" size={48} />
+                        </div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Risk Management (Hedge)</label>
+                        <div className="mt-4 grid grid-cols-2 gap-4">
+                            <div>
+                                <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Exposure (Delta)</p>
+                                <p className="text-lg font-bold font-mono text-white">
+                                    {results.deltaAtEntry.toFixed(4)} <span className="text-[10px] text-slate-400">{tokenA}</span>
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-[9px] font-black text-indigo-400 uppercase mb-1">Delta-Neutral Short</p>
+                                <p className="text-lg font-bold font-mono text-indigo-400">
+                                    {results.deltaAtEntry.toFixed(4)} <span className="text-[10px] text-indigo-400/60">{tokenA}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div className="mt-4 pt-4 border-t border-slate-700/50">
+                            <div className="flex justify-between items-center text-[10px] font-black uppercase">
+                                <span className="text-slate-500">Break-even vs IL</span>
+                                <span className={results.daysToBreakEven > duration ? 'text-rose-500' : 'text-emerald-500'}>
+                                    {results.daysToBreakEven.toFixed(1)} Days
+                                </span>
+                            </div>
+                            <div className="w-full h-1 bg-slate-700 rounded-full mt-2 overflow-hidden">
+                                <div
+                                    className={`h-full transition-all duration-500 ${results.daysToBreakEven > duration ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                                    style={{ width: `${Math.min(100, (results.daysToBreakEven / duration) * 100)}%` }}
+                                />
+                            </div>
+                            <p className="text-[9px] text-slate-500 mt-2 italic">
+                                {results.daysToBreakEven > duration
+                                    ? `Fees haven't offset IL yet. Need ${(results.daysToBreakEven - duration).toFixed(0)} more days.`
+                                    : `Fees have theoretically offset the IL incurred at this price.`}
+                            </p>
                         </div>
                     </div>
 

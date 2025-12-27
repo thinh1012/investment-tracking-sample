@@ -59,7 +59,17 @@ export interface CryptoDB extends DBSchema {
         value: { symbol: string; open: number; date: string; id: string };
         indexes: { 'by-symbol': string };
     };
+    strategist_intel: {
+        key: string;
+        value: {
+            symbol: string;
+            metrics: Record<string, any>;
+            verdict: string;
+            rating: 'GOOD' | 'BAD' | 'RISKY' | 'STRONG BUY';
+            updatedAt: number;
+        };
+    };
 }
 
 export const DB_NAME = 'crypto-investment-db';
-export const DB_VERSION = 7;
+export const DB_VERSION = 8;

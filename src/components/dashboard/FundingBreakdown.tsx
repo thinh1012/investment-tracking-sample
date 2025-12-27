@@ -5,14 +5,24 @@ import { Transaction } from '../../types';
 interface FundingBreakdownProps {
     groupedBreakdown: Record<string, number>;
     fundingOffset: number | null;
+    bucketOverrides: Record<string, number | null>;
     transactions: Transaction[];
     onUpdateFundingOffset: (offset: number | null) => void;
+    onUpdateBucketOverride: (curr: string, val: number | null) => void;
     locale?: string;
 }
 
-export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({ groupedBreakdown, fundingOffset, transactions, onUpdateFundingOffset, locale }) => {
+export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({
+    groupedBreakdown,
+    fundingOffset,
+    bucketOverrides,
+    transactions,
+    onUpdateFundingOffset,
+    onUpdateBucketOverride,
+    locale
+}) => {
     const [isFundingHistoryOpen, setIsFundingHistoryOpen] = useState(false);
-    const [isEditingFunding, setIsEditingFunding] = useState(false);
+    const [editingCurrency, setEditingCurrency] = useState<string | null>(null);
     const [tempFunding, setTempFunding] = useState('');
 
     return (
@@ -23,11 +33,11 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({ groupedBreak
                         <div className="p-1 px-2 mesh-gradient rounded-lg text-white text-[10px] font-black tracking-widest uppercase">
                             Capital
                         </div>
-                        <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] font-heading">Funding Breakdown</h4>
+                        <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] font-heading">Total Invested</h4>
                         <button
                             onClick={() => setIsFundingHistoryOpen(!isFundingHistoryOpen)}
                             className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all hover:scale-110 active:scale-95 group"
-                            title="View Funding History"
+                            title="View Investment History"
                         >
                             <Clock size={16} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
                         </button>
@@ -43,13 +53,19 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({ groupedBreak
                             <div className="max-h-60 overflow-y-auto pr-3 space-y-2 custom-scrollbar">
                                 {transactions
                                     .filter(t => {
-                                        if (t.type === 'DEPOSIT') return t.paymentAmount || (t.pricePerUnit && t.amount);
+                                        const stableSymbols = ['USD', 'USDT', 'USDC', 'DAI', 'BUSD'];
+                                        const symbol = t.assetSymbol.toUpperCase();
+                                        if (!stableSymbols.includes(symbol)) return false;
+
+                                        if (t.type === 'DEPOSIT') {
+                                            // Only show if it's external money (no payment currency, or payment is stable)
+                                            return !t.paymentCurrency || stableSymbols.includes(t.paymentCurrency.toUpperCase());
+                                        }
                                         if (t.type === 'WITHDRAWAL') {
-                                            if (t.linkedTransactionId) {
-                                                const parent = transactions.find(Lx => Lx.id === t.linkedTransactionId);
-                                                return !(parent && parent.paymentAmount);
-                                            }
-                                            return true; // Simple withdrawals reduce capital
+                                            // Only show if it's leaving the system (no link, no buy notes)
+                                            if (t.linkedTransactionId) return false;
+                                            if (t.notes?.toLowerCase().includes('buy') || t.notes?.toLowerCase().includes('swap')) return false;
+                                            return true;
                                         }
                                         return false;
                                     })
@@ -64,7 +80,7 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({ groupedBreak
                                             curr = t.paymentCurrency || 'USD';
                                         } else {
                                             amt = t.pricePerUnit && t.amount ? t.pricePerUnit * t.amount : 0;
-                                            curr = 'USD'; // Assumption for withdrawals
+                                            curr = t.assetSymbol || 'USD'; // FIX: Use actual asset symbol for withdrawals
                                             isNegative = true;
                                         }
 
@@ -101,12 +117,10 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({ groupedBreak
                                         {curr}
                                     </div>
                                     <div className="text-base font-black text-slate-800 dark:text-slate-100 cursor-pointer font-heading" onClick={() => {
-                                        if (curr === 'USD Stablecoins') {
-                                            setTempFunding(groupedBreakdown['USD Stablecoins']?.toString() || '');
-                                            setIsEditingFunding(true);
-                                        }
+                                        setTempFunding(groupedBreakdown[curr]?.toString() || '');
+                                        setEditingCurrency(curr);
                                     }}>
-                                        {curr === 'USD Stablecoins' && isEditingFunding ? (
+                                        {editingCurrency === curr ? (
                                             <input
                                                 type="number"
                                                 autoFocus
@@ -116,27 +130,15 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({ groupedBreak
                                                 onKeyDown={e => {
                                                     if (e.key === 'Enter') {
                                                         const val = parseFloat(tempFunding);
-                                                        if (!isNaN(val)) {
-                                                            const currentDisplayed = groupedBreakdown['USD Stablecoins'] || 0;
-                                                            const actual = currentDisplayed - (fundingOffset || 0);
-                                                            const newOffset = val - actual;
-                                                            onUpdateFundingOffset(newOffset);
-                                                        } else {
-                                                            onUpdateFundingOffset(null);
-                                                        }
-                                                        setIsEditingFunding(false);
+                                                        onUpdateBucketOverride(curr, isNaN(val) ? null : val);
+                                                        setEditingCurrency(null);
                                                     }
-                                                    if (e.key === 'Escape') setIsEditingFunding(false);
+                                                    if (e.key === 'Escape') setEditingCurrency(null);
                                                 }}
                                                 onBlur={() => {
                                                     const val = parseFloat(tempFunding);
-                                                    if (!isNaN(val)) {
-                                                        const currentDisplayed = groupedBreakdown['USD Stablecoins'] || 0;
-                                                        const actual = currentDisplayed - (fundingOffset || 0);
-                                                        const newOffset = val - actual;
-                                                        onUpdateFundingOffset(newOffset);
-                                                    }
-                                                    setIsEditingFunding(false);
+                                                    onUpdateBucketOverride(curr, isNaN(val) ? null : val);
+                                                    setEditingCurrency(null);
                                                 }}
                                             />
                                         ) : (

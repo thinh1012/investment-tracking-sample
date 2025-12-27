@@ -17,6 +17,7 @@
     "@emailjs/browser": "^4.4.1",
     "@supabase/supabase-js": "^2.87.3",
     "@tailwindcss/postcss": "^4.1.17",
+    "better-sqlite3": "^12.5.0",
     "idb": "^8.0.3",
     "lucide-react": "^0.556.0",
     "react": "^19.2.0",

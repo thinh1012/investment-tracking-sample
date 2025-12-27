@@ -23,18 +23,18 @@ export const WatchlistTable: React.FC<Props> = (props) => {
     const { watchlist, prices } = props;
 
     return (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-white/10 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
             <table className="w-full text-left border-collapse">
                 <thead>
-                    <tr className="text-xs text-slate-400 border-b border-slate-100 dark:border-slate-800">
-                        <th className="py-2 font-medium uppercase tracking-wider">Asset</th>
-                        <th className="py-2 font-medium uppercase tracking-wider text-right">Price</th>
-                        <th className="py-2 font-medium uppercase tracking-wider text-right">Target Buy</th>
-                        <th className="py-2 font-medium uppercase tracking-wider text-right">Target Sell</th>
-                        <th className="py-2 font-medium uppercase tracking-wider text-center">Accumulation</th>
-                        <th className="py-2 font-medium uppercase tracking-wider pl-4">Note</th>
-                        <th className="py-2 font-medium uppercase tracking-wider text-center">Alerts</th>
-                        <th className="py-2 font-medium uppercase tracking-wider text-right">Action</th>
+                    <tr className="text-[10px] text-slate-500 dark:text-slate-200 border-b border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5">
+                        <th className="py-3 px-4 font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Asset</th>
+                        <th className="py-3 px-4 font-black uppercase tracking-widest text-right">Price</th>
+                        <th className="py-3 px-4 font-black uppercase tracking-widest text-right">Target Buy</th>
+                        <th className="py-3 px-4 font-black uppercase tracking-widest text-right">Target Sell</th>
+                        <th className="py-3 px-4 font-black uppercase tracking-widest text-center">Accumulation</th>
+                        <th className="py-3 px-4 font-black uppercase tracking-widest">Note</th>
+                        <th className="py-3 px-4 font-black uppercase tracking-widest text-center">Alerts</th>
+                        <th className="py-3 px-4 font-black uppercase tracking-widest text-right">Action</th>
                     </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-slate-50 dark:divide-slate-800">

@@ -45,11 +45,11 @@ interface DashboardSummaryProps {
     totalInvested: number;
     totalValue: number;
     assets: Asset[];
-    manualPrincipal: number | null;
+    fundingOffset: number | null;
     onUpdatePrincipal: (val: number | null) => void;
 }
 
-export const DashboardSummary: React.FC<DashboardSummaryProps> = ({ totalInvested, totalValue, assets, manualPrincipal, onUpdatePrincipal }) => {
+export const DashboardSummary: React.FC<DashboardSummaryProps> = ({ totalInvested, totalValue, assets, fundingOffset, onUpdatePrincipal }) => {
     const [isEditingPrincipal, setIsEditingPrincipal] = useState(false);
     const [tempPrincipal, setTempPrincipal] = useState('');
 
@@ -63,7 +63,7 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({ totalInveste
                 index={0}
                 title="Total Invested"
                 onValueClick={!isEditingPrincipal ? () => {
-                    setTempPrincipal(manualPrincipal !== null ? manualPrincipal.toString() : totalInvested.toString());
+                    setTempPrincipal(totalInvested.toString());
                     setIsEditingPrincipal(true);
                 } : undefined}
                 value={isEditingPrincipal ? (
@@ -98,7 +98,7 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({ totalInveste
                                 }}
                             />
                         </div>
-                        {manualPrincipal !== null && (
+                        {fundingOffset !== null && (
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -107,14 +107,14 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({ totalInveste
                                 }}
                                 className="text-[10px] font-black uppercase text-rose-500 hover:text-rose-600 self-start"
                             >
-                                Reset to 16,008
+                                Reset Baseline
                             </button>
                         )}
                     </div>
                 ) : `$${totalInvested.toLocaleString('en-US')}`}
                 color="indigo"
                 icon={<DollarSign size={22} />}
-                subValue={manualPrincipal !== null ? 'Override Active' : undefined}
+                subValue={fundingOffset !== null ? 'Adjustment Applied' : undefined}
             />
             <SummaryCard
                 index={1}

@@ -10,35 +10,44 @@ The application follows a strict **unidirectional data flow**. Raw data and exte
 graph TD
     %% Storage Tier
     subgraph Storage ["Persistent Storage"]
-        IDB[("IndexedDB<br/>(Transactions, Settings, Logs)")]
-        LS[("LocalStorage<br/>(Overrides, Theme, Locale)")]
+        IDB[("IndexedDB<br/>(Portfolio, Logs)")]
+        SQL[("SQLite<br/>(Intelligence, Scrapes)")]
+        LS[("LocalStorage<br/>(Overrides, Checkpoints)")]
     end
 
     %% Logic Tier
     subgraph Engine ["The Logic Engine (usePortfolio)"]
         TxHook["useTransactionData<br/>(Reads/Writes to IDB)"]
         PriceHook["usePriceFeeds<br/>(Fetches from API / Cache)"]
+        IntelService["StrategistIntelService<br/>(Reads SQL via IPC)"]
         Calc[["Domain Calculator<br/>(calculateAssets)"]]
     end
 
     %% Side Effects
     subgraph Services ["External Services"]
-        Supabase[("Supabase Vault<br/>(Encrypted Backups)")]
+        Supabase[("Supabase Vault<br/>(Local-First E2EE)")]
         Notif["Notification Service<br/>(Telegram, Email)"]
+        Agent["AI Strategist<br/>(Daily Scraper)"]
     end
 
     %% UI Tier
     subgraph UI ["User Views"]
-        Dash[Dashboard View]
+        Dash[Dashboard / Intel Brief]
         TransForm[Transaction Form]
         SettingView[Settings View]
     end
 
     %% Connections
     IDB <--> TxHook
+    SQL <--> IntelService
     PriceHook --> Calc
     TxHook --> Calc
+    IntelService --> Dash
     Calc --> UI
+    
+    %% Scraper Loop
+    Dash -- "Run Job / Daily Trigger" --> Agent
+    Agent -- "New Intelligence" --> SQL
     
     TransForm -- "New Transaction" --> TxHook
     SettingView -- "Update Keys" --> IDB
@@ -87,6 +96,7 @@ The `useAlerts` hook acts as a background monitor:
 
 | Storage | Data Types | Syncs to Cloud? |
 | :--- | :--- | :--- |
+| **SQLite** | Ecosystem Intel, Scrapes, Strategist Narrative | ❌ Local Only |
 | **IndexedDB** | Transactions, Logs, Watchlist, Settings, Manual Historic Prices | ✅ Yes |
 | **LocalStorage** | Theme, Locale, Dashboard Notes, Alerts Muted, Funding Offset | ✅ Yes |
 | **SessionStorage** | Vault PW (Temporary Cache) | ❌ No |
