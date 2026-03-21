@@ -98,35 +98,32 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
     return (
         <div className="space-y-6">
             {/* Summary — inline stat strip */}
-            <div className="flex items-center gap-8 px-1 border-b border-slate-200 dark:border-slate-800 pb-3 mb-2">
+            <div className="flex items-center gap-6 px-1 border-b border-slate-200 dark:border-slate-800 pb-3 mb-2 overflow-x-auto scrollbar-hide">
                 <div>
                     <div className="text-xs text-slate-400 mb-0.5">Principal</div>
                     <div className="text-base font-semibold font-mono text-slate-800 dark:text-white tabular-nums">
                         ${totalStats.totalPrincipal.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
                     </div>
                 </div>
-                <div className="w-px h-7 bg-slate-200 dark:bg-slate-800" />
+                <div className="w-px h-7 bg-slate-200 dark:bg-slate-800 shrink-0" />
                 <div>
                     <div className="text-xs text-slate-400 mb-0.5">Realized fees</div>
-                    <div className="text-base font-semibold font-mono text-emerald-500 tabular-nums">
+                    <div className="text-base font-semibold font-mono text-emerald-500 tabular-nums whitespace-nowrap">
                         +${totalStats.totalClaimed.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
                     </div>
                 </div>
-                <div className="w-px h-7 bg-slate-200 dark:bg-slate-800" />
+                <div className="w-px h-7 bg-slate-200 dark:bg-slate-800 shrink-0" />
                 <div>
-                    <div className="text-xs text-slate-400 mb-0.5">Paper PnL</div>
-                    <div className={`text-base font-semibold font-mono tabular-nums ${totalStats.totalPaper >= 0 ? 'text-slate-700 dark:text-slate-300' : 'text-rose-500'}`}>
-                        {totalStats.totalPaper >= 0 ? '+' : ''}${totalStats.totalPaper.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
+                    <div className="text-xs text-slate-400 mb-0.5">Payback</div>
+                    <div className="text-base font-semibold font-mono text-indigo-500 tabular-nums whitespace-nowrap">
+                        {totalStats.totalPrincipal > 0 ? (totalStats.totalClaimed / totalStats.totalPrincipal * 100).toFixed(1) : '0'}%
                     </div>
                 </div>
-                <div className="w-px h-7 bg-slate-200 dark:bg-slate-800" />
+                <div className="w-px h-7 bg-slate-200 dark:bg-slate-800 shrink-0" />
                 <div>
                     <div className="text-xs text-slate-400 mb-0.5">Net profit</div>
-                    <div className={`text-base font-semibold font-mono tabular-nums ${totalStats.totalNet >= 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-500'}`}>
+                    <div className={`text-base font-semibold font-mono tabular-nums whitespace-nowrap ${totalStats.totalNet >= 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-500'}`}>
                         {totalStats.totalNet >= 0 ? '+' : ''}${totalStats.totalNet.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
-                        <span className="text-xs font-normal ml-1.5 text-slate-400">
-                            ({totalStats.totalPrincipal > 0 ? (totalStats.totalNet / totalStats.totalPrincipal * 100).toFixed(1) : '0'}%)
-                        </span>
                     </div>
                 </div>
             </div>
@@ -136,32 +133,27 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
                 <table className="w-full text-sm text-left">
                     <thead className="border-b border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 text-xs font-medium">
                         <tr>
-                            <th className="px-6 py-2 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300" onClick={() => handleSort('symbol')}>
+                            <th className="px-4 py-2 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300" onClick={() => handleSort('symbol')}>
                                 <div className="flex items-center gap-1">
-                                    Liquidity Pool {sortKey === 'symbol' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                                    Pool {sortKey === 'symbol' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
                                 </div>
                             </th>
-                            <th className="px-6 py-2 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300" onClick={() => handleSort('principal')}>
+                            <th className="hidden md:table-cell px-4 py-2 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300" onClick={() => handleSort('principal')}>
                                 <div className="flex items-center gap-1">
                                     Principal {sortKey === 'principal' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
                                 </div>
                             </th>
-                            <th className="px-6 py-2 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300" onClick={() => handleSort('claimedUSD')}>
+                            <th className="px-4 py-2 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300" onClick={() => handleSort('claimedUSD')}>
                                 <div className="flex items-center gap-1">
-                                    Realized Fees {sortKey === 'claimedUSD' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                                    Fees {sortKey === 'claimedUSD' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
                                 </div>
                             </th>
-                            <th className="px-6 py-2 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300" onClick={() => handleSort('paperPnL')}>
+                            <th className="px-4 py-2 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300" onClick={() => handleSort('recoveryPercent')}>
                                 <div className="flex items-center gap-1">
-                                    Pool PnL {sortKey === 'paperPnL' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+                                    Payback {sortKey === 'recoveryPercent' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
                                 </div>
                             </th>
-                            <th className="px-6 py-2 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300" onClick={() => handleSort('totalROI')}>
-                                <div className="flex items-center gap-1">
-                                    Net ROI {sortKey === 'totalROI' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
-                                </div>
-                            </th>
-                            <th className="px-6 py-2 text-right">Actions</th>
+                            <th className="px-4 py-2 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -169,32 +161,26 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
                             <tr key={lp.symbol} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 group">
                                 <td className="px-4 py-2">
                                     <div className="text-sm font-medium text-slate-800 dark:text-white">{lp.symbol}</div>
-                                    {lp.isFreeRolling && (
-                                        <div className="text-xs text-emerald-500 mt-0.5">Free rolling</div>
-                                    )}
                                 </td>
-                                <td className="px-4 py-2 font-mono text-sm text-slate-600 dark:text-slate-300">
+                                <td className="hidden md:table-cell px-4 py-2 font-mono text-sm text-slate-600 dark:text-slate-300">
                                     ${lp.principal.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
                                 </td>
                                 <td className="px-4 py-2 font-mono text-sm text-emerald-600 dark:text-emerald-400">
                                     +${lp.claimedUSD.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
                                 </td>
-                                <td className={`px-4 py-2 font-mono text-sm ${lp.paperPnL >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                    {lp.paperPnL >= 0 ? '+' : ''}${lp.paperPnL.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
-                                </td>
-                                <td className="px-4 py-2 min-w-[160px]">
+                                <td className="px-4 py-2 min-w-[120px]">
                                     <div className="flex items-center gap-2">
-                                        <div className="flex-1 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                             <div
-                                                className={`h-full ${lp.totalROI >= 0 ? (lp.isFreeRolling ? 'bg-emerald-400' : 'bg-indigo-500') : 'bg-rose-500'}`}
-                                                style={{ width: `${Math.min(Math.abs(lp.totalROI), 100)}%` }}
+                                                className={`h-full ${lp.isFreeRolling ? 'bg-emerald-400' : 'bg-indigo-500'}`}
+                                                style={{ width: `${Math.min(lp.recoveryPercent, 100)}%` }}
                                             />
                                         </div>
-                                        <span className={`text-xs font-mono tabular-nums ${lp.totalROI >= 0 ? 'text-slate-700 dark:text-slate-300' : 'text-rose-500'}`}>
-                                            {lp.totalROI >= 0 ? '+' : ''}{lp.totalROI.toFixed(1)}%
+                                        <span className={`text-xs font-mono tabular-nums font-semibold ${lp.isFreeRolling ? 'text-emerald-500' : 'text-indigo-500 dark:text-indigo-400'}`}>
+                                            {lp.recoveryPercent.toFixed(1)}%
                                         </span>
                                     </div>
-                                    <div className="text-xs text-slate-400 mt-0.5">Payback {lp.recoveryPercent.toFixed(1)}%</div>
+                                    {lp.isFreeRolling && <div className="text-xs text-emerald-500 mt-0.5">Free rolling</div>}
                                 </td>
                                 <td className="px-6 py-2 text-right">
                                     <button
