@@ -16,6 +16,7 @@ const TransactionForm = React.lazy(() => import('./components/TransactionForm'))
 const Settings = React.lazy(() => import('./components/Settings'));
 import { Sidebar } from './components/layout/Sidebar';
 import { BottomNav } from './components/layout/BottomNav';
+import { Plus } from 'lucide-react';
 import { BackupService } from './services/database/BackupService';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Transaction, Asset } from './types';
@@ -266,6 +267,17 @@ function App(): React.ReactNode {
                     assets={assets}
                 />
             </React.Suspense>
+
+            {/* Mobile FAB — visible on mobile only, hidden on settings view */}
+            {currentView !== 'settings' && (
+                <button
+                    onClick={() => setIsFormOpen(true)}
+                    className="md:hidden fixed bottom-20 right-4 z-20 w-14 h-14 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center"
+                    aria-label="Add Transaction"
+                >
+                    <Plus size={24} strokeWidth={2.5} />
+                </button>
+            )}
 
             <BottomNav currentView={currentView} navigateTo={navigateTo} />
 

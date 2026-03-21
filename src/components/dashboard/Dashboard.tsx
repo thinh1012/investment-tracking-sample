@@ -112,7 +112,9 @@ export const Dashboard: React.FC<Props> = ({
                         onClick={onAddClick}
                         className="flex-1 md:flex-none text-sm bg-indigo-500 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-600 font-medium flex items-center justify-center md:justify-start gap-2"
                     >
-                        <TrendingUp size={16} /> Add Transaction
+                        <TrendingUp size={16} />
+                        <span className="hidden md:inline">Add Transaction</span>
+                        <span className="md:hidden">Add</span>
                     </button>
                 </div>
             </div>

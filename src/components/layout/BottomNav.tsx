@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, BarChart3, Settings } from 'lucide-react';
+import { LayoutDashboard, BarChart3, BookOpen, Settings } from 'lucide-react';
 import { AppView } from '../../hooks/useAppNavigation';
 
 interface BottomNavProps {
@@ -10,6 +10,7 @@ interface BottomNavProps {
 const tabs = [
     { id: 'dashboard' as AppView, icon: LayoutDashboard, label: 'Positions' },
     { id: 'analytics' as AppView, icon: BarChart3, label: 'Earnings' },
+    { id: 'notes' as AppView, icon: BookOpen, label: 'Notes' },
     { id: 'settings' as AppView, icon: Settings, label: 'Settings' },
 ];
 

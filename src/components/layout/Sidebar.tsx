@@ -37,7 +37,7 @@ const NavLinks: React.FC<{
                 { id: 'dashboard', icon: LayoutDashboard, label: 'LP Positions' },
                 { id: 'analytics', icon: BarChart3, label: 'Earnings' },
                 { id: 'notes', icon: BookOpen, label: 'Notes & Dictionary' },
-            ].filter(item => !mobile || ['dashboard', 'analytics'].includes(item.id)).map((item) => {
+            ].filter(item => !mobile || ['dashboard', 'analytics', 'notes'].includes(item.id)).map((item) => {
                 const isActive = currentView === item.id;
                 return (
                     <button
@@ -86,6 +86,7 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
                         <div className="p-1.5 mesh-gradient rounded-lg">
                             <TrendingUp className="text-white h-4 w-4" />
                         </div>
+                        <span className="font-semibold text-sm text-slate-800 dark:text-slate-100 tracking-tight">Investment Tracking</span>
                     </div>
                     <button
                         onClick={() => setIsMobileMenuOpen(true)}
