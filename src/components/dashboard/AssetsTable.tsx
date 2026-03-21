@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Wallet, ArrowUp, ArrowDown, RefreshCw, ChevronRight, TrendingUp, TrendingDown, Layers, Pencil } from 'lucide-react';
 import { Asset } from '../../types';
 import { formatPrice } from '../../services/PriceService';
+import { useStaking } from '../../hooks/useStaking';
 
 interface AssetsTableProps {
     assets: Asset[];
@@ -19,6 +20,13 @@ export const AssetsTable = React.memo(({ assets, transactions, prices, onRefresh
     const [assetSortKey, setAssetSortKey] = useState<string>('currentValue');
     const [assetSortOrder, setAssetSortOrder] = useState<'asc' | 'desc'>('desc');
     const [expandedSources, setExpandedSources] = useState<Set<string>>(new Set());
+
+    const { positions: stakingPositions } = useStaking();
+
+    const stakedBySymbol = stakingPositions.reduce<Record<string, number>>((acc, pos) => {
+        acc[pos.token_symbol] = (acc[pos.token_symbol] || 0) + pos.amount;
+        return acc;
+    }, {});
 
     const tokenAssets = assets.filter(a => !a.lpRange && !a.symbol.toUpperCase().startsWith('LP') && !a.symbol.includes('/') && !a.symbol.includes('-') && !a.symbol.toUpperCase().includes('POOL'));
 
@@ -157,10 +165,23 @@ export const AssetsTable = React.memo(({ assets, transactions, prices, onRefresh
                                     <td className="hidden lg:table-cell px-6 py-5 font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight text-right">${asset.totalInvested.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</td>
                                     <td className="px-4 py-3 md:px-6 md:py-5 font-black text-slate-900 dark:text-white font-mono tracking-tight text-right text-sm md:text-base">${currentValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</td>
                                     <td className="px-4 py-3 md:px-8 md:py-5 text-right">
-                                        <span className="font-mono text-sm text-slate-800 dark:text-slate-100">
-                                            {asset.quantity.toLocaleString(locale || 'en-US', { maximumFractionDigits: 4 })}
-                                        </span>
-                                        <div className="text-[10px] text-slate-400 mt-0.5">{asset.symbol}</div>
+                                        {(() => {
+                                            const staked = stakedBySymbol[asset.symbol] || 0;
+                                            const available = asset.quantity - staked;
+                                            return (
+                                                <>
+                                                    <span className="font-mono text-sm text-slate-800 dark:text-slate-100">
+                                                        {available.toLocaleString(locale || 'en-US', { maximumFractionDigits: 4 })}
+                                                    </span>
+                                                    <div className="text-[10px] text-slate-400 mt-0.5">{asset.symbol}</div>
+                                                    {staked > 0 && (
+                                                        <div className="text-[10px] text-amber-500 font-bold mt-0.5">
+                                                            {staked.toLocaleString(locale || 'en-US', { maximumFractionDigits: 4 })} staked
+                                                        </div>
+                                                    )}
+                                                </>
+                                            );
+                                        })()}
                                     </td>
                                 </tr>
                                 {expandedSources.has(asset.symbol) && (
