@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageSquare, Mail } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import { NotificationSettings } from '../../types';
 
 interface Props {
@@ -74,67 +74,6 @@ export const NotificationChannels: React.FC<Props> = ({
             </div>
 
 
-            {/* EmailJS Section */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-2">
-                    <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2 rounded-lg text-indigo-500">
-                        <Mail size={20} />
-                    </div>
-                    <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">Email (via EmailJS)</h2>
-                </div>
-
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                            Service ID
-                        </label>
-                        <input
-                            type="text"
-                            name="emailServiceId"
-                            value={settings.emailServiceId}
-                            onChange={onChange}
-                            placeholder="e.g. service_xyz123"
-                            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                            Template ID
-                        </label>
-                        <input
-                            type="text"
-                            name="emailTemplateId"
-                            value={settings.emailTemplateId}
-                            onChange={onChange}
-                            placeholder="e.g. template_abc123"
-                            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                            Public Key (User ID)
-                        </label>
-                        <input
-                            type="text"
-                            name="emailPublicKey"
-                            value={settings.emailPublicKey}
-                            onChange={onChange}
-                            placeholder="e.g. user_12345678"
-                            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
-                    </div>
-
-                    <button
-                        onClick={onTestEmail}
-                        disabled={!settings.emailServiceId || !settings.emailTemplateId || !settings.emailPublicKey || isLoading}
-                        className="w-full py-2 px-4 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors font-medium text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isLoading ? 'Sending...' : 'Test Email'}
-                    </button>
-                </div>
-            </div>
         </>
     );
 };
