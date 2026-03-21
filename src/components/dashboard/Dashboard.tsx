@@ -4,6 +4,7 @@ import { useDashboardCalculations } from '../../hooks/useDashboardCalculations';
 import { FundingBreakdown } from './FundingBreakdown';
 import { LiquidityPoolsTable } from './LiquidityPoolsTable';
 import { StakingTable } from './StakingTable';
+import { RemindersTable } from './RemindersTable';
 import { AssetsTable } from './AssetsTable';
 import { EarningsHistory } from './EarningsHistory';
 import { LPFeeTracker } from './LPFeeTracker';
@@ -160,6 +161,10 @@ export const Dashboard: React.FC<Props> = ({
                                 locale={locale}
                             />
                             <StakingTable
+                                assets={assets}
+                                locale={locale}
+                            />
+                            <RemindersTable
                                 assets={assets}
                                 locale={locale}
                             />
