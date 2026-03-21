@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <title>investment-tracking</title>
+</head>
+<script>
+  // [BOOTSTRAP GUARDIAN] 
+  // Detects if the React app fails to mount and triggers a clean recovery.
+  (function () {
+    var timeout = setTimeout(function () {
+      // Check if root has children (React successfully rendered)
+      var root = document.getElementById('root');
+      if (!root || root.children.length === 0) {
+        console.warn('[GUARDIAN] Health Check Failed. Attempting Restoration...');
+        var url = new URL(window.location.href);
+        // Only trigger if we haven't already tried to refresh in the last 10 seconds
+        var lastTrial = sessionStorage.getItem('guardian_restore_ts');
+        var now = Date.now();
+        if (!lastTrial || (now - lastTrial > 10000)) {
+          sessionStorage.setItem('guardian_restore_ts', now);
+          url.searchParams.set('restore', now);
+          window.location.replace(url.toString());
+        } else {
+          console.error('[GUARDIAN] Recovery Loop Detected. Halting.');
+        }
+      }
+    }, 4000); // 4 Seconds Grace Period for Hydration
+
+    window.addEventListener('load', function () {
+      // If we made it to 'load', we can potentially clear the timeout if we see content
+      // But we let the timeout handle the blank root case.
+    });
+  })();
+</script>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>

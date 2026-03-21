@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: "Inter", "sans-serif";
+    --font-heading: "Outfit", "Inter", "sans-serif";
+    --font-mono: "JetBrains Mono", "monospace";
+
+    /* Neutral Palette (Deep & Sophisticated) */
+    --color-slate-50: #f8fafc;
+    --color-slate-100: #f1f5f9;
+    --color-slate-200: #e2e8f0;
+    --color-slate-300: #cbd5e1;
+    --color-slate-400: #94a3b8;
+    --color-slate-500: #64748b;
+    --color-slate-600: #475569;
+    --color-slate-700: #334155;
+    --color-slate-800: #1e293b;
+    --color-slate-900: #0f172a;
+    --color-slate-950: #020617;
+
+    /* Professional Fintech Palette (Realistic) */
+    --color-success-50: #ecfdf5;
+    --color-success-100: #d1fae5;
+    --color-success-500: #10b981;
+    --color-success-600: #059669;
+    --color-success-700: #047857;
+
+    --color-danger-50: #fef2f2;
+    --color-danger-100: #fee2e2;
+    --color-danger-500: #ef4444;
+    --color-danger-600: #dc2626;
+    --color-danger-700: #b91c1c;
+
+    --color-primary-50: #eef2ff;
+    --color-primary-100: #e0e7ff;
+    --color-primary-500: #6366f1;
+    --color-primary-600: #4f46e5;
+    --color-primary-700: #4338ca;
+
+    /* Legacy support - map to professional colors */
+    --color-emerald-500: #10b981;
+    --color-emerald-600: #059669;
+    --color-indigo-500: #6366f1;
+    --color-indigo-600: #4f46e5;
+
+    /* Professional Shadow System */
+    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    --shadow-card-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+@layer base {
+    body {
+        font-family: var(--font-sans);
+        /* Professional fintech background */
+        @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300;
+        background-image:
+            radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0, transparent 50%),
+            radial-gradient(at 50% 0%, rgba(16, 185, 129, 0.03) 0, transparent 50%);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-family: var(--font-heading);
+    }
+}
+
+@utility material-surface {
+    @apply bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md rounded-xl;
+}
+
+/* Flat card — no blur, no shadow */
+@utility glass {
+    @apply bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl;
+}
+
+@utility glass-card {
+    @apply glass;
+}
+
+@utility mesh-gradient {
+    background: linear-gradient(135deg, var(--color-indigo-600) 0%, var(--color-emerald-600) 100%);
+}
+
+@utility text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-emerald-500 font-bold;
+}
+
+@utility animate-stagger-1 {
+    animation-delay: 100ms;
+}
+
+@utility animate-stagger-2 {
+    animation-delay: 200ms;
+}
+
+@utility animate-stagger-3 {
+    animation-delay: 300ms;
+}
+
+@utility animate-stagger-4 {
+    animation-delay: 400ms;
+}
+
+@utility animate-slide-up {
+    animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-slate-200 dark:bg-slate-800 rounded-full;
+}

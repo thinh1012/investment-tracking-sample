@@ -1,0 +1,63 @@
+/* Rabby Wallet Inspired Design System */
+/* Dark-first, clean, minimal aesthetic */
+
+@theme {
+    /* Rabby Color Palette - Dark First */
+    --color-rabby-bg: #000000;
+    --color-rabby-surface: #111111;
+    --color-rabby-card: #1c1c1c;
+    --color-rabby-hover: #252525;
+    
+    /* Accent - Purple */
+    --color-rabby-accent: #7b3fe4;
+    --color-rabby-accent-hover: #5a2db8;
+    
+    /* Text */
+    --color-rabby-text: #ffffff;
+    --color-rabby-text-secondary: #a0a0a0;
+    --color-rabby-text-muted: #666666;
+    
+    /* Border */
+    --color-rabby-border: #2a2a2a;
+    --color-rabby-border-hover: #3a3a3a;
+    
+    /* Status */
+    --color-rabby-success: #22c55e;
+    --color-rabby-warning: #f59e0b;
+    --color-rabby-danger: #ef4444;
+}
+
+@layer components {
+    .rabby-card {
+        @apply bg-[#1c1c1c] border border-[#2a2a2a] rounded-xl;
+    }
+    
+    .rabby-card-hover {
+        @apply rabby-card transition-all duration-200 hover:border-[#3a3a3a] hover:bg-[#252525];
+    }
+    
+    .rabby-token-row {
+        @apply flex items-center px-4 py-3 border-b border-[#2a2a2a] transition-colors hover:bg-[#252525];
+    }
+    
+    .rabby-btn-primary {
+        @apply bg-[#7b3fe4] text-white font-semibold px-4 py-2.5 rounded-lg transition-all;
+    }
+    
+    .rabby-btn-primary:hover {
+        @apply bg-[#5a2db8] -translate-y-0.5;
+        box-shadow: 0 0 20px rgba(123, 63, 228, 0.3);
+    }
+    
+    .rabby-gradient-text {
+        @apply bg-gradient-to-r from-[#7b3fe4] to-[#3b82f6] bg-clip-text text-transparent;
+    }
+    
+    .rabby-tab {
+        @apply px-4 py-2 text-sm font-medium text-[#a0a0a0] rounded-lg transition-all;
+    }
+    
+    .rabby-tab-active {
+        @apply rabby-tab bg-[#2a2a2a] text-white;
+    }
+}

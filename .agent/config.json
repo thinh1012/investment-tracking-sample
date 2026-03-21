@@ -1,0 +1,85 @@
+{
+    "agent_id": "investment-agent-002",
+    "agent_name": "Investment Tracking Agent",
+    "version": "1.0.0",
+    "status": "active",
+    "priority": "high",
+    "project_root": "../",
+    "capabilities": [
+        "portfolio-tracking",
+        "pnl-calculation",
+        "market-analysis",
+        "scout-integration",
+        "price-monitoring",
+        "multi-chain-support",
+        "pool-screening",
+        "asset-tracking"
+    ],
+    "tech_stack": {
+        "backend": "nodejs",
+        "frontend": "react",
+        "database": "sqlite",
+        "services": [
+            "scout-service"
+        ]
+    },
+    "critical_features": [
+        "pnl-accuracy",
+        "scout-integration",
+        "real-time-pricing",
+        "multi-chain-support"
+    ],
+    "current_focus": "Pool screener enhancement and asset tracking improvements",
+    "pain_points": [
+        "Price data accuracy from multiple sources",
+        "Scout parsing numbers incorrectly",
+        "Thinker using data but providing no insight",
+        "Multi-chain pool screening needs improvement"
+    ],
+    "dependencies": {
+        "database": {
+            "type": "sqlite",
+            "status": "required",
+            "path": "./database/"
+        },
+        "scout_service": {
+            "type": "service",
+            "status": "required",
+            "health_check": "Check Scout service availability"
+        }
+    },
+    "testing": {
+        "unit_tests": "Required for all new features",
+        "critical_paths": [
+            "PnL calculations",
+            "Scout data integration",
+            "Price fetching",
+            "Transaction processing"
+        ],
+        "test_before_commit": true
+    },
+    "workflows": {
+        "sync-portfolio": "Sync portfolio data with latest prices",
+        "generate-pnl-report": "Generate profit/loss reports",
+        "scout-mission-check": "Verify Scout missions and data"
+    },
+    "monitoring": {
+        "health_checks": [
+            "Database connectivity",
+            "Scout service status",
+            "Price data freshness",
+            "PnL calculation accuracy"
+        ],
+        "alerts": [
+            "Scout service down",
+            "Price data stale > 5 minutes",
+            "PnL calculation errors"
+        ]
+    },
+    "notes": [
+        "This is Thinh's highest priority project",
+        "Never break PnL accuracy - test thoroughly",
+        "Always verify Scout integration after changes",
+        "Unit tests required for all new features"
+    ]
+}

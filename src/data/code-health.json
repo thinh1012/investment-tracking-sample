@@ -1,0 +1,39 @@
+{
+  "timestamp": 1766933572084,
+  "totalFiles": 99,
+  "totalLines": 14002,
+  "totalTodos": 0,
+  "riskScore": 50,
+  "topOffenders": [
+    {
+      "name": "priceService.ts",
+      "lines": 497,
+      "todos": 0,
+      "size": 497
+    },
+    {
+      "name": "CLSimulator.tsx",
+      "lines": 415,
+      "todos": 0,
+      "size": 415
+    },
+    {
+      "name": "DailyIntelligenceBrief.tsx",
+      "lines": 396,
+      "todos": 0,
+      "size": 396
+    },
+    {
+      "name": "AssetsTable.tsx",
+      "lines": 307,
+      "todos": 0,
+      "size": 307
+    },
+    {
+      "name": "useAlerts.ts",
+      "lines": 301,
+      "todos": 0,
+      "size": 301
+    }
+  ]
+}
