@@ -108,10 +108,8 @@ export const AssetsTable = React.memo(({ assets, transactions, prices, onRefresh
                                 Value {assetSortKey === 'currentValue' && (assetSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
                             </div>
                         </th>
-                        <th className="px-4 py-3 md:px-8 md:py-5 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-right" onClick={() => handleAssetSort('pnlValue')}>
-                            <div className="flex items-center justify-end gap-2">
-                                PnL {assetSortKey === 'pnlValue' && (assetSortOrder === 'asc' ? <ArrowUp size={12} className="text-indigo-500" /> : <ArrowDown size={12} className="text-indigo-500" />)}
-                            </div>
+                        <th className="px-4 py-3 md:px-8 md:py-5 text-right">
+                            Amount
                         </th>
                     </tr>
                 </thead>
@@ -159,14 +157,10 @@ export const AssetsTable = React.memo(({ assets, transactions, prices, onRefresh
                                     <td className="hidden lg:table-cell px-6 py-5 font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight text-right">${asset.totalInvested.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</td>
                                     <td className="px-4 py-3 md:px-6 md:py-5 font-black text-slate-900 dark:text-white font-mono tracking-tight text-right text-sm md:text-base">${currentValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</td>
                                     <td className="px-4 py-3 md:px-8 md:py-5 text-right">
-                                        <div className={`inline-flex flex-col items-end px-2 py-1 rounded-md ${isPositive ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
-                                            <span className="font-semibold font-mono text-sm">
-                                                {isPositive ? '+' : ''}{pnlValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
-                                            </span>
-                                            <span className="text-[10px] font-medium opacity-80">
-                                                {isPositive ? '↑' : '↓'} {Math.abs(pnlPercent).toFixed(1)}%
-                                            </span>
-                                        </div>
+                                        <span className="font-mono text-sm text-slate-800 dark:text-slate-100">
+                                            {asset.quantity.toLocaleString(locale || 'en-US', { maximumFractionDigits: 4 })}
+                                        </span>
+                                        <div className="text-[10px] text-slate-400 mt-0.5">{asset.symbol}</div>
                                     </td>
                                 </tr>
                                 {expandedSources.has(asset.symbol) && (
