@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Zap, Plus, Trash2, X, ChevronDown } from 'lucide-react';
 import { Asset, StakingPosition } from '../../types';
 import { TableShell } from '../common/TableShell';
 import { useStaking } from '../../hooks/useStaking';
+import { useNotification } from '../../context/NotificationContext';
 
 interface StakingTableProps {
     assets: Asset[];
@@ -187,6 +188,23 @@ export const StakingTable: React.FC<StakingTableProps> = ({ assets, locale }) =>
     const [isOpen, setIsOpen] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [prefillSymbol, setPrefillSymbol] = useState<string | undefined>();
+    const { notify } = useNotification();
+    const notifiedRef = useRef(false);
+
+    useEffect(() => {
+        if (notifiedRef.current || positions.length === 0) return;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        positions.forEach(pos => {
+            if (!pos.unlock_date) return;
+            const unlock = new Date(pos.unlock_date);
+            unlock.setHours(0, 0, 0, 0);
+            if (unlock <= today) {
+                notify.info(`${pos.token_symbol} staked on ${pos.protocol} is unlocked and ready to withdraw.`);
+            }
+        });
+        notifiedRef.current = true;
+    }, [positions]);
 
     const openModal = (symbol?: string) => {
         setPrefillSymbol(symbol);
