@@ -100,21 +100,19 @@ export const Dashboard: React.FC<Props> = ({
                     </h1>
                 </div>
 
-                <div className="flex items-center gap-3 w-full md:w-auto">
+                <div className="hidden md:flex items-center gap-3">
                     <button
                         onClick={resetBaseline}
-                        className="flex-1 md:flex-none text-xs font-medium text-slate-500 hover:text-rose-500"
+                        className="text-xs font-medium text-slate-500 hover:text-rose-500"
                         title="Recalculate Principal Baseline"
                     >
                         Sync Baseline
                     </button>
                     <button
                         onClick={onAddClick}
-                        className="flex-1 md:flex-none text-sm bg-indigo-500 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-600 font-medium flex items-center justify-center md:justify-start gap-2"
+                        className="hidden md:flex flex-none text-sm bg-indigo-500 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-600 font-medium items-center gap-2"
                     >
-                        <TrendingUp size={16} />
-                        <span className="hidden md:inline">Add Transaction</span>
-                        <span className="md:hidden">Add</span>
+                        <TrendingUp size={16} /> Add Transaction
                     </button>
                 </div>
             </div>
