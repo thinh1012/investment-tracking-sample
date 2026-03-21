@@ -3,6 +3,7 @@ import { Asset, Transaction, PriceAlert, AlertCondition, NotificationChannel } f
 import { useDashboardCalculations } from '../../hooks/useDashboardCalculations';
 import { FundingBreakdown } from './FundingBreakdown';
 import { LiquidityPoolsTable } from './LiquidityPoolsTable';
+import { AssetsTable } from './AssetsTable';
 import { EarningsHistory } from './EarningsHistory';
 import { LPFeeTracker } from './LPFeeTracker';
 import { RecentTransactions } from './RecentTransactions';
@@ -155,6 +156,14 @@ export const Dashboard: React.FC<Props> = ({
                                 transactions={transactions}
                                 onAddTransaction={onAddTransaction}
                                 updateAssetPrice={updateAssetPrice}
+                                locale={locale}
+                            />
+                            <AssetsTable
+                                assets={assets}
+                                transactions={transactions}
+                                prices={prices}
+                                onRefreshPrices={onRefreshPrices}
+                                onUpdateAssetOverride={onUpdateAssetOverride}
                                 locale={locale}
                             />
                         </div>
