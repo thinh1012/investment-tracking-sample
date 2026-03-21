@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="#6366f1"/>
+  <!-- Trending up chart line -->
+  <polyline
+    points="80,360 180,260 260,320 380,160"
+    fill="none"
+    stroke="white"
+    stroke-width="36"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.3"
+  />
+  <!-- Arrow head -->
+  <polyline
+    points="300,140 380,160 360,240"
+    fill="none"
+    stroke="white"
+    stroke-width="36"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.3"
+  />
+  <!-- Main trend line (brighter) -->
+  <polyline
+    points="80,360 180,260 260,320 380,160"
+    fill="none"
+    stroke="white"
+    stroke-width="28"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <polyline
+    points="300,140 380,160 360,240"
+    fill="none"
+    stroke="white"
+    stroke-width="28"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <!-- Emerald dot accent -->
+  <circle cx="260" cy="320" r="22" fill="#10b981"/>
+</svg>

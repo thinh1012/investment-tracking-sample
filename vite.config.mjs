@@ -137,13 +137,13 @@ export default defineConfig({
         scope: '/',
         icons: [
           {
-            src: 'vite.svg',
+            src: 'icon.svg',
             sizes: '192x192',
             type: 'image/svg+xml',
             purpose: 'any maskable'
           },
           {
-            src: 'vite.svg',
+            src: 'icon.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
             purpose: 'any maskable'
