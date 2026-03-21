@@ -1,5 +1,16 @@
 export type TransactionType = 'DEPOSIT' | 'INTEREST' | 'WITHDRAWAL' | 'TRANSFER' | 'BUY' | 'SELL' | 'BORROW' | 'REPAY';
 
+export interface StakingPosition {
+    id: string;
+    token_symbol: string;
+    protocol: string;
+    amount: number;
+    apr: number;
+    lock_period_days?: number;
+    unlock_date?: string;
+    created_at?: string;
+}
+
 export interface NotificationConfig {
     service: string;
     user: string;
