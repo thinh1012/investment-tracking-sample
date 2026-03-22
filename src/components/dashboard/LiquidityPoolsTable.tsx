@@ -135,6 +135,9 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-black text-slate-800 dark:text-slate-100 text-sm md:text-base tracking-tight">{asset.symbol}</span>
+                                                {asset.lpRange && asset.monitorSymbol && (
+                                                    <span className={`lg:hidden w-2 h-2 rounded-full flex-shrink-0 ${asset.inRange ? 'bg-emerald-500' : 'bg-rose-500'}`} title={asset.inRange ? 'In range' : 'Out of range'} />
+                                                )}
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();

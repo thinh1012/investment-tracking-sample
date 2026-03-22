@@ -211,7 +211,12 @@ export const StakingTable: React.FC<StakingTableProps> = ({ assets, locale }) =>
         setShowModal(true);
     };
 
-    const totalStakedValue = positions.length;
+    const avgApr = positions.length > 0
+        ? (positions.reduce((s, p) => s + p.apr, 0) / positions.length).toFixed(1)
+        : null;
+    const collapsedSummary = positions.length > 0
+        ? `${positions.length} position${positions.length > 1 ? 's' : ''} · ${avgApr}% avg APR`
+        : undefined;
 
     const daysUntilUnlock = (unlockDate?: string) => {
         if (!unlockDate) return null;
@@ -238,6 +243,7 @@ export const StakingTable: React.FC<StakingTableProps> = ({ assets, locale }) =>
                         <Plus size={16} />
                     </button>
                 }
+                collapsedSummary={collapsedSummary}
                 className="lg:col-span-3"
             >
                 <table className="w-full text-sm text-left border-collapse">

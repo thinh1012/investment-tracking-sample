@@ -148,6 +148,13 @@ export const RemindersTable: React.FC<RemindersTableProps> = ({ assets, locale }
     const done = reminders.filter(r => r.is_done);
     const sorted = [...pending, ...done];
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const overdue = pending.filter(r => new Date(r.reminder_date) <= today).length;
+    const collapsedSummary = pending.length > 0
+        ? `${pending.length} pending${overdue > 0 ? ` · ${overdue} overdue` : ''}`
+        : reminders.length > 0 ? 'All done' : undefined;
+
     const daysUntil = (dateStr: string) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -174,6 +181,7 @@ export const RemindersTable: React.FC<RemindersTableProps> = ({ assets, locale }
                         <Plus size={16} />
                     </button>
                 }
+                collapsedSummary={collapsedSummary}
                 className="lg:col-span-3"
             >
                 <div className="divide-y divide-slate-100 dark:divide-slate-800/50">
