@@ -40,9 +40,6 @@ export const DataManagement: React.FC<Props> = ({
                             Supabase Cloud Vault
                             {syncStatus === 'Connected' && <ShieldCheck size={16} className="text-emerald-500" />}
                         </h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mt-1">
-                            Encrypted cloud sync. Auto-syncs across devices.
-                        </p>
                         <div className="mt-4 flex flex-wrap items-center gap-4">
                             <div className="flex items-center gap-2">
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Background Sync</label>
@@ -85,9 +82,6 @@ export const DataManagement: React.FC<Props> = ({
             <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div>
                     <h3 className="font-semibold text-slate-900 dark:text-white mb-2">JSON Backup</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
-                        Export all app data to JSON or restore from a backup file.
-                    </p>
                 </div>
                 <div className="flex gap-4">
                     <button

@@ -63,7 +63,7 @@ const Settings: React.FC = () => {
             </div>
 
             <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8">
-                <div className="space-y-12">
+                <div className="space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         {/* Data Management Section */}
                         <DataManagement
@@ -118,7 +118,7 @@ const Settings: React.FC = () => {
                     </div>
 
                     {/* History Section (Keep at bottom for context) */}
-                    <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
+                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                         <NotificationHistory
                             logs={logs}
                             onClear={handleClearLogs}
