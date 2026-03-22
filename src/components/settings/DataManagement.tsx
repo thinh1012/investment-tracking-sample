@@ -30,17 +30,25 @@ export const DataManagement: React.FC<Props> = ({
             </div>
 
 
-            <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-start gap-4">
-                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl text-indigo-600 dark:text-indigo-400">
-                        <Cloud size={32} />
-                    </div>
-                    <div>
+            <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-indigo-600 dark:text-indigo-400">
+                            <Cloud size={20} />
+                        </div>
                         <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                             Supabase Cloud Vault
                             {syncStatus === 'Connected' && <ShieldCheck size={16} className="text-emerald-500" />}
                         </h3>
-                        <div className="mt-4 flex flex-wrap items-center gap-4">
+                    </div>
+                    <button
+                        onClick={onOpenSync}
+                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium shadow-sm transition-all flex items-center gap-1.5 text-xs shrink-0"
+                    >
+                        <Cloud size={14} /> Manage
+                    </button>
+                </div>
+                <div className="flex flex-wrap items-center gap-4">
                             <div className="flex items-center gap-2">
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Background Sync</label>
                                 <button
@@ -69,21 +77,11 @@ export const DataManagement: React.FC<Props> = ({
                                 </select>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <button
-                    onClick={onOpenSync}
-                    className="w-full md:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2"
-                >
-                    <Cloud size={18} /> Manage Cloud Vault
-                </button>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-white mb-2">JSON Backup</h3>
-                </div>
-                <div className="flex gap-4">
+            <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-4">
+                <h3 className="font-semibold text-slate-900 dark:text-white">JSON Backup</h3>
+                <div className="flex gap-3">
                     <button
                         onClick={async () => {
                             try {
