@@ -124,7 +124,7 @@ const AddReminderModal: React.FC<AddReminderModalProps> = ({ assets, onAdd, onCl
 
 export const RemindersTable: React.FC<RemindersTableProps> = ({ assets, locale }) => {
     const { reminders, addReminder, toggleDone, deleteReminder, syncing } = useReminders();
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const { notify } = useNotification();
     const notifiedRef = useRef(false);

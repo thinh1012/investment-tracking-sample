@@ -185,7 +185,7 @@ const AddStakingModal: React.FC<AddStakingModalProps> = ({ assets, onAdd, onClos
 
 export const StakingTable: React.FC<StakingTableProps> = ({ assets, locale }) => {
     const { positions, addPosition, deletePosition, syncing } = useStaking();
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [prefillSymbol, setPrefillSymbol] = useState<string | undefined>();
     const { notify } = useNotification();
