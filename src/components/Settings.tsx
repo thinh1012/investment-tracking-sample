@@ -44,23 +44,21 @@ const Settings: React.FC = () => {
     return (
         <div className="max-w-4xl mx-auto space-y-6 pb-20">
             {/* Header */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2 rounded-lg text-indigo-500">
-                        <Bell size={24} />
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2 rounded-lg text-indigo-500 shrink-0">
+                        <Bell size={20} />
                     </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Settings & Alerts</h1>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Configure notifications, regional formats, and data sync.</p>
+                    <div className="min-w-0">
+                        <h1 className="text-base font-bold text-slate-800 dark:text-slate-100">Settings & Alerts</h1>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">Notifications, regional formats, data sync.</p>
                     </div>
                 </div>
-
-                {/* Save Button */}
                 <button
                     onClick={handleSave}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-1.5 text-sm shrink-0"
                 >
-                    <Save size={16} /> Save Changes
+                    <Save size={14} /> Save
                 </button>
             </div>
 
@@ -86,7 +84,7 @@ const Settings: React.FC = () => {
                                 <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">Regional Format</h2>
                             </div>
 
-                            <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                                 <div>
                                     <h3 className="font-semibold text-slate-900 dark:text-white">Number Formatting</h3>
                                     <p className="text-sm text-slate-500 dark:text-slate-400">Choose how numbers are displayed.</p>

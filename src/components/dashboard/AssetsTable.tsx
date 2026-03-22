@@ -20,7 +20,7 @@ export const AssetsTable = React.memo(({ assets, transactions, prices, onRefresh
     const [isTokenListOpen, setIsTokenListOpen] = useState(false); // Default closed
 
     React.useEffect(() => {
-        if (forceOpen) setIsTokenListOpen(true);
+        if (forceOpen !== undefined) setIsTokenListOpen(forceOpen);
     }, [forceOpen]);
     const [assetSortKey, setAssetSortKey] = useState<string>('currentValue');
     const [assetSortOrder, setAssetSortOrder] = useState<'asc' | 'desc'>('desc');

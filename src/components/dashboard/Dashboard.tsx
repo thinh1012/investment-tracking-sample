@@ -79,10 +79,15 @@ export const Dashboard: React.FC<Props> = ({
     const [assetsForceOpen, setAssetsForceOpen] = React.useState(false);
 
     const handleAssetsClick = () => {
-        setAssetsForceOpen(true);
-        setTimeout(() => {
-            document.getElementById('assets-table')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 50);
+        setAssetsForceOpen(prev => {
+            const next = !prev;
+            if (next) {
+                setTimeout(() => {
+                    document.getElementById('assets-table')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
+            }
+            return next;
+        });
     };
 
 
