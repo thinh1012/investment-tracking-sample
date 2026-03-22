@@ -45,6 +45,8 @@ backups/
 
 # Screenshots
 *.png
+!public/icon-192.png
+!public/icon-512.png
 
 # Archived old services
 _archived/
