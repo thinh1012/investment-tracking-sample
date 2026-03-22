@@ -11,12 +11,17 @@ interface AssetsTableProps {
     onRefreshPrices?: (force?: boolean) => Promise<void>;
     onUpdateAssetOverride?: (symbol: string, overrides: { avgBuyPrice?: number }) => void;
     locale?: string;
+    forceOpen?: boolean;
 }
 
 import { TableShell } from '../common/TableShell';
 
-export const AssetsTable = React.memo(({ assets, transactions, prices, onRefreshPrices, onUpdateAssetOverride, locale }: AssetsTableProps) => {
+export const AssetsTable = React.memo(({ assets, transactions, prices, onRefreshPrices, onUpdateAssetOverride, locale, forceOpen }: AssetsTableProps) => {
     const [isTokenListOpen, setIsTokenListOpen] = useState(false); // Default closed
+
+    React.useEffect(() => {
+        if (forceOpen) setIsTokenListOpen(true);
+    }, [forceOpen]);
     const [assetSortKey, setAssetSortKey] = useState<string>('currentValue');
     const [assetSortOrder, setAssetSortOrder] = useState<'asc' | 'desc'>('desc');
     const [expandedSources, setExpandedSources] = useState<Set<string>>(new Set());
@@ -68,6 +73,7 @@ export const AssetsTable = React.memo(({ assets, transactions, prices, onRefresh
 
     return (
         <TableShell
+            id="assets-table"
             title="Tokens & Assets"
             subtitle="Spot Balance & Performance"
             icon={<Wallet />}

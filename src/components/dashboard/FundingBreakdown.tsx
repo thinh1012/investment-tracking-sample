@@ -18,6 +18,7 @@ interface FundingBreakdownProps {
         onUpdatePrincipal: (val: number | null) => void;
         onToggleAuditor?: () => void;
         isAuditorOpen?: boolean;
+        onAssetsClick?: () => void;
     };
 }
 
@@ -56,6 +57,7 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({
                 value={assetCount.toString()}
                 color="violet"
                 icon={<Layers size={14} />}
+                onClick={portfolioSummary.onAssetsClick}
             />
         </div>
     );

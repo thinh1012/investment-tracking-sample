@@ -13,6 +13,7 @@ interface TableShellProps {
     collapsedSummary?: string;
     className?: string;
     headerClassName?: string;
+    id?: string;
 }
 
 export const TableShell: React.FC<TableShellProps> = ({
@@ -26,10 +27,11 @@ export const TableShell: React.FC<TableShellProps> = ({
     extraHeaderActions,
     collapsedSummary,
     className = "",
-    headerClassName = ""
+    headerClassName = "",
+    id
 }) => {
     return (
-        <div className={`glass-card overflow-hidden ${className}`}>
+        <div id={id} className={`glass-card overflow-hidden ${className}`}>
             <div
                 className={`px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 ${headerClassName}`}
                 onClick={onToggle}

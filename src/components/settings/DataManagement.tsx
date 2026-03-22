@@ -41,7 +41,7 @@ export const DataManagement: React.FC<Props> = ({
                             {syncStatus === 'Connected' && <ShieldCheck size={16} className="text-emerald-500" />}
                         </h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mt-1">
-                            Secure your data with military-grade encryption in your personal Supabase cloud locker. Sync across devices automatically.
+                            Encrypted cloud sync. Auto-syncs across devices.
                         </p>
                         <div className="mt-4 flex flex-wrap items-center gap-4">
                             <div className="flex items-center gap-2">
@@ -84,9 +84,9 @@ export const DataManagement: React.FC<Props> = ({
 
             <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-white mb-2">JSON Export & Backup</h3>
+                    <h3 className="font-semibold text-slate-900 dark:text-white mb-2">JSON Backup</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
-                        Export your ENTIRE app data (Transactions, Watchlist, Settings, Notes) to a JSON file. Use this to move to a new device or backup your data offline.
+                        Export all app data to JSON or restore from a backup file.
                     </p>
                 </div>
                 <div className="flex gap-4">
@@ -125,10 +125,10 @@ export const DataManagement: React.FC<Props> = ({
                         }}
                         className="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors flex items-center gap-2 shadow-sm"
                     >
-                        <Download size={16} /> Secure Local Backup
+                        <Download size={16} /> Export
                     </button>
                     <label className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors cursor-pointer flex items-center gap-2 shadow-md shadow-indigo-600/10">
-                        <Upload size={16} /> Restore JSON
+                        <Upload size={16} /> Import
                         <input
                             type="file"
                             accept=".json"

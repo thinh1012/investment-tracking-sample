@@ -76,6 +76,14 @@ export const Dashboard: React.FC<Props> = ({
 }) => {
     const [activeAnalyticsTab, setActiveAnalyticsTab] = React.useState<'earnings' | 'yield' | 'ledger'>('earnings');
     const [isAuditorOpen, setIsAuditorOpen] = React.useState(false);
+    const [assetsForceOpen, setAssetsForceOpen] = React.useState(false);
+
+    const handleAssetsClick = () => {
+        setAssetsForceOpen(true);
+        setTimeout(() => {
+            document.getElementById('assets-table')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+    };
 
 
     // 1. Hook for Logic
@@ -149,7 +157,8 @@ export const Dashboard: React.FC<Props> = ({
                                 compoundedGrowth,
                                 onUpdatePrincipal: updateGlobalPrincipal,
                                 onToggleAuditor: () => setIsAuditorOpen(!isAuditorOpen),
-                                isAuditorOpen
+                                isAuditorOpen,
+                                onAssetsClick: handleAssetsClick
                             }}
                         />
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
@@ -175,6 +184,7 @@ export const Dashboard: React.FC<Props> = ({
                                 onRefreshPrices={onRefreshPrices}
                                 onUpdateAssetOverride={onUpdateAssetOverride}
                                 locale={locale}
+                                forceOpen={assetsForceOpen}
                             />
                         </div>
                     </div>
