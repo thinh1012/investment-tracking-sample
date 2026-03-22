@@ -27,6 +27,9 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
             (a.lpRange && a.symbol.includes(' '))
         );
 
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
         const mapped = lps.map(lp => {
             // 2. Calculate Principal (Total Invested)
             const principal = lp.totalInvested;
@@ -53,6 +56,18 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
             const netPosition = claimedUSD + paperPnL;
             const totalROI = principal > 0 ? (netPosition / principal) * 100 : 0;
 
+            // 5. Break-even calculation
+            const firstDeposit = transactions
+                .filter(t => t.assetSymbol.toUpperCase() === lp.symbol.toUpperCase() && t.type === 'DEPOSIT')
+                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+
+            const openDate = firstDeposit ? new Date(firstDeposit.date) : null;
+            const daysOpen = openDate ? Math.max(1, Math.ceil((today.getTime() - openDate.getTime()) / (1000 * 60 * 60 * 24))) : null;
+            const dailyFeeRate = (daysOpen && claimedUSD > 0) ? claimedUSD / daysOpen : null;
+            const ilGap = Math.max(0, -netPosition); // how much more fees needed to break even
+            const daysToBreakEven = (dailyFeeRate && ilGap > 0) ? Math.ceil(ilGap / dailyFeeRate) : null;
+            const breakEvenDate = daysToBreakEven ? new Date(today.getTime() + daysToBreakEven * 86400000) : null;
+
             return {
                 ...lp,
                 principal,
@@ -62,7 +77,11 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
                 currentValue,
                 paperPnL,
                 netPosition,
-                totalROI
+                totalROI,
+                daysOpen,
+                dailyFeeRate,
+                daysToBreakEven,
+                breakEvenDate
             };
         });
 
@@ -153,6 +172,8 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
                                     Payback {sortKey === 'recoveryPercent' && (sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
                                 </div>
                             </th>
+                            <th className="hidden md:table-cell px-4 py-2">Daily Fees</th>
+                            <th className="hidden md:table-cell px-4 py-2">Break Even</th>
                             <th className="px-4 py-2 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -181,6 +202,25 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
                                         </span>
                                     </div>
                                     {lp.isFreeRolling && <div className="text-xs text-emerald-500 mt-0.5">Free rolling</div>}
+                                </td>
+                                <td className="hidden md:table-cell px-4 py-2 font-mono text-sm text-slate-500 dark:text-slate-400">
+                                    {lp.dailyFeeRate
+                                        ? `$${lp.dailyFeeRate.toLocaleString(locale || 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/d`
+                                        : <span className="text-slate-300 dark:text-slate-600">—</span>}
+                                </td>
+                                <td className="hidden md:table-cell px-4 py-2 text-sm">
+                                    {lp.netPosition >= 0 ? (
+                                        <span className="text-emerald-500 font-bold text-xs">Already profitable</span>
+                                    ) : lp.daysToBreakEven && lp.breakEvenDate ? (
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-slate-700 dark:text-slate-200">
+                                                {lp.breakEvenDate.toLocaleDateString(locale || 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            </span>
+                                            <span className="text-xs text-amber-500 font-bold">in {lp.daysToBreakEven}d</span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-slate-300 dark:text-slate-600 text-xs">No fee data</span>
+                                    )}
                                 </td>
                                 <td className="px-6 py-2 text-right">
                                     <button
