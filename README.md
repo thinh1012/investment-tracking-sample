@@ -1,6 +1,8 @@
 
 # Crypto Investment Tracking
 
+![Dashboard](public/screenshots/dashboard.png)
+
 A robust, local-first portfolio tracking application built with React, Vite, and Clean Architecture principles.
 
 ## Features
