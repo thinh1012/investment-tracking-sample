@@ -50,3 +50,21 @@ backups/
 
 # Archived old services
 _archived/
+
+# Internal agent/session docs — never commit these
+CLAUDE.md
+_docs.md
+AI_AGENT_GUIDE.md
+README_AGENT.md
+CONTEXT.md
+CORE_LOGIC_FLOW.md
+DECISIONS.md
+DECISION_LEDGER.md
+LEARNING_CURRICULUM.md
+NAVIGATION.md
+PROJECT_MEMENTO.md
+ROLES.md
+SESSION_SUMMARY_*.md
+TABLE_OF_CONTENTS.md
+*.txt
+public/backup_*.json
