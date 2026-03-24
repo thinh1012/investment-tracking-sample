@@ -18,23 +18,23 @@ export const EarningsHero: React.FC<EarningsHeroProps> = ({
 }) => {
     return (
         <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800">
-            <div className="flex items-center gap-8">
-                <div>
-                    <div className="text-xs text-slate-400 mb-0.5">Total LP earnings</div>
+            <div className="flex items-center gap-4">
+                <div className="shrink-0">
+                    <div className="text-xs text-slate-400 mb-0.5 whitespace-nowrap">Total LP earnings</div>
                     <div className="text-2xl font-semibold font-mono text-slate-900 dark:text-white">
                         ${totalEarningsUSD.toLocaleString(locale || 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                 </div>
-                <div className="w-px h-8 bg-slate-200 dark:bg-slate-800" />
-                <div>
-                    <div className="text-xs text-slate-400 mb-0.5">Top reward</div>
+                <div className="w-px h-8 bg-slate-200 dark:bg-slate-800 shrink-0" />
+                <div className="shrink-0">
+                    <div className="text-xs text-slate-400 mb-0.5 whitespace-nowrap">Top reward</div>
                     <div className="text-sm font-medium text-slate-700 dark:text-slate-200">
                         {totalEarningsByToken[0]?.token || '—'}
                     </div>
                 </div>
-                <div className="w-px h-8 bg-slate-200 dark:bg-slate-800" />
-                <div>
-                    <div className="text-xs text-slate-400 mb-0.5">Avg monthly</div>
+                <div className="w-px h-8 bg-slate-200 dark:bg-slate-800 shrink-0" />
+                <div className="shrink-0">
+                    <div className="text-xs text-slate-400 mb-0.5 whitespace-nowrap">Avg monthly</div>
                     <div className="text-sm font-medium text-slate-700 dark:text-slate-200">
                         ${(totalEarningsUSD / 12).toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
                     </div>
