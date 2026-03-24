@@ -21,7 +21,7 @@ export const EarningsHero: React.FC<EarningsHeroProps> = ({
             <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
                 <div className="shrink-0">
                     <div className="text-xs text-slate-400 mb-0.5 whitespace-nowrap">Total LP earnings</div>
-                    <div className="text-sm font-semibold font-mono text-slate-900 dark:text-white whitespace-nowrap">
+                    <div className="text-2xl font-semibold font-mono text-slate-900 dark:text-white whitespace-nowrap">
                         ${totalEarningsUSD.toLocaleString(locale || 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                 </div>
