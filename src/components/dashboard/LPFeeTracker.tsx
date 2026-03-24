@@ -125,22 +125,22 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
                     </div>
                 </div>
                 <div className="w-px h-7 bg-slate-200 dark:bg-slate-800 shrink-0" />
-                <div>
-                    <div className="text-xs text-slate-400 mb-0.5">Realized fees</div>
+                <div className="shrink-0">
+                    <div className="text-xs text-slate-400 mb-0.5 whitespace-nowrap">Realized fees</div>
                     <div className="text-base font-semibold font-mono text-emerald-500 tabular-nums whitespace-nowrap">
                         +${totalStats.totalClaimed.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
                     </div>
                 </div>
                 <div className="w-px h-7 bg-slate-200 dark:bg-slate-800 shrink-0" />
-                <div>
-                    <div className="text-xs text-slate-400 mb-0.5">Payback</div>
+                <div className="shrink-0">
+                    <div className="text-xs text-slate-400 mb-0.5 whitespace-nowrap">Payback</div>
                     <div className="text-base font-semibold font-mono text-indigo-500 tabular-nums whitespace-nowrap">
                         {totalStats.totalPrincipal > 0 ? (totalStats.totalClaimed / totalStats.totalPrincipal * 100).toFixed(1) : '0'}%
                     </div>
                 </div>
                 <div className="w-px h-7 bg-slate-200 dark:bg-slate-800 shrink-0" />
-                <div>
-                    <div className="text-xs text-slate-400 mb-0.5">Net profit</div>
+                <div className="shrink-0">
+                    <div className="text-xs text-slate-400 mb-0.5 whitespace-nowrap">Net profit</div>
                     <div className={`text-base font-semibold font-mono tabular-nums whitespace-nowrap ${totalStats.totalNet >= 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-500'}`}>
                         {totalStats.totalNet >= 0 ? '+' : ''}${totalStats.totalNet.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
                     </div>
