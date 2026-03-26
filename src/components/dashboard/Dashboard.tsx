@@ -7,6 +7,7 @@ import { StakingTable } from './StakingTable';
 import { RemindersTable } from './RemindersTable';
 import { AssetsTable } from './AssetsTable';
 import { EarningsHistory } from './EarningsHistory';
+import { MonthlyEarnings } from './earnings/MonthlyEarnings';
 import { LPFeeTracker } from './LPFeeTracker';
 import { RecentTransactions } from './RecentTransactions';
 import { AccountingJournal } from './AccountingJournal';
@@ -74,7 +75,7 @@ export const Dashboard: React.FC<Props> = ({
     onCompound,
     manualPriceSources = {}
 }) => {
-    const [activeAnalyticsTab, setActiveAnalyticsTab] = React.useState<'earnings' | 'yield' | 'ledger'>('earnings');
+    const [activeAnalyticsTab, setActiveAnalyticsTab] = React.useState<'earnings' | 'yield' | 'ledger' | 'monthly'>('earnings');
     const [isAuditorOpen, setIsAuditorOpen] = React.useState(false);
     const [assetsForceOpen, setAssetsForceOpen] = React.useState(false);
 
@@ -199,6 +200,7 @@ export const Dashboard: React.FC<Props> = ({
                         <div className="flex overflow-x-auto border-b border-slate-200 dark:border-slate-800 mb-2 scrollbar-hide">
                             {([
                                 { id: 'earnings', label: 'Earnings History' },
+                                { id: 'monthly', label: 'Monthly Earnings' },
                                 { id: 'yield', label: 'LP Yield Tracker' },
                                 { id: 'ledger', label: 'Transaction Ledger' },
                             ] as const).map(tab => (
@@ -219,6 +221,10 @@ export const Dashboard: React.FC<Props> = ({
                         {activeAnalyticsTab === 'earnings' ? (
                             <div className="space-y-6">
                                 <EarningsHistory assets={assets} transactions={transactions} prices={prices} locale={locale} defaultOpen={true} onCompound={onCompound} />
+                            </div>
+                        ) : activeAnalyticsTab === 'monthly' ? (
+                            <div className="space-y-6">
+                                <MonthlyEarnings transactions={transactions} prices={prices} locale={locale} />
                             </div>
                         ) : activeAnalyticsTab === 'yield' ? (
                             <div className="space-y-6">
