@@ -83,8 +83,8 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
             <>
                 <header className="md:hidden glass border-b dark:border-slate-800/50 p-4 flex justify-between items-center sticky top-0 z-30">
                     <div className="flex items-center gap-3">
-                        <div className="p-1.5 mesh-gradient rounded-lg">
-                            <TrendingUp className="text-white h-4 w-4" />
+                        <div className="p-2 mesh-gradient rounded-lg">
+                            <TrendingUp className="text-white h-5 w-5" />
                         </div>
                         <span className="font-bold text-2xl text-slate-800 dark:text-slate-100 tracking-tight">Investment Tracking</span>
                     </div>

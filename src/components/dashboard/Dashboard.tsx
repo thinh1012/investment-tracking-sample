@@ -111,7 +111,7 @@ export const Dashboard: React.FC<Props> = ({
             {/* Header / Actions */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4">
                 <div className="flex flex-col">
-                    <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                    <h1 className="text-xl md:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
                         {view === 'dashboard' ? 'LP Positions' : view === 'analytics' ? 'Earnings' : 'Notes'}
                         {view === 'dashboard' && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
                     </h1>
