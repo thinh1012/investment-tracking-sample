@@ -50,8 +50,7 @@ const Settings: React.FC = () => {
                         <Bell size={20} />
                     </div>
                     <div className="min-w-0">
-                        <h1 className="text-base font-bold text-slate-800 dark:text-slate-100">Settings & Alerts</h1>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">Notifications, regional formats, data sync.</p>
+                        <h1 className="text-base font-bold text-slate-800 dark:text-slate-100">Settings</h1>
                     </div>
                 </div>
                 <button
