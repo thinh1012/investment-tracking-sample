@@ -45,35 +45,27 @@ export const DataManagement: React.FC<Props> = ({
                         <Cloud size={14} /> Manage
                     </button>
                 </div>
-                <div className="flex flex-wrap items-center gap-4">
-                            <div className="flex items-center gap-2">
-                                <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">Background Sync</label>
-                                <button
-                                    onClick={() => onToggleSync(!settings.cloudSyncEnabled)}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${settings.cloudSyncEnabled ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'
-                                        }`}
-                                >
-                                    <span
-                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.cloudSyncEnabled ? 'translate-x-6' : 'translate-x-1'
-                                            }`}
-                                    />
-                                </button>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">Frequency</label>
-                                <select
-                                    value={settings.cloudSyncInterval || 15}
-                                    onChange={(e) => onIntervalChange(Number(e.target.value))}
-                                    className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg px-2 py-1 outline-none"
-                                >
-                                    <option value={15}>15 Minutes</option>
-                                    <option value={30}>30 Minutes</option>
-                                    <option value={45}>45 Minutes</option>
-                                    <option value={60}>1 Hour</option>
-                                </select>
-                            </div>
-                        </div>
+                <div className="flex items-center gap-3">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Sync</label>
+                    <button
+                        onClick={() => onToggleSync(!settings.cloudSyncEnabled)}
+                        className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors focus:outline-none ${settings.cloudSyncEnabled ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'}`}
+                    >
+                        <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${settings.cloudSyncEnabled ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                    </button>
+                    <span className="text-slate-300 dark:text-slate-600">·</span>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Every</label>
+                    <select
+                        value={settings.cloudSyncInterval || 15}
+                        onChange={(e) => onIntervalChange(Number(e.target.value))}
+                        className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg px-2 py-1 outline-none"
+                    >
+                        <option value={15}>15 min</option>
+                        <option value={30}>30 min</option>
+                        <option value={45}>45 min</option>
+                        <option value={60}>1 hour</option>
+                    </select>
+                </div>
             </div>
 
             <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-4">
