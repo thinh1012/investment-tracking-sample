@@ -101,7 +101,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
             <div className="w-full overflow-hidden flex flex-col">
                 <div className="flex items-center border-b border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 text-xs font-medium">
                     <div
-                        className="hidden sm:block w-[120px] px-6 py-2 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 select-none"
+                        className="w-[80px] sm:w-[120px] px-2 sm:px-6 py-2 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 select-none"
                         onClick={() => handleSort('date')}
                     >
                         <div className="flex items-center gap-2">
@@ -149,7 +149,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
                     <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
                         {filteredTransactions.map((tx, index) => (
                             <div key={tx.id} className="flex items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/20 group/row border-b border-slate-100 dark:divide-slate-800/50 px-4 md:px-0">
-                                <div className="hidden sm:block w-[120px] px-6 py-2 font-bold font-mono text-slate-400 dark:text-slate-500 text-xs tracking-tighter tabular-nums whitespace-nowrap">
+                                <div className="w-[80px] sm:w-[120px] px-2 sm:px-6 py-2 font-bold font-mono text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs tracking-tighter tabular-nums whitespace-nowrap">
                                     {tx.date}
                                 </div>
                                 <div className="hidden lg:block w-[100px] px-4 py-2 font-mono text-slate-300 dark:text-slate-600 text-[10px] tabular-nums whitespace-nowrap" title={tx.createdAt ? new Date(tx.createdAt).toLocaleString() : 'N/A'}>
