@@ -33,9 +33,6 @@ export const DataManagement: React.FC<Props> = ({
             <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-indigo-600 dark:text-indigo-400">
-                            <Cloud size={20} />
-                        </div>
                         <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2 whitespace-nowrap">
                             Supabase Cloud Vault
                             {syncStatus === 'Connected' && <ShieldCheck size={16} className="text-emerald-500" />}
@@ -50,7 +47,7 @@ export const DataManagement: React.FC<Props> = ({
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
                             <div className="flex items-center gap-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Background Sync</label>
+                                <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">Background Sync</label>
                                 <button
                                     onClick={() => onToggleSync(!settings.cloudSyncEnabled)}
                                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${settings.cloudSyncEnabled ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'
@@ -64,11 +61,11 @@ export const DataManagement: React.FC<Props> = ({
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Frequency</label>
+                                <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">Frequency</label>
                                 <select
                                     value={settings.cloudSyncInterval || 15}
                                     onChange={(e) => onIntervalChange(Number(e.target.value))}
-                                    className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-[10px] font-bold rounded-lg px-2 py-1 outline-none"
+                                    className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg px-2 py-1 outline-none"
                                 >
                                     <option value={15}>15 Minutes</option>
                                     <option value={30}>30 Minutes</option>
