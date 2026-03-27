@@ -36,7 +36,7 @@ export const DataManagement: React.FC<Props> = ({
                         <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-indigo-600 dark:text-indigo-400">
                             <Cloud size={20} />
                         </div>
-                        <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2 whitespace-nowrap">
                             Supabase Cloud Vault
                             {syncStatus === 'Connected' && <ShieldCheck size={16} className="text-emerald-500" />}
                         </h3>
