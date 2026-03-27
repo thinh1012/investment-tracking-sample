@@ -55,7 +55,7 @@ const getLpComposition = (lpSymbol: string, transactions: Transaction[]): string
 
 
 export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTransaction, updateAssetPrice, locale }: LiquidityPoolsTableProps) => {
-    const [isAssetListOpen, setIsAssetListOpen] = useState(true);
+    const [isAssetListOpen, setIsAssetListOpen] = useState(false);
     const [editingLpSymbol, setEditingLpSymbol] = useState<string | null>(null);
     const [newLpValue, setNewLpValue] = useState<string>('');
 
