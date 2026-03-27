@@ -141,7 +141,7 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
                                     onClick={toggleTheme}
                                     className="flex items-center w-full p-2.5 rounded-xl font-bold text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50"
                                 >
-                                    <div className="mr-3 p-1.5 rounded-lg bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400">
+                                    <div className="mr-3 p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
                                         {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                                     </div>
                                     {isDarkMode ? 'Light Mode' : 'Dark Mode'}
