@@ -86,7 +86,7 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
                         <div className="p-1.5 mesh-gradient rounded-lg">
                             <TrendingUp className="text-white h-4 w-4" />
                         </div>
-                        <span className="font-bold text-base text-slate-800 dark:text-slate-100 tracking-tight">Investment Tracking</span>
+                        <span className="font-bold text-2xl text-slate-800 dark:text-slate-100 tracking-tight">Investment Tracking</span>
                     </div>
                     <button
                         onClick={() => setIsMobileMenuOpen(true)}
