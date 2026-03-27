@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Plus, Trash2, X, ChevronDown, Check } from 'lucide-react';
+import { Bell, Plus, Trash2, X, Check } from 'lucide-react';
 import { Asset } from '../../types';
 import { TableShell } from '../common/TableShell';
 import { useReminders } from '../../hooks/useReminders';
@@ -43,7 +43,7 @@ const AddReminderModal: React.FC<AddReminderModalProps> = ({ assets, onAdd, onCl
     );
 
     const [form, setForm] = useState({
-        token_symbol: prefillSymbol || tokenAssets[0]?.symbol || '',
+        token_symbol: prefillSymbol || '',
         reminder_date: '',
         note: '',
     });
@@ -71,19 +71,20 @@ const AddReminderModal: React.FC<AddReminderModalProps> = ({ assets, onAdd, onCl
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-1">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Token</label>
-                        <div className="relative">
-                            <select
-                                value={form.token_symbol}
-                                onChange={e => set('token_symbol', e.target.value)}
-                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-100 appearance-none pr-8"
-                                required
-                            >
-                                {tokenAssets.map(a => (
-                                    <option key={a.symbol} value={a.symbol}>{a.symbol}</option>
-                                ))}
-                            </select>
-                            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                        </div>
+                        <input
+                            list="token-suggestions"
+                            type="text"
+                            placeholder="e.g. BTC, ETH, SOL…"
+                            value={form.token_symbol}
+                            onChange={e => set('token_symbol', e.target.value.toUpperCase())}
+                            className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-100 placeholder:text-slate-300"
+                            required
+                        />
+                        <datalist id="token-suggestions">
+                            {tokenAssets.map(a => (
+                                <option key={a.symbol} value={a.symbol} />
+                            ))}
+                        </datalist>
                     </div>
 
                     <div className="space-y-1">
