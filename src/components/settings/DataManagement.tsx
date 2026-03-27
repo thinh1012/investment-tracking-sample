@@ -115,12 +115,12 @@ export const DataManagement: React.FC<Props> = ({
                                 notify.error("Failed to generate backup");
                             }
                         }}
-                        className="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors flex items-center gap-2 shadow-sm"
+                        className="px-3 py-1.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors flex items-center gap-1.5 text-xs shadow-sm"
                     >
-                        <Download size={16} /> Export
+                        <Download size={14} /> Export
                     </button>
-                    <label className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors cursor-pointer flex items-center gap-2 shadow-md shadow-indigo-600/10">
-                        <Upload size={16} /> Import
+                    <label className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors cursor-pointer flex items-center gap-1.5 text-xs shadow-sm">
+                        <Upload size={14} /> Import
                         <input
                             type="file"
                             accept=".json"

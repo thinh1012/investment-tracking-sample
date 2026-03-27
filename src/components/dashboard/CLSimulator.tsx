@@ -132,7 +132,7 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4 items-end">
                         <div className="space-y-2">
                             <label className="text-[10px] font-bold text-slate-500 uppercase">Deposit Value ({tokenB})</label>
                             <input
@@ -276,7 +276,7 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Estimated Value (Held)</label>
                         <div className="mt-2 flex items-baseline gap-2">
-                            <span className="text-3xl font-bold font-mono">${results.projection.heldValue.toLocaleString(locale, { maximumFractionDigits: 2 })}</span>
+                            <span className="text-xl font-bold font-mono">${results.projection.heldValue.toLocaleString(locale, { maximumFractionDigits: 2 })}</span>
                             <span className="text-sm font-bold text-slate-400 uppercase">{tokenB}</span>
                             <span className={`ml-2 text-sm font-bold ${results.targetChange >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                                 ({results.targetChange >= 0 ? '+' : ''}{results.targetChange.toFixed(2)}%)
@@ -292,7 +292,7 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
                         <div className="absolute top-0 left-0 w-1 h-full bg-purple-500" />
                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Estimated Value (In LP)</label>
                         <div className="mt-2 flex items-baseline gap-2">
-                            <span className="text-3xl font-bold font-mono text-purple-500">${results.projection.lpValue.toLocaleString(locale, { maximumFractionDigits: 2 })}</span>
+                            <span className="text-xl font-bold font-mono text-purple-500">${results.projection.lpValue.toLocaleString(locale, { maximumFractionDigits: 2 })}</span>
                             <span className="text-sm font-bold text-slate-400 uppercase">{tokenB}</span>
                             <span className={`ml-2 text-sm font-bold ${results.projection.lpValue >= depositValue ? 'text-emerald-500' : 'text-rose-500'}`}>
                                 ({((results.projection.lpValue / depositValue - 1) * 100).toFixed(2)}%)
@@ -334,7 +334,7 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
                             <span className="text-sm font-bold text-rose-500">{results.projection.ilPercentage.toFixed(2)}%</span>
                         </div>
                         <div className="mt-2">
-                            <span className="text-2xl font-bold font-mono text-rose-500">-${Math.abs(results.projection.ilUsdc).toLocaleString(locale, { maximumFractionDigits: 2 })}</span>
+                            <span className="text-xl font-bold font-mono text-rose-500">-${Math.abs(results.projection.ilUsdc).toLocaleString(locale, { maximumFractionDigits: 2 })}</span>
                             <span className="text-xs font-bold text-rose-500/60 uppercase ml-1">{tokenB}</span>
                         </div>
                         <div className="flex items-center gap-1 mt-2 text-[10px] text-rose-500/70 italic group relative cursor-help">
