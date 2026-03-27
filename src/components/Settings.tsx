@@ -113,8 +113,8 @@ const Settings: React.FC = () => {
                         />
                     </div>
 
-                    {/* History Section (Keep at bottom for context) */}
-                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    {/* History Section (desktop only) */}
+                    <div className="hidden md:block pt-4 border-t border-slate-100 dark:border-slate-800">
                         <NotificationHistory
                             logs={logs}
                             onClear={handleClearLogs}

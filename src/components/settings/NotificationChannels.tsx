@@ -41,9 +41,6 @@ export const NotificationChannels: React.FC<Props> = ({
                             placeholder="e.g. 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
                             className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <p className="text-xs text-slate-400 mt-1">
-                            Create a bot with <a href="https://t.me/BotFather" target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">@BotFather</a>
-                        </p>
                     </div>
 
                     <div>
@@ -58,9 +55,6 @@ export const NotificationChannels: React.FC<Props> = ({
                             placeholder="e.g. 123456789"
                             className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <p className="text-xs text-slate-400 mt-1">
-                            Send a message to your bot and check <a href="https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates" target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">getUpdates</a> API to find your ID.
-                        </p>
                     </div>
 
                     <button

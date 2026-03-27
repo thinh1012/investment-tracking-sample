@@ -23,7 +23,7 @@ export const AlertPreferences: React.FC<Props> = ({ settings, setSettings }) => 
             <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                 <div>
                     <h3 className="font-semibold text-slate-900 dark:text-white">LP Range Monitoring</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Alert when CL positions go out of range.</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Alert when CL positions go out of range.</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
                     <input
