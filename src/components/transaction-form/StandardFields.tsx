@@ -72,8 +72,8 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
             {type === 'DEPOSIT' && setIsCompound && paymentMode !== 'CASH' && (
                 <div className="md:col-span-2 flex items-center gap-3 bg-indigo-500/5 border border-indigo-500/10 p-3 rounded-xl animate-in fade-in slide-in-from-top-2">
                     <div className="flex-1">
-                        <h5 className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-0.5">Accounting Strategy</h5>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Mark as <span className="text-indigo-600 dark:text-indigo-400 font-bold">Compounded Growth</span> (House Money) to exclude from Fresh Capital.</p>
+                        <h5 className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-0.5">Reinvested Profit?</h5>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Turn on if this is <span className="text-indigo-600 dark:text-indigo-400 font-bold">profit you're reinvesting</span>, not new money from outside.</p>
                     </div>
                     <button
                         type="button"

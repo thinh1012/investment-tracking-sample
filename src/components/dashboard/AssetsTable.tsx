@@ -74,7 +74,7 @@ export const AssetsTable = React.memo(({ assets, transactions, prices, onRefresh
     return (
         <TableShell
             id="assets-table"
-            title="Tokens & Assets"
+            title="Tokens"
             subtitle="Spot Balance & Performance"
             icon={<Wallet />}
             iconColor="emerald"
