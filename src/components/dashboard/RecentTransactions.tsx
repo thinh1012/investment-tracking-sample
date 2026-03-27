@@ -31,12 +31,27 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
     const [isRecentTxOpen, setIsRecentTxOpen] = useState(false);
     const [txSearchTerm, setTxSearchTerm] = useState('');
     const [typeFilter, setTypeFilter] = useState<string>('ALL');
+    const [sortKey, setSortKey] = useState<'date' | 'createdAt' | 'ticker'>('date');
     const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
 
+    const handleSort = (key: 'date' | 'createdAt' | 'ticker') => {
+        if (sortKey === key) {
+            setSortOrder(o => o === 'desc' ? 'asc' : 'desc');
+        } else {
+            setSortKey(key);
+            setSortOrder('desc');
+        }
+    };
+
     const sortedTransactions = [...transactions].sort((a, b) => {
-        const dateA = new Date(a.date).getTime();
-        const dateB = new Date(b.date).getTime();
-        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+        const dir = sortOrder === 'desc' ? -1 : 1;
+        if (sortKey === 'ticker') {
+            return a.assetSymbol.localeCompare(b.assetSymbol) * dir;
+        }
+        if (sortKey === 'createdAt') {
+            return ((a.createdAt ?? 0) - (b.createdAt ?? 0)) * dir;
+        }
+        return (new Date(a.date).getTime() - new Date(b.date).getTime()) * dir;
     });
 
     const filteredTransactions = sortedTransactions.filter((t: Transaction) => {
@@ -86,19 +101,45 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
             <div className="w-full overflow-hidden flex flex-col">
                 <div className="flex items-center border-b border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 text-xs font-medium">
                     <div
-                        className="hidden sm:block w-[120px] px-6 py-2 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 group select-none"
-                        onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
+                        className="hidden sm:block w-[120px] px-6 py-2 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 select-none"
+                        onClick={() => handleSort('date')}
                     >
                         <div className="flex items-center gap-2">
                             Date
-                            <span className={`${sortOrder === 'desc' ? 'text-indigo-500' : 'text-slate-300'}`}>
-                                {sortOrder === 'desc' ? <TrendingDown size={14} /> : <TrendingUp size={14} />}
-                            </span>
+                            {sortKey === 'date' && (
+                                <span className="text-indigo-500">
+                                    {sortOrder === 'desc' ? <TrendingDown size={14} /> : <TrendingUp size={14} />}
+                                </span>
+                            )}
                         </div>
                     </div>
-                    <div className="hidden lg:block w-[100px] px-4 py-2 text-slate-300 dark:text-slate-600">Created</div>
+                    <div
+                        className="hidden lg:block w-[100px] px-4 py-2 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 select-none"
+                        onClick={() => handleSort('createdAt')}
+                    >
+                        <div className="flex items-center gap-2">
+                            Created
+                            {sortKey === 'createdAt' && (
+                                <span className="text-indigo-500">
+                                    {sortOrder === 'desc' ? <TrendingDown size={14} /> : <TrendingUp size={14} />}
+                                </span>
+                            )}
+                        </div>
+                    </div>
                     <div className="flex-1 md:flex-none md:w-[120px] px-4 py-2 md:px-6 md:py-2">Activity</div>
-                    <div className="flex-1 md:flex-none md:w-[100px] px-4 py-2 md:px-6 md:py-2">Ticker</div>
+                    <div
+                        className="flex-1 md:flex-none md:w-[100px] px-4 py-2 md:px-6 md:py-2 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 select-none"
+                        onClick={() => handleSort('ticker')}
+                    >
+                        <div className="flex items-center gap-2">
+                            Ticker
+                            {sortKey === 'ticker' && (
+                                <span className="text-indigo-500">
+                                    {sortOrder === 'desc' ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                                </span>
+                            )}
+                        </div>
+                    </div>
                     <div className="flex-1 md:flex-none md:w-[120px] px-4 py-2 md:px-6 md:py-2 text-right">Volume</div>
                     <div className="hidden lg:block w-[120px] px-6 py-2 text-right">Unit Price</div>
                     <div className="flex-1 md:flex-none md:w-[120px] px-4 py-2 md:px-4 md:py-2 text-right">Registry</div>
