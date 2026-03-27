@@ -304,6 +304,9 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                         <span className="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 px-1.5 py-0.5 rounded">
                             {outOfRangePools.length}
                         </span>
+                        <span className="text-xs font-mono text-rose-400 ml-1">
+                            ${outOfRangePools.reduce((s, a) => s + (a.currentValue || a.totalInvested), 0).toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}
+                        </span>
                     </button>
                     {showOutOfRange && (
                         <table className="w-full text-sm text-left border-collapse opacity-60">

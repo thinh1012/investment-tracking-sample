@@ -43,6 +43,10 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({
 
     if (!portfolioSummary) return null;
 
+    const lpAssets = portfolioSummary.assets.filter(a => a.lpRange != null);
+    const inRangeValue = lpAssets.filter(a => a.inRange !== false).reduce((s, a) => s + (a.currentValue || a.totalInvested), 0);
+    const outOfRangeValue = lpAssets.filter(a => a.inRange === false).reduce((s, a) => s + (a.currentValue || a.totalInvested), 0);
+
     return (
         <div className="mt-4 mb-6 flex flex-row gap-3">
             <PortfolioMiniCard
@@ -59,6 +63,19 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({
                 icon={<Layers size={14} />}
                 onClick={portfolioSummary.onAssetsClick}
             />
+            {outOfRangeValue > 0 && (
+                <div className="flex-1 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 flex flex-col gap-1">
+                    <span className="text-xs text-slate-400">LP Range</span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-xs font-mono font-semibold text-emerald-500">${inRangeValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</span>
+                        <span className="text-xs text-slate-300 dark:text-slate-600">·</span>
+                        <span className="text-xs font-mono font-semibold text-rose-400">${outOfRangeValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</span>
+                    </div>
+                    <div className="h-1 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-0.5">
+                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(inRangeValue / (inRangeValue + outOfRangeValue)) * 100}%` }} />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
