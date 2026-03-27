@@ -69,7 +69,7 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
                 />
             </div>
 
-            {type === 'DEPOSIT' && setIsCompound && paymentMode !== 'CASH' && (
+            {type === 'DEPOSIT' && setIsCompound && paymentMode === 'MIXED' && (
                 <div className="md:col-span-2 flex items-center gap-3 bg-indigo-500/5 border border-indigo-500/10 p-3 rounded-xl animate-in fade-in slide-in-from-top-2">
                     <div className="flex-1">
                         <h5 className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-0.5">Reinvested Profit?</h5>
@@ -138,7 +138,7 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
                                             <button
                                                 key={m}
                                                 type="button"
-                                                onClick={() => { setPaymentMode(m); if (m === 'CASH') setIsCompound?.(false); }}
+                                                onClick={() => { setPaymentMode(m); if (m === 'ASSET') setIsCompound?.(true); else setIsCompound?.(false); }}
                                                 className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all ${paymentMode === m ? 'bg-white dark:bg-slate-700 shadow text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}`}
                                             >
                                                 {m}
