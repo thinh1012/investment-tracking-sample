@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Wallet, ArrowUp, ArrowDown, RefreshCw, ChevronRight, TrendingUp, TrendingDown, Layers, Pencil } from 'lucide-react';
+import { ChevronDown, ChevronUp, Wallet, ArrowUp, ArrowDown, RefreshCw, ChevronRight, TrendingUp, TrendingDown, Layers, Pencil, X } from 'lucide-react';
 import { Asset } from '../../types';
 import { formatPrice } from '../../services/PriceService';
 import { useStaking } from '../../hooks/useStaking';
@@ -12,11 +12,13 @@ interface AssetsTableProps {
     onUpdateAssetOverride?: (symbol: string, overrides: { avgBuyPrice?: number }) => void;
     locale?: string;
     forceOpen?: boolean;
+    manualPrices?: Record<string, number>;
+    onClearManualPrice?: (symbol: string) => void;
 }
 
 import { TableShell } from '../common/TableShell';
 
-export const AssetsTable = React.memo(({ assets, transactions, prices, onRefreshPrices, onUpdateAssetOverride, locale, forceOpen }: AssetsTableProps) => {
+export const AssetsTable = React.memo(({ assets, transactions, prices, onRefreshPrices, onUpdateAssetOverride, locale, forceOpen, manualPrices = {}, onClearManualPrice }: AssetsTableProps) => {
     const [isTokenListOpen, setIsTokenListOpen] = useState(false); // Default closed
 
     React.useEffect(() => {
@@ -166,7 +168,18 @@ export const AssetsTable = React.memo(({ assets, transactions, prices, onRefresh
                                         </div>
                                     </td>
                                     <td className="px-3 py-3 md:px-6 md:py-5 text-slate-500 dark:text-slate-400 font-mono font-medium text-xs md:text-sm">
-                                        {formatPrice(currentPrice)}
+                                        <div className="flex items-center gap-1">
+                                            {formatPrice(currentPrice)}
+                                            {manualPrices[asset.symbol] && (
+                                                <button
+                                                    onClick={() => onClearManualPrice?.(asset.symbol)}
+                                                    title="Clear manual price — switch back to market"
+                                                    className="flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-black uppercase bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:text-rose-500 transition-colors"
+                                                >
+                                                    M <X size={8} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="hidden lg:table-cell px-6 py-5 font-bold text-slate-800 dark:text-slate-100 font-mono tracking-tight text-right">${asset.totalInvested.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</td>
                                     <td className="px-4 py-3 md:px-6 md:py-5 font-black text-slate-900 dark:text-white font-mono tracking-tight text-right text-sm md:text-base">${currentValue.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</td>

@@ -170,6 +170,12 @@ export const usePriceFeeds = (activeSymbols: string[]) => {
         await PriceDataService.saveManualPrice(symbol, price);
     }, []);
 
+    const clearManualPrice = useCallback(async (symbol: string) => {
+        setManualPrices(prev => { const next = { ...prev }; delete next[symbol]; return next; });
+        setManualPriceSources(prev => { const next = { ...prev }; delete next[symbol]; return next; });
+        await PriceDataService.deleteManualPrice(symbol);
+    }, []);
+
     const updateAssetOverride = useCallback(async (symbol: string, overrides: { avgBuyPrice?: number; rewardTokens?: string[] }) => {
         await AssetOverrideService.save(symbol, overrides);
         setAssetOverrides(prev => {
@@ -190,6 +196,7 @@ export const usePriceFeeds = (activeSymbols: string[]) => {
         assetOverrides: memoizedAssetOverrides,
         refreshPrices,
         updateAssetPrice,
+        clearManualPrice,
         updateAssetOverride
     };
 };

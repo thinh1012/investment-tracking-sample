@@ -34,7 +34,7 @@ function App(): React.ReactNode {
     const {
         getAssets, addTransaction, deleteTransaction, updateTransaction,
         transactions, getPortfolioHistory, importTransactions,
-        updateAssetPrice, updateAssetOverride, refreshPrices,
+        updateAssetPrice, clearManualPrice, updateAssetOverride, refreshPrices,
         prices, priceChanges, priceVolumes,
         assetOverrides, manualPrices, manualPriceSources
     } = usePortfolio(picks, watchlistSymbols);
@@ -249,6 +249,8 @@ function App(): React.ReactNode {
                                 simulatorState={simulatorState}
                                 onCompound={handleCompound}
                                 manualPriceSources={manualPriceSources}
+                                manualPrices={manualPrices}
+                                onClearManualPrice={clearManualPrice}
                             />
                         ) : (
                             <Settings />

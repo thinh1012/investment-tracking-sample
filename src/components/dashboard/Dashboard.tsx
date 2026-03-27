@@ -45,6 +45,8 @@ interface Props {
     simulatorState?: { symbol: string; price: number } | null;
     onCompound?: (tx: Transaction) => void;
     manualPriceSources?: Record<string, string>;
+    manualPrices?: Record<string, number>;
+    onClearManualPrice?: (symbol: string) => void;
 }
 
 export const Dashboard: React.FC<Props> = ({
@@ -73,7 +75,9 @@ export const Dashboard: React.FC<Props> = ({
     onSimulate,
     simulatorState,
     onCompound,
-    manualPriceSources = {}
+    manualPriceSources = {},
+    manualPrices = {},
+    onClearManualPrice
 }) => {
     const [activeAnalyticsTab, setActiveAnalyticsTab] = React.useState<'earnings' | 'yield' | 'ledger' | 'monthly'>('earnings');
     const [isAuditorOpen, setIsAuditorOpen] = React.useState(false);
@@ -191,6 +195,8 @@ export const Dashboard: React.FC<Props> = ({
                                 onUpdateAssetOverride={onUpdateAssetOverride}
                                 locale={locale}
                                 forceOpen={assetsForceOpen}
+                                manualPrices={manualPrices}
+                                onClearManualPrice={onClearManualPrice}
                             />
                         </div>
                     </div>
