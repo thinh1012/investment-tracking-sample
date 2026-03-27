@@ -82,12 +82,15 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
         return (
             <>
                 <header className="md:hidden glass border-b dark:border-slate-800/50 p-4 flex justify-between items-center sticky top-0 z-30">
-                    <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => navigateTo('dashboard')}
+                        className="flex items-center gap-3"
+                    >
                         <div className="p-2 mesh-gradient rounded-lg">
                             <TrendingUp className="text-white h-5 w-5" />
                         </div>
                         <span className="font-bold text-2xl text-slate-800 dark:text-slate-100 tracking-tight">Investment Tracking</span>
-                    </div>
+                    </button>
                     <button
                         onClick={() => setIsMobileMenuOpen(true)}
                         className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-300"
@@ -158,9 +161,9 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
     return (
         <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 hidden md:flex flex-col h-screen sticky top-0">
             <div className="p-5">
-                <div className="p-2 bg-indigo-500 rounded-lg w-fit">
+                <button onClick={() => navigateTo('dashboard')} className="p-2 bg-indigo-500 rounded-lg w-fit hover:bg-indigo-600">
                     <TrendingUp className="text-white h-5 w-5" />
-                </div>
+                </button>
             </div>
 
             <NavLinks
