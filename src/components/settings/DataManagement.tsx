@@ -69,8 +69,8 @@ export const DataManagement: React.FC<Props> = ({
             </div>
 
             <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-4">
-                <h3 className="font-semibold text-slate-900 dark:text-white">JSON Backup</h3>
-                <div className="flex gap-3">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">JSON Backup</label>
+                <div className="flex gap-2">
                     <button
                         onClick={async () => {
                             try {

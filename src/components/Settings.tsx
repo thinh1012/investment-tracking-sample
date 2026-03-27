@@ -84,11 +84,8 @@ const Settings: React.FC = () => {
                                 <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">Regional Format</h2>
                             </div>
 
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                                <div>
-                                    <h3 className="font-semibold text-slate-900 dark:text-white">Number Formatting</h3>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">Choose how numbers are displayed.</p>
-                                </div>
+                            <div className="flex items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Number Format</label>
                                 <select
                                     value={locale}
                                     onChange={(e) => {
@@ -96,10 +93,10 @@ const Settings: React.FC = () => {
                                         notify.success('Locale updated! Reloading...');
                                         setTimeout(() => window.location.reload(), 500);
                                     }}
-                                    className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 outline-none"
+                                    className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg px-2 py-1 outline-none"
                                 >
-                                    <option value="en-US">US / English (1,234.56)</option>
-                                    <option value="vi-VN">Vietnam / Europe (1.234,56)</option>
+                                    <option value="en-US">1,234.56 (US)</option>
+                                    <option value="vi-VN">1.234,56 (VN)</option>
                                 </select>
                             </div>
                         </div>
