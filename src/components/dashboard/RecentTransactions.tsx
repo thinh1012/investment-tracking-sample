@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Search, TrendingUp, TrendingDown, Trash2, Pencil } from 'lucide-react';
+import { ChevronDown, ChevronUp, Search, TrendingUp, Trash2, Pencil } from 'lucide-react';
 import { Transaction } from '../../types';
 import { formatPrice } from '../../services/PriceService';
+import { TableShell } from '../common/TableShell';
 
 // Helper to format createdAt timestamp as dd/mm/yyyy hh:mm:ss
 const formatCreatedAt = (timestamp: number): string => {
@@ -25,10 +26,8 @@ interface RecentTransactionsProps {
     locale?: string;
 }
 
-import { TableShell } from '../common/TableShell';
-
 export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transactions, onEditClick, onDeleteClick, locale }) => {
-    const [isRecentTxOpen, setIsRecentTxOpen] = useState(false);
+    const [isRecentTxOpen, setIsRecentTxOpen] = useState(true);
     const [txSearchTerm, setTxSearchTerm] = useState('');
     const [typeFilter, setTypeFilter] = useState<string>('ALL');
     const [sortKey, setSortKey] = useState<'date' | 'createdAt' | 'ticker'>('date');
@@ -108,7 +107,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
                             Date
                             {sortKey === 'date' && (
                                 <span className="text-indigo-500">
-                                    {sortOrder === 'desc' ? <TrendingDown size={14} /> : <TrendingUp size={14} />}
+                                    {sortOrder === 'desc' ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
                                 </span>
                             )}
                         </div>
@@ -121,7 +120,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
                             Created
                             {sortKey === 'createdAt' && (
                                 <span className="text-indigo-500">
-                                    {sortOrder === 'desc' ? <TrendingDown size={14} /> : <TrendingUp size={14} />}
+                                    {sortOrder === 'desc' ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
                                 </span>
                             )}
                         </div>
