@@ -207,9 +207,9 @@ export const Dashboard: React.FC<Props> = ({
                         <div className="flex overflow-x-auto border-b border-slate-200 dark:border-slate-800 mb-2 scrollbar-hide">
                             {([
                                 { id: 'earnings', label: 'Earnings History' },
-                                { id: 'monthly', label: 'Monthly Earnings' },
-                                { id: 'yield', label: 'LP Yield Tracker' },
-                                { id: 'ledger', label: 'Transaction Ledger' },
+                                { id: 'monthly', label: 'Monthly' },
+                                { id: 'yield', label: 'Yield' },
+                                { id: 'ledger', label: 'Ledger' },
                             ] as const).map(tab => (
                                 <button
                                     key={tab.id}
