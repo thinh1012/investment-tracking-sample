@@ -15,6 +15,33 @@ import { TrendingUp, Shield, Layout } from 'lucide-react';
 const DashboardNotes = React.lazy(() => import('../DashboardNotes'));
 const PortfolioAuditor = React.lazy(() => import('./PortfolioAuditor').then(m => ({ default: m.PortfolioAuditor })));
 
+function TabBar<T extends string>({
+    tabs, active, onChange, variant = 'primary'
+}: {
+    tabs: readonly { id: T; label: string }[];
+    active: T;
+    onChange: (id: T) => void;
+    variant?: 'primary' | 'secondary';
+}) {
+    const isPrimary = variant === 'primary';
+    return (
+        <div className={`flex border-b border-slate-200 dark:border-slate-800 ${isPrimary ? 'overflow-x-auto scrollbar-hide mb-2' : 'overflow-x-auto scrollbar-hide'}`}>
+            {tabs.map(tab => (
+                <button
+                    key={tab.id}
+                    onClick={() => onChange(tab.id)}
+                    className={`border-b-2 -mb-px ${isPrimary
+                        ? `px-3 md:px-5 py-3 text-sm font-bold whitespace-nowrap ${active === tab.id ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`
+                        : `px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors ${active === tab.id ? 'border-indigo-500 text-indigo-500' : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`
+                    }`}
+                >
+                    {tab.label}
+                </button>
+            ))}
+        </div>
+    );
+}
+
 
 interface Props {
     assets: Asset[];
@@ -84,17 +111,13 @@ export const Dashboard: React.FC<Props> = ({
     const [isAuditorOpen, setIsAuditorOpen] = React.useState(false);
     const [assetsForceOpen, setAssetsForceOpen] = React.useState(false);
 
-    const handleAssetsClick = () => {
-        setAssetsForceOpen(prev => {
-            const next = !prev;
-            if (next) {
-                setTimeout(() => {
-                    document.getElementById('assets-table')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 50);
-            }
-            return next;
-        });
-    };
+    const handleAssetsClick = () => setAssetsForceOpen(prev => !prev);
+
+    React.useEffect(() => {
+        if (assetsForceOpen) {
+            document.getElementById('assets-table')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, [assetsForceOpen]);
 
 
     // 1. Hook for Logic
@@ -204,25 +227,15 @@ export const Dashboard: React.FC<Props> = ({
                 ) : view === 'analytics' ? (
                     <div className="space-y-6">
                         {/* Analytics Tabs — underline style */}
-                        <div className="flex overflow-x-auto border-b border-slate-200 dark:border-slate-800 mb-2 scrollbar-hide">
-                            {([
+                        <TabBar
+                            tabs={[
                                 { id: 'monthly', label: 'Monthly' },
                                 { id: 'yield', label: 'Yield' },
                                 { id: 'ledger', label: 'Ledger' },
-                            ] as const).map(tab => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveAnalyticsTab(tab.id)}
-                                    className={`px-3 md:px-5 py-3 text-sm font-bold border-b-2 -mb-px whitespace-nowrap ${
-                                        activeAnalyticsTab === tab.id
-                                            ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400'
-                                            : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                                    }`}
-                                >
-                                    {tab.label}
-                                </button>
-                            ))}
-                        </div>
+                            ] as const}
+                            active={activeAnalyticsTab}
+                            onChange={setActiveAnalyticsTab}
+                        />
 
                         {activeAnalyticsTab === 'monthly' ? (
                             <div className="space-y-6">
@@ -234,21 +247,16 @@ export const Dashboard: React.FC<Props> = ({
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                <div className="flex gap-1 border-b border-slate-200 dark:border-slate-800">
-                                    {([
+                                <TabBar
+                                    tabs={[
                                         { id: 'recent', label: 'Recent Transactions' },
                                         { id: 'earnings', label: 'Earnings History' },
                                         { id: 'accounting', label: 'Accounting Ledger' },
-                                    ] as const).map(tab => (
-                                        <button
-                                            key={tab.id}
-                                            onClick={() => setActiveLedgerTab(tab.id)}
-                                            className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${activeLedgerTab === tab.id ? 'border-indigo-500 text-indigo-500' : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
-                                        >
-                                            {tab.label}
-                                        </button>
-                                    ))}
-                                </div>
+                                    ] as const}
+                                    active={activeLedgerTab}
+                                    onChange={setActiveLedgerTab}
+                                    variant="secondary"
+                                />
                                 {activeLedgerTab === 'earnings' ? (
                                     <EarningsHistory assets={assets} transactions={transactions} prices={prices} locale={locale} defaultOpen={true} onCompound={onCompound} />
                                 ) : activeLedgerTab === 'accounting' ? (

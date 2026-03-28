@@ -11,16 +11,18 @@ interface MonthlyEarningsProps {
 
 const EARNINGS_TYPES = new Set(['INTEREST', 'STAKING', 'REWARD', 'YIELD', 'SAVINGS', 'FARMING', 'LENDING', 'OTHER']);
 
+const formatQty = (qty: number) => qty < 0.01 ? qty.toFixed(4) : qty.toFixed(2);
+
 function isEarningsTx(tx: Transaction): boolean {
     if (tx.type === 'INTEREST') return true;
     if (tx.interestType && EARNINGS_TYPES.has(tx.interestType)) return true;
     return false;
 }
 
-function formatMonth(key: string): string {
+function formatMonth(key: string, locale?: string): string {
     const [year, month] = key.split('-');
     const d = new Date(Number(year), Number(month) - 1, 1);
-    return d.toLocaleString('default', { month: 'long', year: 'numeric' });
+    return d.toLocaleString(locale ?? 'default', { month: 'long', year: 'numeric' });
 }
 
 export const MonthlyEarnings: React.FC<MonthlyEarningsProps> = ({ transactions, prices, locale }) => {
@@ -53,8 +55,8 @@ export const MonthlyEarnings: React.FC<MonthlyEarningsProps> = ({ transactions, 
 
         return Object.entries(map)
             .sort(([a], [b]) => b.localeCompare(a))
-            .map(([key, data]) => ({ key, label: formatMonth(key), ...data }));
-    }, [transactions, prices]);
+            .map(([key, data]) => ({ key, label: formatMonth(key, locale), ...data }));
+    }, [transactions, prices, locale]);
 
     const toggle = (key: string) => {
         setExpandedMonths(prev => {
@@ -83,6 +85,13 @@ export const MonthlyEarnings: React.FC<MonthlyEarningsProps> = ({ transactions, 
             {monthlyData.map(({ key, label, totalUSD, byPool }) => {
                 const isOpen = expandedMonths.has(key);
                 const poolEntries = Object.entries(byPool).sort(([, a], [, b]) => b.totalUSD - a.totalUSD);
+                const tokenTotals: Record<string, number> = {};
+                poolEntries.forEach(([, { tokens }]) => {
+                    Object.entries(tokens).forEach(([sym, qty]) => {
+                        tokenTotals[sym] = (tokenTotals[sym] || 0) + qty;
+                    });
+                });
+                const tokenEntries = Object.entries(tokenTotals).sort(([, a], [, b]) => b - a);
 
                 return (
                     <div key={key} className="border-b border-slate-100 dark:border-slate-800 last:border-0">
@@ -104,33 +113,21 @@ export const MonthlyEarnings: React.FC<MonthlyEarningsProps> = ({ transactions, 
 
                         {isOpen && (
                             <div className="px-4 pb-3 space-y-2">
-                                {/* Token totals strip */}
-                                {(() => {
-                                    const tokenTotals: Record<string, number> = {};
-                                    poolEntries.forEach(([, { tokens }]) => {
-                                        Object.entries(tokens).forEach(([sym, qty]) => {
-                                            tokenTotals[sym] = (tokenTotals[sym] || 0) + qty;
-                                        });
-                                    });
-                                    const entries = Object.entries(tokenTotals).sort(([, a], [, b]) => b - a);
-                                    return (
-                                        <div className="flex flex-wrap gap-x-3 gap-y-1 py-2 border-b border-slate-100 dark:border-slate-800 mb-1">
-                                            {entries.map(([sym, qty]) => (
-                                                <span key={sym} className="text-xs font-mono text-slate-500 dark:text-slate-400">
-                                                    <span className="font-semibold text-slate-700 dark:text-slate-200">
-                                                        {qty < 0.01 ? qty.toFixed(4) : qty.toFixed(2)}
-                                                    </span>
-                                                    {' '}{sym}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    );
-                                })()}
+                                <div className="flex flex-wrap gap-x-3 gap-y-1 py-2 border-b border-slate-100 dark:border-slate-800 mb-1">
+                                    {tokenEntries.map(([sym, qty]) => (
+                                        <span key={sym} className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                                            <span className="font-semibold text-slate-700 dark:text-slate-200">
+                                                {formatQty(qty)}
+                                            </span>
+                                            {' '}{sym}
+                                        </span>
+                                    ))}
+                                </div>
                                 {poolEntries.map(([pool, { tokens, totalUSD: poolUSD }]) => {
                                     const pct = totalUSD > 0 ? (poolUSD / totalUSD) * 100 : 0;
                                     const tokenList = Object.entries(tokens)
                                         .sort(([, a], [, b]) => b - a)
-                                        .map(([sym, qty]) => `${qty < 0.01 ? qty.toFixed(4) : qty.toFixed(2)} ${sym}`)
+                                        .map(([sym, qty]) => `${formatQty(qty)} ${sym}`)
                                         .join(' · ');
                                     return (
                                         <div key={pool} className="space-y-1">
