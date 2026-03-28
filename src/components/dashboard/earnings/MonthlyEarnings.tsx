@@ -27,18 +27,28 @@ export const MonthlyEarnings: React.FC<MonthlyEarningsProps> = ({ transactions, 
     const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set());
 
     const monthlyData = useMemo(() => {
-        const map: Record<string, { tokens: Record<string, number>; totalUSD: number }> = {};
+        const map: Record<string, {
+            totalUSD: number;
+            byPool: Record<string, { tokens: Record<string, number>; totalUSD: number }>;
+        }> = {};
 
         for (const tx of transactions) {
             if (!isEarningsTx(tx)) continue;
             const d = new Date(tx.date);
             if (isNaN(d.getTime())) continue;
             const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-            if (!map[key]) map[key] = { tokens: {}, totalUSD: 0 };
+            if (!map[key]) map[key] = { totalUSD: 0, byPool: {} };
             const entry = map[key];
-            entry.tokens[tx.assetSymbol] = (entry.tokens[tx.assetSymbol] || 0) + tx.amount;
             const price = prices[tx.assetSymbol] ?? 0;
-            entry.totalUSD += tx.amount * price;
+            const usd = tx.paymentAmount ?? (tx.amount * price);
+            entry.totalUSD += usd;
+
+            const poolKey = tx.relatedAssetSymbol
+                || (tx.relatedAssetSymbols && tx.relatedAssetSymbols[0])
+                || tx.assetSymbol;
+            if (!entry.byPool[poolKey]) entry.byPool[poolKey] = { tokens: {}, totalUSD: 0 };
+            entry.byPool[poolKey].tokens[tx.assetSymbol] = (entry.byPool[poolKey].tokens[tx.assetSymbol] || 0) + tx.amount;
+            entry.byPool[poolKey].totalUSD += usd;
         }
 
         return Object.entries(map)
@@ -66,13 +76,13 @@ export const MonthlyEarnings: React.FC<MonthlyEarningsProps> = ({ transactions, 
         <div className="bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden mt-2">
             <div className="grid grid-cols-3 px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wide border-b border-slate-100 dark:border-slate-800">
                 <span>Month</span>
-                <span className="text-center">Tokens</span>
+                <span className="text-center">Pools</span>
                 <span className="text-right">Total USD</span>
             </div>
 
-            {monthlyData.map(({ key, label, tokens, totalUSD }) => {
+            {monthlyData.map(({ key, label, totalUSD, byPool }) => {
                 const isOpen = expandedMonths.has(key);
-                const tokenEntries = Object.entries(tokens).sort(([, a], [, b]) => b - a);
+                const poolEntries = Object.entries(byPool).sort(([, a], [, b]) => b.totalUSD - a.totalUSD);
 
                 return (
                     <div key={key} className="border-b border-slate-100 dark:border-slate-800 last:border-0">
@@ -81,14 +91,11 @@ export const MonthlyEarnings: React.FC<MonthlyEarningsProps> = ({ transactions, 
                             onClick={() => toggle(key)}
                         >
                             <span className="font-medium text-slate-700 dark:text-slate-200 flex items-center gap-1.5 text-left">
-                                <ChevronDown
-                                    size={14}
-                                    className={`text-slate-400 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-                                />
+                                <ChevronDown size={14} className={`text-slate-400 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                                 {label}
                             </span>
                             <span className="text-center text-slate-500 dark:text-slate-400 text-xs">
-                                {tokenEntries.map(([sym]) => sym).join(', ')}
+                                {poolEntries.length} pool{poolEntries.length !== 1 ? 's' : ''}
                             </span>
                             <span className="text-right font-semibold text-slate-800 dark:text-slate-100">
                                 {formatPrice(totalUSD, locale)}
@@ -96,21 +103,26 @@ export const MonthlyEarnings: React.FC<MonthlyEarningsProps> = ({ transactions, 
                         </button>
 
                         {isOpen && (
-                            <div className="px-6 pb-3 space-y-1">
-                                {tokenEntries.map(([sym, qty]) => {
-                                    const price = prices[sym] ?? 0;
-                                    const usd = qty * price;
+                            <div className="px-4 pb-3 space-y-2">
+                                {poolEntries.map(([pool, { tokens, totalUSD: poolUSD }]) => {
+                                    const pct = totalUSD > 0 ? (poolUSD / totalUSD) * 100 : 0;
+                                    const tokenList = Object.entries(tokens)
+                                        .sort(([, a], [, b]) => b - a)
+                                        .map(([sym, qty]) => `${qty < 0.01 ? qty.toFixed(4) : qty.toFixed(2)} ${sym}`)
+                                        .join(' · ');
                                     return (
-                                        <div key={sym} className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 py-0.5">
-                                            <span className="font-medium text-slate-600 dark:text-slate-300">{sym}</span>
-                                            <span>
-                                                {qty < 0.001 ? qty.toFixed(6) : qty < 1 ? qty.toFixed(4) : qty.toFixed(2)}
-                                                {price > 0 && (
-                                                    <span className="ml-2 text-slate-400 dark:text-slate-500">
-                                                        ≈ {formatPrice(usd, locale)}
-                                                    </span>
-                                                )}
-                                            </span>
+                                        <div key={pool} className="space-y-1">
+                                            <div className="flex items-center justify-between text-xs">
+                                                <span className="font-semibold text-slate-700 dark:text-slate-200 truncate mr-2">{pool}</span>
+                                                <span className="font-mono text-slate-600 dark:text-slate-300 shrink-0">
+                                                    {formatPrice(poolUSD, locale)}
+                                                    <span className="ml-1.5 text-slate-400">{pct.toFixed(0)}%</span>
+                                                </span>
+                                            </div>
+                                            <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                                <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${pct}%` }} />
+                                            </div>
+                                            <div className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{tokenList}</div>
                                         </div>
                                     );
                                 })}
