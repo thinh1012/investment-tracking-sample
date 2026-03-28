@@ -79,7 +79,7 @@ export const Dashboard: React.FC<Props> = ({
     manualPrices = {},
     onClearManualPrice
 }) => {
-    const [activeAnalyticsTab, setActiveAnalyticsTab] = React.useState<'earnings' | 'yield' | 'ledger' | 'monthly'>('earnings');
+    const [activeAnalyticsTab, setActiveAnalyticsTab] = React.useState<'yield' | 'ledger' | 'monthly'>('monthly');
     const [activeLedgerTab, setActiveLedgerTab] = React.useState<'earnings' | 'recent' | 'accounting'>('recent');
     const [isAuditorOpen, setIsAuditorOpen] = React.useState(false);
     const [assetsForceOpen, setAssetsForceOpen] = React.useState(false);
@@ -206,7 +206,6 @@ export const Dashboard: React.FC<Props> = ({
                         {/* Analytics Tabs — underline style */}
                         <div className="flex overflow-x-auto border-b border-slate-200 dark:border-slate-800 mb-2 scrollbar-hide">
                             {([
-                                { id: 'earnings', label: 'Earnings History' },
                                 { id: 'monthly', label: 'Monthly' },
                                 { id: 'yield', label: 'Yield' },
                                 { id: 'ledger', label: 'Ledger' },
@@ -225,11 +224,7 @@ export const Dashboard: React.FC<Props> = ({
                             ))}
                         </div>
 
-                        {activeAnalyticsTab === 'earnings' ? (
-                            <div className="space-y-6">
-                                <EarningsHistory assets={assets} transactions={transactions} prices={prices} locale={locale} defaultOpen={true} onCompound={onCompound} />
-                            </div>
-                        ) : activeAnalyticsTab === 'monthly' ? (
+                        {activeAnalyticsTab === 'monthly' ? (
                             <div className="space-y-6">
                                 <MonthlyEarnings transactions={transactions} prices={prices} locale={locale} />
                             </div>
