@@ -104,6 +104,28 @@ export const MonthlyEarnings: React.FC<MonthlyEarningsProps> = ({ transactions, 
 
                         {isOpen && (
                             <div className="px-4 pb-3 space-y-2">
+                                {/* Token totals strip */}
+                                {(() => {
+                                    const tokenTotals: Record<string, number> = {};
+                                    poolEntries.forEach(([, { tokens }]) => {
+                                        Object.entries(tokens).forEach(([sym, qty]) => {
+                                            tokenTotals[sym] = (tokenTotals[sym] || 0) + qty;
+                                        });
+                                    });
+                                    const entries = Object.entries(tokenTotals).sort(([, a], [, b]) => b - a);
+                                    return (
+                                        <div className="flex flex-wrap gap-x-3 gap-y-1 py-2 border-b border-slate-100 dark:border-slate-800 mb-1">
+                                            {entries.map(([sym, qty]) => (
+                                                <span key={sym} className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                                                    <span className="font-semibold text-slate-700 dark:text-slate-200">
+                                                        {qty < 0.01 ? qty.toFixed(4) : qty.toFixed(2)}
+                                                    </span>
+                                                    {' '}{sym}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    );
+                                })()}
                                 {poolEntries.map(([pool, { tokens, totalUSD: poolUSD }]) => {
                                     const pct = totalUSD > 0 ? (poolUSD / totalUSD) * 100 : 0;
                                     const tokenList = Object.entries(tokens)
