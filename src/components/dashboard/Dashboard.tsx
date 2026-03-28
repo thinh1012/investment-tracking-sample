@@ -80,6 +80,7 @@ export const Dashboard: React.FC<Props> = ({
     onClearManualPrice
 }) => {
     const [activeAnalyticsTab, setActiveAnalyticsTab] = React.useState<'earnings' | 'yield' | 'ledger' | 'monthly'>('earnings');
+    const [activeLedgerTab, setActiveLedgerTab] = React.useState<'earnings' | 'recent' | 'accounting'>('recent');
     const [isAuditorOpen, setIsAuditorOpen] = React.useState(false);
     const [assetsForceOpen, setAssetsForceOpen] = React.useState(false);
 
@@ -237,17 +238,34 @@ export const Dashboard: React.FC<Props> = ({
                                 <LPFeeTracker assets={assets} transactions={transactions} prices={prices} locale={locale} onAddClaim={onAddClaim} />
                             </div>
                         ) : (
-                            <div className="space-y-8">
-                                <RecentTransactions
-                                    transactions={transactions}
-                                    onEditClick={onEditClick}
-                                    onDeleteClick={onDeleteClick}
-                                    locale={locale}
-                                />
-                                <AccountingJournal
-                                    transactions={transactions}
-                                    locale={locale}
-                                />
+                            <div className="space-y-4">
+                                <div className="flex gap-1 border-b border-slate-200 dark:border-slate-800">
+                                    {([
+                                        { id: 'recent', label: 'Recent Transactions' },
+                                        { id: 'earnings', label: 'Earnings History' },
+                                        { id: 'accounting', label: 'Accounting Ledger' },
+                                    ] as const).map(tab => (
+                                        <button
+                                            key={tab.id}
+                                            onClick={() => setActiveLedgerTab(tab.id)}
+                                            className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${activeLedgerTab === tab.id ? 'border-indigo-500 text-indigo-500' : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                                        >
+                                            {tab.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                {activeLedgerTab === 'earnings' ? (
+                                    <EarningsHistory assets={assets} transactions={transactions} prices={prices} locale={locale} defaultOpen={true} onCompound={onCompound} />
+                                ) : activeLedgerTab === 'accounting' ? (
+                                    <AccountingJournal transactions={transactions} locale={locale} />
+                                ) : (
+                                    <RecentTransactions
+                                        transactions={transactions}
+                                        onEditClick={onEditClick}
+                                        onDeleteClick={onDeleteClick}
+                                        locale={locale}
+                                    />
+                                )}
                             </div>
                         )}
                     </div>
