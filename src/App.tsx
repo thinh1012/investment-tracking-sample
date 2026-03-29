@@ -1,12 +1,9 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { usePortfolio } from './hooks/usePortfolio';
 import { useAlerts } from './hooks/useAlerts';
 import { useNotification, NotificationProvider } from './context/NotificationContext';
 import { useAppNavigation } from './hooks/useAppNavigation';
 import { useDataStorage } from './hooks/useDataStorage';
-import { useWatchlist } from './hooks/useWatchlist';
-import { useMarketPicks } from './hooks/useMarketPicks';
-import { useMarketPicksNotifications } from './hooks/useMarketPicksNotifications';
 
 // [CODE_SPLITTING]: Lazy load heavy components
 const Dashboard = React.lazy(() => import('./components/dashboard/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -19,36 +16,21 @@ import { BackupService } from './services/database/BackupService';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Transaction, Asset } from './types';
 
+const EMPTY_PICKS: never[] = [];
+const EMPTY_SYMBOLS: string[] = [];
+
 function App(): React.ReactNode {
-    // 0. Market Picks State (Lifted to prevent double-loading)
-    const { picks, historicalData: picksHistory } = useMarketPicks();
-
-    // 1. Watchlist State (Lifted for Sync & Symbols)
-    const watchlistState = useWatchlist();
-    const { watchlist } = watchlistState;
-    const watchlistSymbols = useMemo(() => watchlist.map(i => i.symbol), [watchlist]);
-
-    // 2. Core Data & Portfolio
+    // 1. Core Data & Portfolio
     const {
         getAssets, addTransaction, deleteTransaction, updateTransaction,
         transactions, getPortfolioHistory, importTransactions,
         updateAssetPrice, clearManualPrice, updateAssetOverride, refreshPrices,
         prices, priceChanges, priceVolumes,
         assetOverrides, manualPrices, manualPriceSources
-    } = usePortfolio(picks, watchlistSymbols);
-
-    // 3. Reactivity: Refresh prices when watchlist changes
-    useEffect(() => {
-        if (watchlistSymbols.length > 0) {
-            refreshPrices(true);
-        }
-    }, [watchlistSymbols.join(','), refreshPrices]);
+    } = usePortfolio(EMPTY_PICKS, EMPTY_SYMBOLS);
 
     const assets = getAssets();
     const { notify } = useNotification();
-
-    // Market Picks Notifications
-    useMarketPicksNotifications(picks, prices as Record<string, number>, priceChanges, picksHistory);
 
 
 
@@ -67,15 +49,6 @@ function App(): React.ReactNode {
         window.addEventListener('cloud-vault-downloaded', handleCloudRestore as any);
         return () => window.removeEventListener('cloud-vault-downloaded', handleCloudRestore as any);
     }, []);
-
-    // 4. SQL Analyst Service (Instant Analyst)
-    useEffect(() => {
-        import('./services/SqlAnalystService').then(({ SqlAnalystService }) => {
-            SqlAnalystService.init();
-        });
-    }, []);
-
-
 
     // 3. Navigation & UI State
     const {

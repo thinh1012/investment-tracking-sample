@@ -1,7 +1,6 @@
 import { initDB } from './core';
 import { WatchlistItem, MarketPick } from './types';
 import { NotificationLog, NotificationSettings } from '../../types';
-import { ExternalScoutService } from '../ExternalScoutService';
 
 export const LogService = {
     async add(log: NotificationLog) {
@@ -80,9 +79,6 @@ export const WatchlistService = {
         const all = await db.getAll('watchlist');
         localStorage.setItem('investment_tracker_watchlist', JSON.stringify(all));
 
-        // [INTELLIGENCE_SYNC]: Notify Satellite
-        ExternalScoutService.notifyNewToken(item.symbol);
-
         return result;
     },
 
@@ -114,9 +110,6 @@ export const MarketPicksService = {
     async add(pick: MarketPick) {
         const db = await initDB();
         const result = await db.put('market_picks', pick);
-
-        // [INTELLIGENCE_SYNC]: Notify Satellite
-        ExternalScoutService.notifyNewToken(pick.symbol);
 
         return result;
     },

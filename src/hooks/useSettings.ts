@@ -3,7 +3,6 @@ import { useNotification } from '../context/NotificationContext';
 import { NotificationService } from '../services/NotificationService';
 import { LogService, SettingsService } from '../services/database/OtherServices';
 import { NotificationSettings, NotificationLog } from '../types';
-import { ExternalScoutService } from '../services/ExternalScoutService';
 
 export const useSettings = () => {
     const { notify } = useNotification();
@@ -68,22 +67,6 @@ export const useSettings = () => {
 
     const handleSave = async () => {
         await SettingsService.save(settings);
-
-        // Push to Satellite if it's online
-        const isOnline = await ExternalScoutService.checkStatus();
-        if (isOnline) {
-            await ExternalScoutService.syncNotificationConfig({
-                telegramBotToken: settings.telegramBotToken,
-                telegramChatId: settings.telegramChatId,
-                whatsappPhone: settings.whatsappPhone,
-                whatsappApiKey: settings.whatsappApiKey,
-                volatilityThreshold: settings.volatilityThreshold,
-                volatilityTemplate: settings.volatilityTemplate,
-                volatilityWindowMinutes: settings.volatilityWindowMinutes,
-                volatilityTelegramEnabled: settings.volatilityTelegramEnabled,
-                volatilityWhatsappEnabled: settings.volatilityWhatsappEnabled
-            });
-        }
 
         notify.success('Settings saved successfully');
         window.dispatchEvent(new CustomEvent('notification-settings-update', { detail: settings }));

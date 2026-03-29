@@ -1,6 +1,5 @@
 import { initDB } from './core';
 import { Transaction } from '../../types';
-import { ExternalScoutService } from '../ExternalScoutService';
 
 export const TransactionService = {
     async getAll(): Promise<Transaction[]> {
@@ -10,11 +9,6 @@ export const TransactionService = {
 
     async add(transaction: Transaction) {
         const db = await initDB();
-
-        // [SATELLITE_BRIDGE]: Ensure any asset introduced via ledger is tracked by the Scout
-        if (transaction.assetSymbol) {
-            ExternalScoutService.notifyNewToken(transaction.assetSymbol);
-        }
 
         return db.put('transactions', transaction);
     },
