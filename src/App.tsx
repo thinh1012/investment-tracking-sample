@@ -10,8 +10,6 @@ import { useMarketPicksNotifications } from './hooks/useMarketPicksNotifications
 
 // [CODE_SPLITTING]: Lazy load heavy components
 const Dashboard = React.lazy(() => import('./components/dashboard/Dashboard').then(m => ({ default: m.Dashboard })));
-const RabbyDashboard = React.lazy(() => import('./components/dashboard/RabbyDashboard').then(m => ({ default: m.RabbyDashboard })));
-
 const TransactionForm = React.lazy(() => import('./components/TransactionForm'));
 const Settings = React.lazy(() => import('./components/Settings'));
 import { Sidebar } from './components/layout/Sidebar';

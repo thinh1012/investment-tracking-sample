@@ -82,7 +82,7 @@ define(['./workbox-b576b689'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.5a8ij41qca8"
+    "revision": "0.qaskem70bu"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
@@ -114,22 +114,6 @@ define(['./workbox-b576b689'], (function (workbox) { 'use strict';
       maxAgeSeconds: 1800
     }), new workbox.CacheableResponsePlugin({
       statuses: [0, 200]
-    })]
-  }), 'GET');
-  workbox.registerRoute(/^http:\/\/localhost:4000\/.*/i, new workbox.NetworkFirst({
-    "cacheName": "scout-cache",
-    "networkTimeoutSeconds": 3,
-    plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 20,
-      maxAgeSeconds: 3600
-    })]
-  }), 'GET');
-  workbox.registerRoute(/^http:\/\/192\.168\.1\.131:4000\/.*/i, new workbox.NetworkFirst({
-    "cacheName": "scout-remote-cache",
-    "networkTimeoutSeconds": 5,
-    plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 20,
-      maxAgeSeconds: 3600
     })]
   }), 'GET');
   workbox.registerRoute(/^https:\/\/fonts\.googleapis\.com\/.*/i, new workbox.CacheFirst({
