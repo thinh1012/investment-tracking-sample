@@ -50,15 +50,16 @@ export const useReminders = () => {
             .insert([{ ...r, is_done: false }])
             .select()
             .single();
-        if (!error && data) {
-            setReminders(prev => {
-                const next = [...prev, data as TokenReminder].sort(
-                    (a, b) => new Date(a.reminder_date).getTime() - new Date(b.reminder_date).getTime()
-                );
-                saveToStorage(next);
-                return next;
-            });
-        }
+        const item: TokenReminder = (!error && data)
+            ? data as TokenReminder
+            : { ...r, id: crypto.randomUUID(), is_done: false, created_at: new Date().toISOString() };
+        setReminders(prev => {
+            const next = [...prev, item].sort(
+                (a, b) => new Date(a.reminder_date).getTime() - new Date(b.reminder_date).getTime()
+            );
+            saveToStorage(next);
+            return next;
+        });
         setSyncing(false);
     }, []);
 
