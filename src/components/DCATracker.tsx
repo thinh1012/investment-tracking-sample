@@ -25,6 +25,7 @@ interface DCAPlan {
     symbol: string;
     targetPrice: string;
     budget: string;
+    accumulateTarget: string;
     tranches: TrancheConfig[];
     notes: DCANote[];
 }
@@ -34,6 +35,7 @@ const DEFAULT_PLAN: DCAPlan = {
     symbol: 'HYPE',
     targetPrice: '150',
     budget: '',
+    accumulateTarget: '',
     tranches: [
         { id: 'a', label: 'Tranche A', pct: 30, min: 42, max: 45, note: 'Deploy after June 7 unlock checkpoint. If 60+ days pass unfilled, buy 50% at market.', status: 'pending' },
         { id: 'b', label: 'Tranche B', pct: 40, min: 36, max: 40, note: 'Set-and-forget limit order. Meaningful correction.', status: 'pending' },
@@ -54,6 +56,7 @@ function makePlan(): DCAPlan {
         symbol: '',
         targetPrice: '',
         budget: '',
+        accumulateTarget: '',
         tranches: [
             { id: 'a', label: 'Tranche A', pct: 30, min: 0, max: 0, note: '', status: 'pending' },
             { id: 'b', label: 'Tranche B', pct: 40, min: 0, max: 0, note: '', status: 'pending' },
@@ -121,8 +124,18 @@ export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) 
     const currentChange = sym ? priceChanges[sym] : undefined;
     const targetNum = parseFloat(activePlan?.targetPrice ?? '') || null;
     const budgetNum = parseFloat(activePlan?.budget ?? '') || 0;
+    const accumulateTargetNum = parseFloat(activePlan?.accumulateTarget ?? '') || null;
     const filledCount = activePlan?.tranches.filter(t => t.status === 'filled').length ?? 0;
     const upside = currentPrice && targetNum ? (((targetNum - currentPrice) / currentPrice) * 100).toFixed(0) : null;
+
+    const trancheTokens = (t: TrancheConfig) => {
+        const mid = t.min && t.max ? (t.min + t.max) / 2 : null;
+        const alloc = budgetNum * (t.pct / 100);
+        return mid && alloc > 0 ? alloc / mid : null;
+    };
+    const planTotalTokens = activePlan?.tranches.reduce((sum, t) => sum + (trancheTokens(t) ?? 0), 0) ?? 0;
+    const filledTokens = activePlan?.tranches.filter(t => t.status === 'filled').reduce((sum, t) => sum + (trancheTokens(t) ?? 0), 0) ?? 0;
+    const accumulateProgress = accumulateTargetNum && accumulateTargetNum > 0 ? Math.min(filledTokens / accumulateTargetNum, 1) : null;
 
     const updatePlan = useCallback((id: string, updates: Partial<DCAPlan>) => {
         setPlans(prev => {
@@ -265,9 +278,29 @@ export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) 
                             )}
                         </div>
                     </div>
-                    <p className="text-sm text-slate-400 dark:text-slate-500">
-                        {filledCount === 0 ? 'No tranches filled' : filledCount === 3 ? 'All tranches filled' : `${filledCount} of 3 filled`}
-                    </p>
+                    {accumulateTargetNum ? (
+                        <div className="space-y-1">
+                            <div className="text-sm text-slate-500 dark:text-slate-400">
+                                <span className="font-semibold text-slate-700 dark:text-slate-300">{filledTokens > 0 ? filledTokens.toFixed(2) : '0'}</span>
+                                <span> / {accumulateTargetNum} {sym || 'tokens'} accumulated</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-indigo-500 rounded-full transition-all"
+                                    style={{ width: `${(accumulateProgress ?? 0) * 100}%` }}
+                                />
+                            </div>
+                            {planTotalTokens > 0 && (
+                                <div className="text-xs text-slate-400">
+                                    Plan yields ~{planTotalTokens.toFixed(2)} {sym} total
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <p className="text-sm text-slate-400 dark:text-slate-500">
+                            {filledCount === 0 ? 'No tranches filled' : filledCount === 3 ? 'All tranches filled' : `${filledCount} of 3 filled`}
+                        </p>
+                    )}
                 </div>
                 <div className="text-right shrink-0">
                     {currentPrice != null ? (
@@ -286,8 +319,9 @@ export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) 
                 </div>
             </div>
 
-            {/* Budget */}
-            <div className="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 px-4 py-3">
+            {/* Budget + Accumulate target */}
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 divide-y divide-slate-100 dark:divide-slate-800">
+                <div className="flex items-center gap-3 px-4 py-3">
                 <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">Total budget</span>
                 <div className="flex items-center gap-1 flex-1">
                     <span className="text-sm font-medium text-slate-400">$</span>
@@ -299,6 +333,20 @@ export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) 
                         className="flex-1 bg-transparent text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 outline-none min-w-0"
                     />
                     <span className="text-sm text-slate-400 shrink-0">USDC</span>
+                </div>
+                </div>
+                <div className="flex items-center gap-3 px-4 py-3">
+                    <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">Accumulate</span>
+                    <div className="flex items-center gap-1 flex-1">
+                        <input
+                            type="number"
+                            value={activePlan.accumulateTarget}
+                            onChange={e => updatePlan(activePlan.id, { accumulateTarget: e.target.value })}
+                            placeholder="0"
+                            className="flex-1 bg-transparent text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 outline-none min-w-0"
+                        />
+                        <span className="text-sm text-slate-400 shrink-0">{sym || 'tokens'}</span>
+                    </div>
                 </div>
             </div>
 
