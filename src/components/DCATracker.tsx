@@ -1,70 +1,100 @@
 import React, { useState, useCallback } from 'react';
 import { CheckCircle2, Plus, Pencil, Trash2, Check, X } from 'lucide-react';
 
-const DCA_STATE_KEY = 'hype_dca_tranches';
-const DCA_NOTES_KEY = 'hype_dca_notes';
-const DCA_BUDGET_KEY = 'hype_dca_budget';
+const PLANS_KEY = 'dca_plans_v2';
 
-type TrancheId = 'a' | 'b' | 'c';
-type TrancheStatus = 'pending' | 'filled';
-
-interface TrancheState {
-    status: TrancheStatus;
+interface TrancheConfig {
+    id: string;
+    label: string;
+    pct: number;
+    min: number;
+    max: number;
+    note: string;
+    status: 'pending' | 'filled';
     filledAt?: string;
 }
 
-interface DCAState {
-    a: TrancheState;
-    b: TrancheState;
-    c: TrancheState;
-}
-
-interface Note {
+interface DCANote {
     id: string;
     label: string;
     text: string;
 }
 
-const DEFAULT_STATE: DCAState = {
-    a: { status: 'pending' },
-    b: { status: 'pending' },
-    c: { status: 'pending' },
+interface DCAPlan {
+    id: string;
+    symbol: string;
+    targetPrice: string;
+    budget: string;
+    tranches: TrancheConfig[];
+    notes: DCANote[];
+}
+
+const DEFAULT_PLAN: DCAPlan = {
+    id: 'hype-default',
+    symbol: 'HYPE',
+    targetPrice: '150',
+    budget: '',
+    tranches: [
+        { id: 'a', label: 'Tranche A', pct: 30, min: 42, max: 45, note: 'Deploy after June 7 unlock checkpoint. If 60+ days pass unfilled, buy 50% at market.', status: 'pending' },
+        { id: 'b', label: 'Tranche B', pct: 40, min: 36, max: 40, note: 'Set-and-forget limit order. Meaningful correction.', status: 'pending' },
+        { id: 'c', label: 'Tranche C', pct: 30, min: 28, max: 33, note: 'Deep macro drawdown. Set-and-forget limit order.', status: 'pending' },
+    ],
+    notes: [
+        { id: '1', label: 'Target Exit', text: 'Exit ladder starting at $150. Entry ~$25–26.' },
+        { id: '2', label: 'Jun 6 — Monthly Unlock', text: '9.92M HYPE (~$449M) unlocks to core contributors. Historical: 85%+ went to staking. No significant dumps across 4 unlock events.' },
+        { id: '3', label: 'Jun 7 — Tranche A Checkpoint', text: 'Observe post-unlock behavior before deploying.' },
+        { id: '4', label: 'Invalidation', text: 'HYPE loses $24 support → pause all deployment. Core team on-chain selling at scale → exit signal.' },
+        { id: '5', label: 'Rule', text: 'No fixed price anchoring. $38 target was missed — do not repeat.' },
+    ],
 };
 
-const TRANCHES = [
-    { id: 'a' as TrancheId, label: 'Tranche A', pct: 30, min: 42, max: 45, note: 'Deploy after June 7 unlock checkpoint. If 60+ days pass unfilled, buy 50% at market.' },
-    { id: 'b' as TrancheId, label: 'Tranche B', pct: 40, min: 36, max: 40, note: 'Set-and-forget limit order. Meaningful correction.' },
-    { id: 'c' as TrancheId, label: 'Tranche C', pct: 30, min: 28, max: 33, note: 'Deep macro drawdown. Set-and-forget limit order.' },
-];
+function makePlan(): DCAPlan {
+    return {
+        id: Date.now().toString(),
+        symbol: '',
+        targetPrice: '',
+        budget: '',
+        tranches: [
+            { id: 'a', label: 'Tranche A', pct: 30, min: 0, max: 0, note: '', status: 'pending' },
+            { id: 'b', label: 'Tranche B', pct: 40, min: 0, max: 0, note: '', status: 'pending' },
+            { id: 'c', label: 'Tranche C', pct: 30, min: 0, max: 0, note: '', status: 'pending' },
+        ],
+        notes: [],
+    };
+}
 
-const DEFAULT_NOTES: Note[] = [
-    { id: '1', label: 'Target Exit', text: 'Exit ladder starting at $150. Entry ~$25–26.' },
-    { id: '2', label: 'Jun 6 — Monthly Unlock', text: '9.92M HYPE (~$449M) unlocks to core contributors. Historical: 85%+ went to staking. No significant dumps across 4 unlock events.' },
-    { id: '3', label: 'Jun 7 — Tranche A Checkpoint', text: 'Observe post-unlock behavior before deploying. If 60+ days pass with Tranche A unfilled, buy 50% at market.' },
-    { id: '4', label: 'Invalidation', text: 'HYPE loses $24 support → pause all deployment. Core team on-chain selling at scale → exit signal, not buy signal.' },
-    { id: '5', label: 'Rule', text: 'No fixed price anchoring. $38 target was missed — do not repeat. Tranches B and C are set-and-forget limit orders.' },
-];
-
-function loadNotes(): Note[] {
+function loadPlans(): DCAPlan[] {
     try {
-        const stored = localStorage.getItem(DCA_NOTES_KEY);
-        return stored ? JSON.parse(stored) : DEFAULT_NOTES;
+        const stored = localStorage.getItem(PLANS_KEY);
+        if (stored) return JSON.parse(stored);
+
+        // Migrate from old single-plan storage
+        const plan: DCAPlan = JSON.parse(JSON.stringify(DEFAULT_PLAN));
+        const oldState = JSON.parse(localStorage.getItem('hype_dca_tranches') || 'null');
+        const oldNotes = JSON.parse(localStorage.getItem('hype_dca_notes') || 'null');
+        const oldBudget = localStorage.getItem('hype_dca_budget') || '';
+        if (oldBudget) plan.budget = oldBudget;
+        if (oldState) plan.tranches = plan.tranches.map(t => ({ ...t, status: oldState[t.id]?.status ?? 'pending', filledAt: oldState[t.id]?.filledAt }));
+        if (oldNotes) plan.notes = oldNotes;
+        return [plan];
     } catch {
-        return DEFAULT_NOTES;
+        return [JSON.parse(JSON.stringify(DEFAULT_PLAN))];
     }
 }
 
-function saveNotes(notes: Note[]) {
-    localStorage.setItem(DCA_NOTES_KEY, JSON.stringify(notes));
+function savePlans(plans: DCAPlan[]) {
+    localStorage.setItem(PLANS_KEY, JSON.stringify(plans));
 }
 
-function getPriceStatus(price: number, min: number, max: number): 'in-zone' | 'above' | 'below' {
+function getPriceStatus(price: number, min: number, max: number): 'in-zone' | 'above' | 'below' | 'unset' {
+    if (min === 0 && max === 0) return 'unset';
     if (price >= min && price <= max) return 'in-zone';
     if (price > max) return 'above';
     return 'below';
 }
 
 function getPriceDistance(price: number, min: number, max: number): string {
+    if (min === 0 && max === 0) return '—';
     if (price >= min && price <= max) return 'IN ZONE';
     if (price > max) return `+${(((price - max) / max) * 100).toFixed(1)}% above`;
     return `-${(((min - price) / price) * 100).toFixed(1)}% below`;
@@ -76,111 +106,195 @@ interface DCATrackerProps {
 }
 
 export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) => {
-    const [state, setState] = useState<DCAState>(() => {
-        try {
-            const stored = localStorage.getItem(DCA_STATE_KEY);
-            return stored ? { ...DEFAULT_STATE, ...JSON.parse(stored) } : DEFAULT_STATE;
-        } catch {
-            return DEFAULT_STATE;
-        }
-    });
+    const [plans, setPlans] = useState<DCAPlan[]>(loadPlans);
+    const [activePlanId, setActivePlanId] = useState<string>(() => loadPlans()[0]?.id ?? '');
 
-    const [budget, setBudget] = useState<string>(() => localStorage.getItem(DCA_BUDGET_KEY) ?? '');
-    const [notes, setNotes] = useState<Note[]>(loadNotes);
+    const [editingTrancheId, setEditingTrancheId] = useState<string | null>(null);
+    const [trancheDraft, setTrancheDraft] = useState<{ label: string; pct: string; min: string; max: string; note: string }>({ label: '', pct: '', min: '', max: '', note: '' });
+
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-    const [editDraft, setEditDraft] = useState<{ label: string; text: string }>({ label: '', text: '' });
+    const [noteDraft, setNoteDraft] = useState<{ label: string; text: string }>({ label: '', text: '' });
 
-    const hypePrice = prices['HYPE'];
-    const hypeChange = priceChanges['HYPE'];
-    const filledCount = Object.values(state).filter(t => t.status === 'filled').length;
-    const budgetNum = parseFloat(budget) || 0;
+    const activePlan = plans.find(p => p.id === activePlanId) ?? plans[0];
+    const sym = activePlan?.symbol?.toUpperCase() ?? '';
+    const currentPrice = sym ? prices[sym] : undefined;
+    const currentChange = sym ? priceChanges[sym] : undefined;
+    const targetNum = parseFloat(activePlan?.targetPrice ?? '') || null;
+    const budgetNum = parseFloat(activePlan?.budget ?? '') || 0;
+    const filledCount = activePlan?.tranches.filter(t => t.status === 'filled').length ?? 0;
+    const upside = currentPrice && targetNum ? (((targetNum - currentPrice) / currentPrice) * 100).toFixed(0) : null;
 
-    const markFilled = useCallback((id: TrancheId) => {
-        setState(prev => {
-            const next = { ...prev, [id]: { status: 'filled' as TrancheStatus, filledAt: new Date().toISOString().split('T')[0] } };
-            localStorage.setItem(DCA_STATE_KEY, JSON.stringify(next));
+    const updatePlan = useCallback((id: string, updates: Partial<DCAPlan>) => {
+        setPlans(prev => {
+            const next = prev.map(p => p.id === id ? { ...p, ...updates } : p);
+            savePlans(next);
             return next;
         });
     }, []);
 
-    const markPending = useCallback((id: TrancheId) => {
-        setState(prev => {
-            const next = { ...prev, [id]: { status: 'pending' as TrancheStatus } };
-            localStorage.setItem(DCA_STATE_KEY, JSON.stringify(next));
+    const addPlan = () => {
+        const plan = makePlan();
+        setPlans(prev => { const next = [...prev, plan]; savePlans(next); return next; });
+        setActivePlanId(plan.id);
+    };
+
+    const deletePlan = (id: string) => {
+        if (plans.length === 1) return;
+        setPlans(prev => {
+            const next = prev.filter(p => p.id !== id);
+            savePlans(next);
             return next;
         });
-    }, []);
-
-    const handleBudgetChange = (val: string) => {
-        setBudget(val);
-        localStorage.setItem(DCA_BUDGET_KEY, val);
+        if (activePlanId === id) setActivePlanId(plans.find(p => p.id !== id)!.id);
     };
 
-    const startEdit = (note: Note) => {
-        setEditingNoteId(note.id);
-        setEditDraft({ label: note.label, text: note.text });
+    const markFilled = (trancheId: string) => {
+        updatePlan(activePlan.id, {
+            tranches: activePlan.tranches.map(t =>
+                t.id === trancheId ? { ...t, status: 'filled', filledAt: new Date().toISOString().split('T')[0] } : t
+            ),
+        });
     };
 
-    const confirmEdit = () => {
+    const markPending = (trancheId: string) => {
+        updatePlan(activePlan.id, {
+            tranches: activePlan.tranches.map(t =>
+                t.id === trancheId ? { ...t, status: 'pending', filledAt: undefined } : t
+            ),
+        });
+    };
+
+    const startEditTranche = (t: TrancheConfig) => {
+        setEditingTrancheId(t.id);
+        setTrancheDraft({ label: t.label, pct: String(t.pct), min: t.min ? String(t.min) : '', max: t.max ? String(t.max) : '', note: t.note });
+    };
+
+    const confirmEditTranche = () => {
+        if (!editingTrancheId) return;
+        updatePlan(activePlan.id, {
+            tranches: activePlan.tranches.map(t =>
+                t.id === editingTrancheId ? {
+                    ...t,
+                    label: trancheDraft.label || t.label,
+                    pct: parseFloat(trancheDraft.pct) || t.pct,
+                    min: parseFloat(trancheDraft.min) || 0,
+                    max: parseFloat(trancheDraft.max) || 0,
+                    note: trancheDraft.note,
+                } : t
+            ),
+        });
+        setEditingTrancheId(null);
+    };
+
+    const startEditNote = (n: DCANote) => {
+        setEditingNoteId(n.id);
+        setNoteDraft({ label: n.label, text: n.text });
+    };
+
+    const confirmEditNote = () => {
         if (!editingNoteId) return;
-        const updated = notes.map(n => n.id === editingNoteId ? { ...n, ...editDraft } : n);
-        setNotes(updated);
-        saveNotes(updated);
+        updatePlan(activePlan.id, { notes: activePlan.notes.map(n => n.id === editingNoteId ? { ...n, ...noteDraft } : n) });
         setEditingNoteId(null);
     };
 
-    const cancelEdit = () => setEditingNoteId(null);
-
     const deleteNote = (id: string) => {
-        const updated = notes.filter(n => n.id !== id);
-        setNotes(updated);
-        saveNotes(updated);
+        updatePlan(activePlan.id, { notes: activePlan.notes.filter(n => n.id !== id) });
     };
 
     const addNote = () => {
-        const newNote: Note = { id: Date.now().toString(), label: 'New note', text: '' };
-        const updated = [...notes, newNote];
-        setNotes(updated);
-        saveNotes(updated);
-        startEdit(newNote);
+        const note: DCANote = { id: Date.now().toString(), label: 'New note', text: '' };
+        const notes = [...activePlan.notes, note];
+        updatePlan(activePlan.id, { notes });
+        setEditingNoteId(note.id);
+        setNoteDraft({ label: note.label, text: note.text });
     };
 
+    if (!activePlan) return null;
+
     return (
-        <div className="max-w-2xl mx-auto space-y-6">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-                <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">HYPE DCA Plan</h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                        {filledCount === 0 ? 'No tranches filled' : filledCount === 3 ? 'All tranches filled' : `${filledCount} of 3 tranches filled`}
+        <div className="max-w-2xl mx-auto space-y-5">
+
+            {/* Plan tabs */}
+            <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide pb-1">
+                {plans.map(plan => (
+                    <button
+                        key={plan.id}
+                        onClick={() => setActivePlanId(plan.id)}
+                        className={`shrink-0 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                            activePlanId === plan.id
+                                ? 'bg-indigo-500 text-white'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        }`}
+                    >
+                        {plan.symbol || 'New Plan'}
+                    </button>
+                ))}
+                <button
+                    onClick={addPlan}
+                    className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                    <Plus size={16} />
+                </button>
+            </div>
+
+            {/* Plan header */}
+            <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <input
+                            value={activePlan.symbol}
+                            onChange={e => updatePlan(activePlan.id, { symbol: e.target.value.toUpperCase() })}
+                            placeholder="SYMBOL"
+                            className="text-xl font-bold bg-transparent text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 outline-none w-28 uppercase"
+                        />
+                        <span className="text-slate-300 dark:text-slate-600">·</span>
+                        <div className="flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400">
+                            <span>Target</span>
+                            <span className="text-slate-400">$</span>
+                            <input
+                                type="number"
+                                value={activePlan.targetPrice}
+                                onChange={e => updatePlan(activePlan.id, { targetPrice: e.target.value })}
+                                placeholder="0"
+                                className="w-20 bg-transparent font-semibold text-slate-700 dark:text-slate-300 placeholder-slate-300 dark:placeholder-slate-600 outline-none"
+                            />
+                            {upside && (
+                                <span className={`text-xs font-semibold ${Number(upside) >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                    ({upside}%)
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                    <p className="text-sm text-slate-400 dark:text-slate-500">
+                        {filledCount === 0 ? 'No tranches filled' : filledCount === 3 ? 'All tranches filled' : `${filledCount} of 3 filled`}
                     </p>
                 </div>
-                <div className="text-right">
-                    {hypePrice != null ? (
+                <div className="text-right shrink-0">
+                    {currentPrice != null ? (
                         <>
-                            <div className="text-2xl font-bold text-slate-900 dark:text-white">${hypePrice.toFixed(2)}</div>
-                            {hypeChange != null && (
-                                <div className={`text-sm font-medium ${hypeChange >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                    {hypeChange >= 0 ? '+' : ''}{hypeChange.toFixed(2)}% 24h
+                            <div className="text-2xl font-bold text-slate-900 dark:text-white">${currentPrice.toFixed(2)}</div>
+                            {currentChange != null && (
+                                <div className={`text-sm font-medium ${currentChange >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                    {currentChange >= 0 ? '+' : ''}{currentChange.toFixed(2)}% 24h
                                 </div>
                             )}
                         </>
                     ) : (
-                        <div className="text-2xl font-bold text-slate-400">—</div>
+                        <div className="text-2xl font-bold text-slate-400">{sym ? '—' : '—'}</div>
                     )}
-                    <div className="text-xs text-slate-400 mt-0.5">HYPE/USD · 15 min</div>
+                    <div className="text-xs text-slate-400 mt-0.5">{sym || '—'}/USD · 15 min</div>
                 </div>
             </div>
 
-            {/* Budget input */}
+            {/* Budget */}
             <div className="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 px-4 py-3">
                 <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">Total budget</span>
                 <div className="flex items-center gap-1 flex-1">
                     <span className="text-sm font-medium text-slate-400">$</span>
                     <input
                         type="number"
-                        value={budget}
-                        onChange={e => handleBudgetChange(e.target.value)}
+                        value={activePlan.budget}
+                        onChange={e => updatePlan(activePlan.id, { budget: e.target.value })}
                         placeholder="0"
                         className="flex-1 bg-transparent text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 outline-none min-w-0"
                     />
@@ -190,15 +304,14 @@ export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) 
 
             {/* Tranches */}
             <div className="space-y-3">
-                {TRANCHES.map(tranche => {
-                    const trancheState = state[tranche.id];
-                    const isFilled = trancheState.status === 'filled';
-                    const priceStatus = hypePrice != null ? getPriceStatus(hypePrice, tranche.min, tranche.max) : null;
-                    const distance = hypePrice != null ? getPriceDistance(hypePrice, tranche.min, tranche.max) : null;
+                {activePlan.tranches.map(tranche => {
+                    const isFilled = tranche.status === 'filled';
+                    const priceStatus = currentPrice != null ? getPriceStatus(currentPrice, tranche.min, tranche.max) : null;
+                    const distance = currentPrice != null ? getPriceDistance(currentPrice, tranche.min, tranche.max) : null;
                     const isInZone = priceStatus === 'in-zone' && !isFilled;
-                    const midpoint = (tranche.min + tranche.max) / 2;
+                    const midpoint = tranche.min && tranche.max ? (tranche.min + tranche.max) / 2 : null;
                     const allocation = budgetNum * (tranche.pct / 100);
-                    const tokenTarget = allocation > 0 ? allocation / midpoint : null;
+                    const tokenTarget = allocation > 0 && midpoint ? allocation / midpoint : null;
 
                     return (
                         <div
@@ -211,99 +324,166 @@ export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) 
                                     : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50'
                             }`}
                         >
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{tranche.label}</span>
-                                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
-                                            {tranche.pct}%
-                                        </span>
-                                        {!isFilled && distance && (
-                                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                                                priceStatus === 'in-zone'
-                                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
-                                                    : priceStatus === 'above'
-                                                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400'
-                                                    : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
-                                            }`}>
-                                                {distance}
-                                            </span>
-                                        )}
-                                        {isFilled && (
-                                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
-                                                Filled {trancheState.filledAt}
-                                            </span>
-                                        )}
+                            {editingTrancheId === tranche.id ? (
+                                <div className="space-y-3">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-xs text-slate-400 mb-1 block">Label</label>
+                                            <input
+                                                autoFocus
+                                                value={trancheDraft.label}
+                                                onChange={e => setTrancheDraft(d => ({ ...d, label: e.target.value }))}
+                                                className="w-full text-sm font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 outline-none text-slate-800 dark:text-slate-200"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-slate-400 mb-1 block">Allocation %</label>
+                                            <input
+                                                type="number"
+                                                value={trancheDraft.pct}
+                                                onChange={e => setTrancheDraft(d => ({ ...d, pct: e.target.value }))}
+                                                className="w-full text-sm font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 outline-none text-slate-800 dark:text-slate-200"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-slate-400 mb-1 block">Zone min ($)</label>
+                                            <input
+                                                type="number"
+                                                value={trancheDraft.min}
+                                                onChange={e => setTrancheDraft(d => ({ ...d, min: e.target.value }))}
+                                                className="w-full text-sm font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 outline-none text-slate-800 dark:text-slate-200"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-slate-400 mb-1 block">Zone max ($)</label>
+                                            <input
+                                                type="number"
+                                                value={trancheDraft.max}
+                                                onChange={e => setTrancheDraft(d => ({ ...d, max: e.target.value }))}
+                                                className="w-full text-sm font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 outline-none text-slate-800 dark:text-slate-200"
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
-                                        ${tranche.min} – ${tranche.max}
+                                    <div>
+                                        <label className="text-xs text-slate-400 mb-1 block">Note</label>
+                                        <textarea
+                                            value={trancheDraft.note}
+                                            onChange={e => setTrancheDraft(d => ({ ...d, note: e.target.value }))}
+                                            rows={2}
+                                            className="w-full text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 outline-none text-slate-600 dark:text-slate-400 resize-none leading-relaxed"
+                                        />
                                     </div>
-                                    <div className="mt-1 flex items-center gap-3 flex-wrap">
-                                        {tokenTarget != null ? (
-                                            <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-                                                ~{tokenTarget.toFixed(2)} HYPE
-                                                <span className="text-xs font-normal text-slate-400 ml-1">(${allocation.toFixed(0)} @ ${midpoint} mid)</span>
-                                            </span>
-                                        ) : (
-                                            <span className="text-xs text-slate-400">Enter budget to see token target</span>
-                                        )}
-                                    </div>
-                                    <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{tranche.note}</p>
-                                </div>
-                                <div className="flex flex-col items-end gap-2 shrink-0 pt-0.5">
-                                    {isFilled ? (
-                                        <>
-                                            <CheckCircle2 size={20} className="text-slate-400" />
-                                            <button onClick={() => markPending(tranche.id)} className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline">
-                                                Undo
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <button
-                                            onClick={() => markFilled(tranche.id)}
-                                            className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
-                                                isInZone
-                                                    ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                                                    : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
-                                            }`}
-                                        >
-                                            Mark Filled
+                                    <div className="flex gap-2 justify-end">
+                                        <button onClick={() => setEditingTrancheId(null)} className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 px-2 py-1">
+                                            <X size={12} /> Cancel
                                         </button>
-                                    )}
+                                        <button onClick={confirmEditTranche} className="flex items-center gap-1 text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 px-3 py-1.5 rounded-lg">
+                                            <Check size={12} /> Save
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{tranche.label}</span>
+                                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                                                {tranche.pct}%
+                                            </span>
+                                            {!isFilled && distance && priceStatus !== 'unset' && (
+                                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                                                    priceStatus === 'in-zone'
+                                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+                                                        : priceStatus === 'above'
+                                                        ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400'
+                                                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                                                }`}>
+                                                    {distance}
+                                                </span>
+                                            )}
+                                            {isFilled && (
+                                                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
+                                                    Filled {tranche.filledAt}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+                                            {tranche.min || tranche.max ? `$${tranche.min} – $${tranche.max}` : <span className="text-slate-300 dark:text-slate-600 text-lg">Set zone</span>}
+                                        </div>
+                                        {tokenTarget != null && (
+                                            <div className="mt-1 text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                                                ~{tokenTarget.toFixed(2)} {sym || 'tokens'}
+                                                <span className="text-xs font-normal text-slate-400 ml-1">(${allocation.toFixed(0)} @ ${midpoint?.toFixed(2)} mid)</span>
+                                            </div>
+                                        )}
+                                        {!tokenTarget && budgetNum > 0 && (
+                                            <div className="mt-1 text-xs text-slate-400">Set zone to calculate token target</div>
+                                        )}
+                                        {!tokenTarget && !budgetNum && (
+                                            <div className="mt-1 text-xs text-slate-400">Enter budget to see token target</div>
+                                        )}
+                                        {tranche.note && (
+                                            <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{tranche.note}</p>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-col items-end gap-2 shrink-0 pt-0.5">
+                                        <button onClick={() => startEditTranche(tranche)} className="p-1 text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 transition-colors">
+                                            <Pencil size={13} />
+                                        </button>
+                                        {isFilled ? (
+                                            <>
+                                                <CheckCircle2 size={20} className="text-slate-400" />
+                                                <button onClick={() => markPending(tranche.id)} className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline">
+                                                    Undo
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <button
+                                                onClick={() => markFilled(tranche.id)}
+                                                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
+                                                    isInZone
+                                                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                                                        : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+                                                }`}
+                                            >
+                                                Mark Filled
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     );
                 })}
             </div>
 
-            {/* Key Notes */}
+            {/* Notes */}
             <div>
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Key Notes</h3>
                 <div className="space-y-2">
-                    {notes.map(note => (
+                    {activePlan.notes.map(note => (
                         <div key={note.id} className="rounded-lg bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 p-3">
                             {editingNoteId === note.id ? (
                                 <div className="space-y-2">
                                     <input
                                         autoFocus
-                                        value={editDraft.label}
-                                        onChange={e => setEditDraft(d => ({ ...d, label: e.target.value }))}
+                                        value={noteDraft.label}
+                                        onChange={e => setNoteDraft(d => ({ ...d, label: e.target.value }))}
                                         className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 outline-none text-slate-800 dark:text-slate-200"
                                         placeholder="Label"
                                     />
                                     <textarea
-                                        value={editDraft.text}
-                                        onChange={e => setEditDraft(d => ({ ...d, text: e.target.value }))}
+                                        value={noteDraft.text}
+                                        onChange={e => setNoteDraft(d => ({ ...d, text: e.target.value }))}
                                         rows={3}
                                         className="w-full text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 outline-none text-slate-600 dark:text-slate-400 resize-none leading-relaxed"
                                         placeholder="Note content"
                                     />
                                     <div className="flex gap-2 justify-end">
-                                        <button onClick={cancelEdit} className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 px-2 py-1">
+                                        <button onClick={() => setEditingNoteId(null)} className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 px-2 py-1">
                                             <X size={12} /> Cancel
                                         </button>
-                                        <button onClick={confirmEdit} className="flex items-center gap-1 text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 px-3 py-1 rounded-lg">
+                                        <button onClick={confirmEditNote} className="flex items-center gap-1 text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 px-3 py-1.5 rounded-lg">
                                             <Check size={12} /> Save
                                         </button>
                                     </div>
@@ -315,7 +495,7 @@ export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) 
                                         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{note.text}</p>
                                     </div>
                                     <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => startEdit(note)} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                                        <button onClick={() => startEditNote(note)} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
                                             <Pencil size={13} />
                                         </button>
                                         <button onClick={() => deleteNote(note.id)} className="p-1 text-slate-400 hover:text-rose-500">
@@ -334,6 +514,18 @@ export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) 
                     </button>
                 </div>
             </div>
+
+            {/* Delete plan */}
+            {plans.length > 1 && (
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                        onClick={() => deletePlan(activePlan.id)}
+                        className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-rose-500 transition-colors"
+                    >
+                        <Trash2 size={13} /> Delete this plan
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
