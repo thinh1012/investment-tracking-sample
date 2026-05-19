@@ -36,7 +36,7 @@ const NavLinks: React.FC<{
             {[
                 { id: 'dashboard', icon: LayoutDashboard, label: 'LP Positions' },
                 { id: 'analytics', icon: BarChart3, label: 'Earnings' },
-                { id: 'dca', icon: Target, label: 'HYPE DCA' },
+                { id: 'dca', icon: Target, label: 'DCA' },
                 { id: 'notes', icon: BookOpen, label: 'Notes & Dictionary' },
             ].filter(item => !mobile || ['dashboard', 'analytics', 'dca', 'notes'].includes(item.id)).map((item) => {
                 const isActive = currentView === item.id;
