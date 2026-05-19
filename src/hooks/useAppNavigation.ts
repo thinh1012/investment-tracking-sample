@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export type AppView = 'dashboard' | 'analytics' | 'notes' | 'settings' | 'database';
+export type AppView = 'dashboard' | 'analytics' | 'notes' | 'settings' | 'database' | 'dca';
 
 export const useAppNavigation = () => {
     const [currentView, setCurrentView] = useState<AppView>('dashboard');

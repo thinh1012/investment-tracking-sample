@@ -9,6 +9,7 @@ import { useDataStorage } from './hooks/useDataStorage';
 const Dashboard = React.lazy(() => import('./components/dashboard/Dashboard').then(m => ({ default: m.Dashboard })));
 const TransactionForm = React.lazy(() => import('./components/TransactionForm'));
 const Settings = React.lazy(() => import('./components/Settings'));
+const DCATracker = React.lazy(() => import('./components/DCATracker').then(m => ({ default: m.DCATracker })));
 import { Sidebar } from './components/layout/Sidebar';
 import { BottomNav } from './components/layout/BottomNav';
 import { Plus } from 'lucide-react';
@@ -223,6 +224,8 @@ function App(): React.ReactNode {
                                 manualPrices={manualPrices}
                                 onClearManualPrice={clearManualPrice}
                             />
+                        ) : currentView === 'dca' ? (
+                            <DCATracker prices={prices} priceChanges={priceChanges} />
                         ) : (
                             <Settings />
                         )}

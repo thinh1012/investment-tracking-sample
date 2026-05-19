@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-    LayoutDashboard, BarChart3, BookOpen,
+    LayoutDashboard, BarChart3, BookOpen, Target,
     Settings as LucideSettings, Menu, X, Sun, Moon,
     Upload, Download, TrendingUp
 } from 'lucide-react';
@@ -36,8 +36,9 @@ const NavLinks: React.FC<{
             {[
                 { id: 'dashboard', icon: LayoutDashboard, label: 'LP Positions' },
                 { id: 'analytics', icon: BarChart3, label: 'Earnings' },
+                { id: 'dca', icon: Target, label: 'HYPE DCA' },
                 { id: 'notes', icon: BookOpen, label: 'Notes & Dictionary' },
-            ].filter(item => !mobile || ['dashboard', 'analytics', 'notes'].includes(item.id)).map((item) => {
+            ].filter(item => !mobile || ['dashboard', 'analytics', 'dca', 'notes'].includes(item.id)).map((item) => {
                 const isActive = currentView === item.id;
                 return (
                     <button
