@@ -118,7 +118,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                         </td>
                         <td className="hidden md:table-cell px-4 py-2">
                             {rewardAssets.length === 0 ? (
-                                <span className="text-slate-300 dark:text-slate-700">—</span>
+                                <span className="text-slate-300 dark:text-slate-700">â€”</span>
                             ) : (
                                 <div className="flex flex-col gap-0.5">
                                     {rewardAssets.map(reward => (
@@ -135,7 +135,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                     {asset.monitorSymbol && (
                                         <div className="flex items-center gap-2">
                                             <span className={`text-xs font-medium ${asset.inRange ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                <span className="mr-1">•</span>{asset.inRange ? 'In range' : 'Out of range'}
+                                                <span className="mr-1">â€¢</span>{asset.inRange ? 'In range' : 'Out of range'}
                                             </span>
                                             {asset.monitorPrice !== undefined && asset.monitorPrice > 0 && (
                                                 <span className="text-xs font-mono text-slate-500">
@@ -149,7 +149,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                         {(() => {
                                             const isTokenToToken = asset.monitorSymbol?.includes('/');
                                             const precision = isTokenToToken ? 6 : 4;
-                                            return `${formatPrice(asset.lpRange.min, locale, false, precision).replace('$', '')} – ${formatPrice(asset.lpRange.max, locale, false, precision).replace('$', '')}`;
+                                            return `${formatPrice(asset.lpRange.min, locale, false, precision).replace('$', '')} â€“ ${formatPrice(asset.lpRange.max, locale, false, precision).replace('$', '')}`;
                                         })()}
                                     </span>
                                 </div>
@@ -301,7 +301,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                     >
                         {showOutOfRange ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                         <span>Out of range</span>
-                        <span className="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 px-1.5 py-0.5 rounded">
+                        <span className="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 px-1.5 py-0.5 rounded-sm">
                             {outOfRangePools.length}
                         </span>
                         <span className="text-xs font-mono text-rose-400 ml-1">

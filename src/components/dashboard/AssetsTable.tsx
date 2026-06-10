@@ -173,8 +173,8 @@ export const AssetsTable = React.memo(({ assets, transactions, prices, onRefresh
                                             {manualPrices[asset.symbol] && (
                                                 <button
                                                     onClick={() => onClearManualPrice?.(asset.symbol)}
-                                                    title="Clear manual price — switch back to market"
-                                                    className="flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-black uppercase bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:text-rose-500 transition-colors"
+                                                    title="Clear manual price â€” switch back to market"
+                                                    className="flex items-center gap-0.5 px-1 py-0.5 rounded-sm text-[9px] font-black uppercase bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:text-rose-500 transition-colors"
                                                 >
                                                     M <X size={8} />
                                                 </button>

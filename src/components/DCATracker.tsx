@@ -42,11 +42,11 @@ const DEFAULT_PLAN: DCAPlan = {
         { id: 'c', label: 'Tranche C', pct: 30, min: 28, max: 33, note: 'Deep macro drawdown. Set-and-forget limit order.', status: 'pending' },
     ],
     notes: [
-        { id: '1', label: 'Target Exit', text: 'Exit ladder starting at $150. Entry ~$25–26.' },
-        { id: '2', label: 'Jun 6 — Monthly Unlock', text: '9.92M HYPE (~$449M) unlocks to core contributors. Historical: 85%+ went to staking. No significant dumps across 4 unlock events.' },
-        { id: '3', label: 'Jun 7 — Tranche A Checkpoint', text: 'Observe post-unlock behavior before deploying.' },
-        { id: '4', label: 'Invalidation', text: 'HYPE loses $24 support → pause all deployment. Core team on-chain selling at scale → exit signal.' },
-        { id: '5', label: 'Rule', text: 'No fixed price anchoring. $38 target was missed — do not repeat.' },
+        { id: '1', label: 'Target Exit', text: 'Exit ladder starting at $150. Entry ~$25â€“26.' },
+        { id: '2', label: 'Jun 6 â€” Monthly Unlock', text: '9.92M HYPE (~$449M) unlocks to core contributors. Historical: 85%+ went to staking. No significant dumps across 4 unlock events.' },
+        { id: '3', label: 'Jun 7 â€” Tranche A Checkpoint', text: 'Observe post-unlock behavior before deploying.' },
+        { id: '4', label: 'Invalidation', text: 'HYPE loses $24 support â†’ pause all deployment. Core team on-chain selling at scale â†’ exit signal.' },
+        { id: '5', label: 'Rule', text: 'No fixed price anchoring. $38 target was missed â€” do not repeat.' },
     ],
 };
 
@@ -97,7 +97,7 @@ function getPriceStatus(price: number, min: number, max: number): 'in-zone' | 'a
 }
 
 function getPriceDistance(price: number, min: number, max: number): string {
-    if (min === 0 && max === 0) return '—';
+    if (min === 0 && max === 0) return 'â€”';
     if (price >= min && price <= max) return 'IN ZONE';
     if (price > max) return `+${(((price - max) / max) * 100).toFixed(1)}% above`;
     return `-${(((min - price) / price) * 100).toFixed(1)}% below`;
@@ -260,7 +260,7 @@ export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) 
                             placeholder="SYMBOL"
                             className="text-xl font-bold bg-transparent text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 outline-none w-28 uppercase"
                         />
-                        <span className="text-slate-300 dark:text-slate-600">·</span>
+                        <span className="text-slate-300 dark:text-slate-600">Â·</span>
                         <div className="flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400">
                             <span>Target</span>
                             <span className="text-slate-400">$</span>
@@ -313,9 +313,9 @@ export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) 
                             )}
                         </>
                     ) : (
-                        <div className="text-2xl font-bold text-slate-400">{sym ? '—' : '—'}</div>
+                        <div className="text-2xl font-bold text-slate-400">{sym ? 'â€”' : 'â€”'}</div>
                     )}
-                    <div className="text-xs text-slate-400 mt-0.5">{sym || '—'}/USD · 15 min</div>
+                    <div className="text-xs text-slate-400 mt-0.5">{sym || 'â€”'}/USD Â· 15 min</div>
                 </div>
             </div>
 
@@ -456,7 +456,7 @@ export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) 
                                             )}
                                         </div>
                                         <div className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
-                                            {tranche.min || tranche.max ? `$${tranche.min} – $${tranche.max}` : <span className="text-slate-300 dark:text-slate-600 text-lg">Set zone</span>}
+                                            {tranche.min || tranche.max ? `$${tranche.min} â€“ $${tranche.max}` : <span className="text-slate-300 dark:text-slate-600 text-lg">Set zone</span>}
                                         </div>
                                         {tokenTarget != null && (
                                             <div className="mt-1 text-sm font-semibold text-indigo-600 dark:text-indigo-400">
@@ -517,14 +517,14 @@ export const DCATracker: React.FC<DCATrackerProps> = ({ prices, priceChanges }) 
                                         autoFocus
                                         value={noteDraft.label}
                                         onChange={e => setNoteDraft(d => ({ ...d, label: e.target.value }))}
-                                        className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 outline-none text-slate-800 dark:text-slate-200"
+                                        className="w-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm px-2 py-1 outline-none text-slate-800 dark:text-slate-200"
                                         placeholder="Label"
                                     />
                                     <textarea
                                         value={noteDraft.text}
                                         onChange={e => setNoteDraft(d => ({ ...d, text: e.target.value }))}
                                         rows={3}
-                                        className="w-full text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 outline-none text-slate-600 dark:text-slate-400 resize-none leading-relaxed"
+                                        className="w-full text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm px-2 py-1 outline-none text-slate-600 dark:text-slate-400 resize-none leading-relaxed"
                                         placeholder="Note content"
                                     />
                                     <div className="flex gap-2 justify-end">

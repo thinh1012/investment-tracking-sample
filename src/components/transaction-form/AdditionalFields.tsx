@@ -97,7 +97,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = (props) => {
                                         type="checkbox"
                                         checked={relatedAssetSymbols?.includes(a.symbol) || false}
                                         readOnly
-                                        className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer"
+                                        className="w-4 h-4 text-emerald-600 rounded-sm border-slate-300 focus:ring-emerald-500 cursor-pointer"
                                     />
                                     <span className="ml-2 text-sm text-slate-700 dark:text-slate-200">
                                         {a.symbol} {a.lpRange ? <span className="text-xs text-slate-400 ml-1">(Range: {a.lpRange.min}-{a.lpRange.max})</span> : ''}
@@ -144,7 +144,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = (props) => {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/10 rounded-xl border border-emerald-200 dark:border-emerald-800/30 animate-in fade-in slide-in-from-top-2">
                 <div>
-                    <label className="block text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-2">💰 Received Currency</label>
+                    <label className="block text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-2">ðŸ’° Received Currency</label>
                     <select
                         value={paymentCurrency || 'USDT'}
                         onChange={(e) => setPaymentCurrency(e.target.value)}
@@ -158,7 +158,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = (props) => {
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-2">💵 Amount Received</label>
+                    <label className="block text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-2">ðŸ’µ Amount Received</label>
                     <input
                         type="number"
                         step="any"
@@ -170,7 +170,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = (props) => {
                 </div>
                 <div className="md:col-span-2">
                     <p className="text-xs text-emerald-600 dark:text-emerald-400">
-                        💡 This will automatically credit your {paymentCurrency || 'USDT'} balance
+                        ðŸ’¡ This will automatically credit your {paymentCurrency || 'USDT'} balance
                     </p>
                 </div>
             </div>

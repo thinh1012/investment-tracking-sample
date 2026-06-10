@@ -124,7 +124,7 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
                 <div className="text-sm font-medium text-slate-800 dark:text-white">{lp.symbol}</div>
                 {lp.lpRange && (
                     <div className="text-xs text-slate-400 dark:text-slate-500 font-mono mt-0.5">
-                        {lp.lpRange.min.toLocaleString(locale || 'en-US', { maximumFractionDigits: lp.lpRange.min < 1 ? 6 : 2 })} – {lp.lpRange.max.toLocaleString(locale || 'en-US', { maximumFractionDigits: lp.lpRange.max < 1 ? 6 : 2 })}
+                        {lp.lpRange.min.toLocaleString(locale || 'en-US', { maximumFractionDigits: lp.lpRange.min < 1 ? 6 : 2 })} â€“ {lp.lpRange.max.toLocaleString(locale || 'en-US', { maximumFractionDigits: lp.lpRange.max < 1 ? 6 : 2 })}
                     </div>
                 )}
             </td>
@@ -151,7 +151,7 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
             <td className="px-4 py-2 font-mono text-sm text-slate-500 dark:text-slate-400">
                 {lp.dailyFeeRate
                     ? `$${lp.dailyFeeRate.toLocaleString(locale || 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/d`
-                    : <span className="text-slate-300 dark:text-slate-600">—</span>}
+                    : <span className="text-slate-300 dark:text-slate-600">â€”</span>}
             </td>
             <td className="hidden md:table-cell px-4 py-2 text-sm">
                 {lp.netPosition >= 0 ? (
@@ -184,7 +184,7 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
 
     return (
         <div className="space-y-6">
-            {/* Summary — inline stat strip */}
+            {/* Summary â€” inline stat strip */}
             <div className="flex items-center gap-6 px-1 border-b border-slate-200 dark:border-slate-800 pb-3 mb-2 overflow-x-auto scrollbar-hide">
                 <div>
                     <div className="text-xs text-slate-400 mb-0.5">Principal</div>
@@ -276,7 +276,7 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
                         <div className="flex items-center gap-2">
                             {showOutOfRange ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                             <span>Out of range</span>
-                            <span className="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 px-1.5 py-0.5 rounded">
+                            <span className="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 px-1.5 py-0.5 rounded-sm">
                                 {outOfRangePools.length}
                             </span>
                         </div>

@@ -57,7 +57,7 @@ export const NotificationHistory: React.FC<Props> = ({ logs, onClear, locale }) 
                                             {new Date(log.date).toLocaleString()}
                                         </td>
                                         <td className="p-3">
-                                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${log.channel === 'TELEGRAM' ? 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400' :
+                                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[10px] font-bold ${log.channel === 'TELEGRAM' ? 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400' :
                                                 log.channel === 'EMAIL' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' :
                                                     'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
                                                 }`}>
@@ -65,7 +65,7 @@ export const NotificationHistory: React.FC<Props> = ({ logs, onClear, locale }) 
                                             </span>
                                         </td>
                                         <td className="p-3">
-                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${log.type === 'PRICE' ? 'text-indigo-600 bg-indigo-50 dark:text-indigo-400 dark:bg-indigo-900/20' :
+                                            <span className={`px-2 py-0.5 rounded-sm text-[10px] font-bold ${log.type === 'PRICE' ? 'text-indigo-600 bg-indigo-50 dark:text-indigo-400 dark:bg-indigo-900/20' :
                                                 log.type === 'LP' ? 'text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-900/20' :
                                                     'text-slate-500'
                                                 }`}>

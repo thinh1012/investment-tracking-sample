@@ -116,7 +116,7 @@ const TokenInput = ({ label, token, setToken, source, setSource, fundingSource, 
             <button
                 type="button"
                 onClick={() => setSource(source === 'FRESH' ? 'HOLDINGS' : 'FRESH')}
-                className={`text-[10px] px-1.5 py-0.5 rounded border ${source === 'HOLDINGS' ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
+                className={`text-[10px] px-1.5 py-0.5 rounded-sm border ${source === 'HOLDINGS' ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
             >
                 {source}
             </button>

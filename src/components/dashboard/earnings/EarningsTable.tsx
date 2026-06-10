@@ -71,7 +71,7 @@ export const EarningsTable: React.FC<EarningsTableProps> = ({
                                 onClick={() => onToggleExpansion(item.source)}
                             >
                                 <td className="px-4 py-2 font-medium text-slate-900 dark:text-white flex items-center gap-2">
-                                    <div className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400">
+                                    <div className="p-1 rounded-sm hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400">
                                         {expandedSources.has(item.source) ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                                     </div>
                                     {item.source}
@@ -126,7 +126,7 @@ export const EarningsTable: React.FC<EarningsTableProps> = ({
                                             <h6 className="text-xs font-bold text-slate-500 mb-2">Transaction History</h6>
                                             <div className="max-h-48 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
                                                 {[...item.transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(t => (
-                                                    <div key={t.id} className="flex justify-between items-center text-xs py-1.5 border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-100 dark:hover:bg-slate-800/50 px-2 rounded">
+                                                    <div key={t.id} className="flex justify-between items-center text-xs py-1.5 border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-100 dark:hover:bg-slate-800/50 px-2 rounded-sm">
                                                         <div className="flex items-center gap-3">
                                                             <span className="text-slate-400 font-mono w-20">{t.date}</span>
                                                             <span className="font-medium text-emerald-600 dark:text-emerald-400">+{t.amount} {t.assetSymbol}</span>
@@ -148,7 +148,7 @@ export const EarningsTable: React.FC<EarningsTableProps> = ({
                                                                         e.stopPropagation();
                                                                         onCompound(t);
                                                                     }}
-                                                                    className="ml-2 p-1 rounded bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white text-[10px] font-black uppercase tracking-tighter"
+                                                                    className="ml-2 p-1 rounded-sm bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white text-[10px] font-black uppercase tracking-tighter"
                                                                     title="Re-invest as Compounded Growth"
                                                                 >
                                                                     Compound

@@ -32,7 +32,7 @@ const AccountCard = React.memo<{
                 </div>
                 <div className="flex gap-1">
                     {acc.sortedCurrencies.map((c: string) => (
-                        <span key={c} className="px-2 py-0.5 bg-indigo-500/10 text-indigo-500 rounded text-[9px] font-black uppercase tracking-widest">{c}</span>
+                        <span key={c} className="px-2 py-0.5 bg-indigo-500/10 text-indigo-500 rounded-sm text-[9px] font-black uppercase tracking-widest">{c}</span>
                     ))}
                 </div>
             </div>

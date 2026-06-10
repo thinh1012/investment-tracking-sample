@@ -254,7 +254,7 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
                     <div className="space-y-4 py-2">
                         <div className="flex justify-between items-center">
                             <label className="text-[10px] font-bold text-slate-500 uppercase">Target Price: <span className="text-purple-500 ml-1">{targetPrice.toLocaleString(locale, { maximumFractionDigits: 2 })} {tokenB}</span></label>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${results.targetChange >= 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-sm ${results.targetChange >= 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
                                 {results.targetChange >= 0 ? '+' : ''}{results.targetChange.toFixed(2)}%
                             </span>
                         </div>
@@ -342,7 +342,7 @@ export const CLSimulator: React.FC<Props> = ({ initialBaseSymbol = 'ETH', initia
                             <span>Divergence from holding. Concentrated liquidity magnifies IL risk.</span>
                             <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-64 p-3 bg-slate-800 dark:bg-slate-700 text-white text-[10px] rounded-xl shadow-2xl z-50 normal-case not-italic font-normal border border-slate-700 dark:border-slate-600 animate-in fade-in slide-in-from-bottom-1">
                                 <p className="font-bold mb-1 text-rose-400">Why does it magnify risk?</p>
-                                Concentrated Liquidity acts like leverage. Because your capital is "efficiently" deployed in a narrow range, price movement outside that range affects your portfolio value more drastically than in standard (0 to ∞) pools.
+                                Concentrated Liquidity acts like leverage. Because your capital is "efficiently" deployed in a narrow range, price movement outside that range affects your portfolio value more drastically than in standard (0 to âˆž) pools.
                             </div>
                         </div>
                     </div>
