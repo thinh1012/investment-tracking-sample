@@ -26,43 +26,51 @@
     --font-heading: "Inter", "sans-serif";
     --font-mono: "JetBrains Mono", "monospace";
 
-    /* Neutral Palette (Deep & Sophisticated) */
-    --color-slate-50: #f8fafc;
-    --color-slate-100: #f1f5f9;
-    --color-slate-200: #e2e8f0;
-    --color-slate-300: #cbd5e1;
-    --color-slate-400: #94a3b8;
-    --color-slate-500: #64748b;
-    --color-slate-600: #475569;
-    --color-slate-700: #334155;
-    --color-slate-800: #1e293b;
-    --color-slate-900: #0f172a;
-    --color-slate-950: #020617;
+    /* Rabby Neutral Palette — navy-tinted (light mode values) */
+    --color-slate-50: #f7fafc;
+    --color-slate-100: #f2f4f7;
+    --color-slate-200: #e0e5ec;
+    --color-slate-300: #c5c5cf;
+    --color-slate-400: #9a9ca9;
+    --color-slate-500: #6a7587;
+    --color-slate-600: #3e495e;
+    --color-slate-700: #2f3a52;
+    --color-slate-800: #222e48;
+    --color-slate-900: #192945;
+    --color-slate-950: #0c0f1f;
 
-    /* Professional Fintech Palette (Realistic) */
-    --color-success-50: #ecfdf5;
-    --color-success-100: #d1fae5;
-    --color-success-500: #10b981;
-    --color-success-600: #059669;
-    --color-success-700: #047857;
+    /* Rabby Status Colors */
+    --color-success-50: #d8f2e7;
+    --color-success-100: #d8f2e7;
+    --color-success-500: #2abb7f;
+    --color-success-600: #27ae76;
+    --color-success-700: #239c6a;
 
-    --color-danger-50: #fef2f2;
-    --color-danger-100: #fee2e2;
-    --color-danger-500: #ef4444;
-    --color-danger-600: #dc2626;
-    --color-danger-700: #b91c1c;
+    --color-danger-50: #fff2f0;
+    --color-danger-100: #efd4d1;
+    --color-danger-500: #e34935;
+    --color-danger-600: #ae2a19;
+    --color-danger-700: #ae2a19;
 
-    --color-primary-50: #eef2ff;
-    --color-primary-100: #e0e7ff;
-    --color-primary-500: #6366f1;
-    --color-primary-600: #4f46e5;
-    --color-primary-700: #4338ca;
+    /* Rabby Brand Blue */
+    --color-primary-50: #edf0ff;
+    --color-primary-100: #dbe0ff;
+    --color-primary-500: #4c65ff;
+    --color-primary-600: #4056dd;
+    --color-primary-700: #3a4dc4;
 
-    /* Legacy support - map to professional colors */
-    --color-emerald-500: #10b981;
-    --color-emerald-600: #059669;
-    --color-indigo-500: #6366f1;
-    --color-indigo-600: #4f46e5;
+    /* Legacy support - map to Rabby colors */
+    --color-emerald-500: #2abb7f;
+    --color-emerald-600: #27ae76;
+    --color-indigo-50: #edf0ff;
+    --color-indigo-100: #dbe0ff;
+    --color-indigo-500: #4c65ff;
+    --color-indigo-600: #4056dd;
+    --color-rose-400: #ef5c48;
+    --color-rose-500: #e34935;
+    --color-amber-400: #ffc64a;
+    --color-amber-500: #ffb020;
+    --color-amber-600: #f29c1b;
 
     /* Professional Shadow System */
     --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
@@ -71,14 +79,43 @@
     --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
+.dark {
+    --color-slate-50: #f7fafc;
+    --color-slate-100: #f7fafc;
+    --color-slate-200: #e5e9f0;
+    --color-slate-300: #d3d8e0;
+    --color-slate-400: #babec5;
+    --color-slate-500: #8a93a5;
+    --color-slate-600: #4a5374;
+    --color-slate-700: #323a5a;
+    --color-slate-800: #262c44;
+    --color-slate-900: #1a1f33;
+    --color-slate-950: #0c0f1f;
+
+    --color-danger-500: #ef5c48;
+    --color-danger-50: #4f3a42;
+    --color-danger-100: #4f3a42;
+
+    --color-primary-50: #212640;
+    --color-primary-100: #262d55;
+    --color-primary-500: #7084ff;
+    --color-primary-600: #5267e8;
+    --color-primary-700: #4056dd;
+
+    --color-indigo-50: #212640;
+    --color-indigo-100: #262d55;
+    --color-indigo-500: #7084ff;
+    --color-indigo-600: #5267e8;
+    --color-rose-400: #f4756b;
+    --color-rose-500: #ef5c48;
+    --color-amber-500: #ffc64a;
+    --color-amber-600: #ffc64a;
+}
+
 @layer base {
     body {
         font-family: var(--font-sans);
-        /* Professional fintech background */
-        @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300;
-        background-image:
-            radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0, transparent 50%),
-            radial-gradient(at 50% 0%, rgba(16, 185, 129, 0.03) 0, transparent 50%);
+        @apply bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300;
     }
 
     h1,
@@ -95,7 +132,7 @@
 
 /* Flat card — no blur, no shadow */
 @utility glass {
-    @apply bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl;
+    @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl;
 }
 
 @utility glass-card {
