@@ -163,7 +163,6 @@ export default defineConfig({
           'vendor-lucide': ['lucide-react'],
           'vendor-supabase': ['@supabase/supabase-js'],
           'vendor-idb': ['idb'],
-          'vendor-alasql': ['alasql'],
         }
       }
     }

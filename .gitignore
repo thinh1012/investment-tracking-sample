@@ -68,3 +68,10 @@ SESSION_SUMMARY_*.md
 TABLE_OF_CONTENTS.md
 *.txt
 public/backup_*.json
+
+# PWA dev build artifacts
+dev-dist/
+
+# Local archive (data backups, screenshots, retired one-off scripts)
+_archive/
+CURRENT.md
