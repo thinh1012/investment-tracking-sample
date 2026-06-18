@@ -29,6 +29,8 @@ export const ClaimHistoryModal: React.FC<ClaimHistoryModalProps> = ({
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }, [transactions, lpSymbol]);
 
+    const displayedClaims = useMemo(() => claims.slice(0, 20), [claims]);
+
     const totalValue = useMemo(() => {
         return claims.reduce((sum, t) => {
             const value = t.paymentAmount || (t.amount * (t.pricePerUnit || prices[t.assetSymbol] || 0));
@@ -40,9 +42,9 @@ export const ClaimHistoryModal: React.FC<ClaimHistoryModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-hidden border border-slate-200 dark:border-slate-800">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col border border-slate-200 dark:border-slate-800">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+                <div className="shrink-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-indigo-500/10 rounded-lg">
                             <Coins className="text-indigo-600 dark:text-indigo-400" size={24} />
@@ -65,7 +67,7 @@ export const ClaimHistoryModal: React.FC<ClaimHistoryModalProps> = ({
                 </div>
 
                 {/* Summary */}
-                <div className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/10 dark:to-green-900/10 border-b border-emerald-200 dark:border-emerald-800/30">
+                <div className="shrink-0 p-6 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/10 dark:to-green-900/10 border-b border-emerald-200 dark:border-emerald-800/30">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <TrendingUp className="text-emerald-600 dark:text-emerald-400" size={20} />
@@ -79,11 +81,12 @@ export const ClaimHistoryModal: React.FC<ClaimHistoryModalProps> = ({
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
                         {claims.length} claim{claims.length !== 1 ? 's' : ''} recorded
+                        {claims.length > 20 && ` — showing latest 20`}
                     </p>
                 </div>
 
                 {/* Claims Table */}
-                <div className="overflow-y-auto max-h-[400px]">
+                <div className="flex-1 min-h-0 overflow-y-auto">
                     {claims.length === 0 ? (
                         <div className="p-12 text-center">
                             <Coins size={48} className="mx-auto text-slate-300 dark:text-slate-700 mb-4" />
@@ -105,7 +108,7 @@ export const ClaimHistoryModal: React.FC<ClaimHistoryModalProps> = ({
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                {claims.map((claim, idx) => {
+                                {displayedClaims.map((claim, idx) => {
                                     const value = claim.paymentAmount || (claim.amount * (claim.pricePerUnit || prices[claim.assetSymbol] || 0));
                                     return (
                                         <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
@@ -139,7 +142,7 @@ export const ClaimHistoryModal: React.FC<ClaimHistoryModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between gap-4">
+                <div className="shrink-0 p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between gap-4">
                     <button
                         onClick={onClose}
                         className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
