@@ -101,10 +101,10 @@ export const ClaimHistoryModal: React.FC<ClaimHistoryModalProps> = ({
                         <table className="w-full">
                             <thead className="bg-slate-50 dark:bg-slate-800/50 sticky top-0">
                                 <tr className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                                    <th className="px-6 py-3 text-left">Date</th>
-                                    <th className="px-6 py-3 text-left">Token</th>
-                                    <th className="px-6 py-3 text-right">Amount</th>
-                                    <th className="px-6 py-3 text-right">Value (USD)</th>
+                                    <th className="px-2 sm:px-6 py-3 text-left whitespace-nowrap">Date</th>
+                                    <th className="px-2 sm:px-6 py-3 text-left">Token</th>
+                                    <th className="px-2 sm:px-6 py-3 text-right">Amount</th>
+                                    <th className="px-2 sm:px-6 py-3 text-right whitespace-nowrap">Value</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -112,25 +112,24 @@ export const ClaimHistoryModal: React.FC<ClaimHistoryModalProps> = ({
                                     const value = claim.paymentAmount || (claim.amount * (claim.pricePerUnit || prices[claim.assetSymbol] || 0));
                                     return (
                                         <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                                                    <Calendar size={14} className="text-slate-400" />
+                                            <td className="px-2 sm:px-6 py-3 sm:py-4">
+                                                <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                                                    <Calendar size={14} className="hidden sm:inline text-slate-400 shrink-0" />
                                                     {new Date(claim.date).toLocaleDateString('en-US', {
                                                         month: 'short',
-                                                        day: 'numeric',
-                                                        year: 'numeric'
+                                                        day: 'numeric'
                                                     })}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <span className="font-bold text-slate-800 dark:text-white">
+                                            <td className="px-2 sm:px-6 py-3 sm:py-4">
+                                                <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-white">
                                                     {claim.assetSymbol}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-right font-mono text-sm text-slate-700 dark:text-slate-300">
-                                                {claim.amount.toLocaleString('en-US', { maximumFractionDigits: 6 })}
+                                            <td className="px-2 sm:px-6 py-3 sm:py-4 text-right font-mono text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                                                {claim.amount.toLocaleString('en-US', { maximumFractionDigits: 4 })}
                                             </td>
-                                            <td className="px-6 py-4 text-right font-bold text-emerald-600 dark:text-emerald-400">
+                                            <td className="px-2 sm:px-6 py-3 sm:py-4 text-right font-bold text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
                                                 ${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </td>
                                         </tr>
