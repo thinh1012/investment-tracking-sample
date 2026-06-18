@@ -89,7 +89,7 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
 
             {!(type === 'INTEREST' && rewardSplitMode) && (
                 <div className="md:col-span-2 space-y-4 animate-in fade-in slide-in-from-top-2">
-                    <div className="flex gap-4 items-start">
+                    <div className="flex flex-col md:flex-row gap-4 md:items-start">
                         <div className="flex-1">
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 {type === 'INTEREST' ? 'Market Price' : (inputMode === 'LP' ? (lpFundingMode === 'HOLDINGS' ? 'Cost Basis (Auto)' : 'Implied Unit Price') : 'Price Per Unit')}
@@ -107,14 +107,14 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
                                         setPrice(p);
                                         if (amount && p) setTotalSpent((parseFloat(amount) * parseFloat(p)).toFixed(2));
                                     }}
-                                    className="block w-full rounded-xl border-slate-200 dark:border-slate-700 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 py-3 px-4 bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-900 transition-all font-medium disabled:opacity-70"
+                                    className="block w-full min-w-0 rounded-xl border-slate-200 dark:border-slate-700 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 py-3 px-4 bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-900 transition-all font-medium disabled:opacity-70"
                                 />
                                 {inputMode !== 'LP' && (
                                     <button
                                         type="button"
                                         onClick={handleCalculate}
                                         disabled={isCalculating || !symbol}
-                                        className="px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors"
+                                        className="px-3 shrink-0 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors"
                                     >
                                         {isCalculating ? <RefreshCw className="animate-spin" size={18} /> : <RefreshCw size={18} />}
                                     </button>
@@ -122,7 +122,7 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
                             </div>
                         </div>
                         <div className="flex-1">
-                            <div className="flex justify-between items-center mb-2">
+                            <div className="flex items-center justify-between mb-2">
                                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                     {type === 'INTEREST'
                                         ? 'Earned Value (USD)'
@@ -133,7 +133,7 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
                                                 : 'Total Spent'))}
                                 </label>
                                 {type !== 'INTEREST' && (inputMode !== 'LP' || (inputMode === 'LP' && lpMode === 'TOTAL')) && (
-                                    <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5">
+                                    <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 shrink-0">
                                         {(['CASH', 'ASSET', 'MIXED'] as const).map(m => (
                                             <button
                                                 key={m}
@@ -152,7 +152,7 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
                                     <select
                                         value={paymentCurrency}
                                         onChange={(e) => setPaymentCurrency(e.target.value)}
-                                        className="w-1/3 rounded-xl border-slate-200 dark:border-slate-700 text-xs font-bold uppercase bg-slate-50 dark:bg-slate-800 dark:text-white"
+                                        className="shrink-0 w-auto rounded-xl border-slate-200 dark:border-slate-700 text-xs font-bold uppercase bg-slate-50 dark:bg-slate-800 dark:text-white py-3 px-2"
                                     >
                                         {['USDT', 'USDC', 'USD', 'DAI'].map(curr => <option key={curr} value={curr}>{curr}</option>)}
                                         {paymentMode === 'ASSET' && assets.filter(a => !a.lpRange && !['USDT', 'USDC', 'USD', 'DAI'].includes(a.symbol)).map(a => (
@@ -172,7 +172,7 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
                                         if (amount && t && parseFloat(amount) > 0) setPrice((parseFloat(t) / parseFloat(amount)).toFixed(8));
                                         else if (price && t && parseFloat(price) > 0) setAmount((parseFloat(t) / parseFloat(price)).toFixed(8));
                                     }}
-                                    className="block w-full rounded-xl border-slate-200 dark:border-slate-700 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 py-3 px-4 bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-900 transition-all font-medium disabled:opacity-70"
+                                    className="block w-full min-w-0 rounded-xl border-slate-200 dark:border-slate-700 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 py-3 px-4 bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-900 transition-all font-medium disabled:opacity-70"
                                 />
                             </div>
                         </div>
