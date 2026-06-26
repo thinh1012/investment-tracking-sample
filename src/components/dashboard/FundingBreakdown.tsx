@@ -53,13 +53,6 @@ export const FundingBreakdown: React.FC<FundingBreakdownProps> = ({
     return (
         <div className="mt-4 mb-6 flex flex-row gap-3">
             <PortfolioMiniCard
-                title="Total Invested"
-                value={`$${portfolioSummary.totalInvested.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}`}
-                color="emerald"
-                icon={<Package size={14} />}
-                onClick={portfolioSummary.onToggleAuditor}
-            />
-            <PortfolioMiniCard
                 title="Active Assets"
                 value={assetCount.toString()}
                 color="violet"
