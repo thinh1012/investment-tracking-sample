@@ -79,7 +79,7 @@ export const MonthlyEarnings: React.FC<MonthlyEarningsProps> = ({ transactions, 
             <div className="grid grid-cols-3 px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wide border-b border-slate-100 dark:border-slate-800">
                 <span>Month</span>
                 <span className="text-center">Pools</span>
-                <span className="text-right">Total USD</span>
+                <span className="text-right">Earned</span>
             </div>
 
             {monthlyData.map(({ key, label, totalUSD, byPool }) => {
@@ -106,8 +106,12 @@ export const MonthlyEarnings: React.FC<MonthlyEarningsProps> = ({ transactions, 
                             <span className="text-center text-slate-500 dark:text-slate-400 text-xs">
                                 {poolEntries.length} pool{poolEntries.length !== 1 ? 's' : ''}
                             </span>
-                            <span className="text-right font-semibold text-slate-800 dark:text-slate-100">
-                                {formatPrice(totalUSD, locale)}
+                            <span className="text-right font-mono text-xs text-slate-600 dark:text-slate-300 leading-snug">
+                                {tokenEntries.map(([sym, qty]) => (
+                                    <span key={sym} className="block">
+                                        <span className="font-semibold text-slate-800 dark:text-slate-100">{formatQty(qty)}</span>{' '}{sym}
+                                    </span>
+                                ))}
                             </span>
                         </button>
 
