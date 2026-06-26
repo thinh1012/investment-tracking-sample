@@ -107,7 +107,7 @@ export const MonthlyEarnings: React.FC<MonthlyEarningsProps> = ({ transactions, 
                                 {poolEntries.length} pool{poolEntries.length !== 1 ? 's' : ''}
                             </span>
                             <span className="text-right font-mono text-xs text-slate-600 dark:text-slate-300 leading-snug">
-                                {tokenEntries.map(([sym, qty]) => (
+                                {tokenEntries.filter(([sym]) => sym === 'USDC' || sym === 'HYPE').map(([sym, qty]) => (
                                     <span key={sym} className="block">
                                         <span className="font-semibold text-slate-800 dark:text-slate-100">{formatQty(qty)}</span>{' '}{sym}
                                     </span>
