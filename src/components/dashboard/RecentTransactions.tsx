@@ -32,6 +32,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
     const [typeFilter, setTypeFilter] = useState<string>('ALL');
     const [sortKey, setSortKey] = useState<'date' | 'createdAt' | 'ticker'>('date');
     const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
+    const [pendingDelete, setPendingDelete] = useState<Transaction | null>(null);
 
     const handleSort = (key: 'date' | 'createdAt' | 'ticker') => {
         if (sortKey === key) {
@@ -60,6 +61,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
     });
 
     return (
+        <>
         <TableShell
             title="Recent Transactions"
             subtitle=""
@@ -183,7 +185,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
                                             <Pencil size={14} className="md:w-4 md:h-4" />
                                         </button>
                                         <button
-                                            onClick={() => onDeleteClick(tx.id)}
+                                            onClick={() => setPendingDelete(tx)}
                                             className="p-1.5 md:p-2 text-rose-500 hover:bg-rose-500/10 rounded-xl"
                                             title="Void Entry"
                                         >
@@ -204,5 +206,36 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
                 )}
             </div>
         </TableShell>
+
+        {pendingDelete && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 w-full max-w-sm p-6 shadow-xl">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-100 mb-2">Delete transaction?</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                        <span className="font-bold text-slate-700 dark:text-slate-300">{pendingDelete.type === 'INTEREST' ? 'EARN' : pendingDelete.type}</span>
+                        {' · '}
+                        <span className="font-bold text-slate-700 dark:text-slate-300">{pendingDelete.assetSymbol}</span>
+                        {' · '}
+                        {pendingDelete.amount.toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mb-6">{pendingDelete.date}</p>
+                    <div className="flex gap-3 justify-end">
+                        <button
+                            onClick={() => setPendingDelete(null)}
+                            className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => { onDeleteClick(pendingDelete.id); setPendingDelete(null); }}
+                            className="px-4 py-2 text-xs font-bold uppercase tracking-widest bg-rose-500 text-white hover:bg-rose-600"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     );
 };
