@@ -5,47 +5,13 @@
  * backup, migration, or disaster recovery purposes.
  */
 
-interface VaultSnapshot {
-    metadata: {
-        version: string;
-        timestamp: string;
-        exportedAt: string;
-    };
-    transactions: any[];
-    assets: any[];
-    notes: any[];
-    settings: Record<string, any>;
-    intelHistory?: any[];
-}
-
 class ExportService {
-    private static SNAPSHOT_VERSION = '1.2';
-
-    /**
-     * Generate a complete JSON snapshot of the vault
-     */
-    static generateJsonSnapshot(): VaultSnapshot {
-        const now = new Date();
-
-        return {
-            metadata: {
-                version: this.SNAPSHOT_VERSION,
-                timestamp: now.toISOString(),
-                exportedAt: now.toLocaleString()
-            },
-            transactions: (this.getStoredData('vault_transactions') as any[]) || [],
-            assets: (this.getStoredData('vault_assets') as any[]) || [],
-            notes: (this.getStoredData('vault_notes') as any[]) || [],
-            settings: (this.getStoredData('investment_tracker_settings') as Record<string, any>) || {},
-            intelHistory: (this.getStoredData('intel_history') as any[]) || undefined
-        };
-    }
-
     /**
      * Download the snapshot as a JSON file
      */
-    static downloadSnapshot(): void {
-        const snapshot = this.generateJsonSnapshot();
+    static async downloadSnapshot(): Promise<void> {
+        const { BackupService } = await import('./database/BackupService');
+        const snapshot = await BackupService.createFullBackup();
         const filename = `vault_state_${new Date().toISOString().split('T')[0]}.json`;
 
         const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
@@ -128,24 +94,13 @@ class ExportService {
     /**
      * Get the current snapshot size estimate in KB
      */
-    static getSnapshotSizeKB(): number {
-        const snapshot = this.generateJsonSnapshot();
+    static async getSnapshotSizeKB(): Promise<number> {
+        const { BackupService } = await import('./database/BackupService');
+        const snapshot = await BackupService.createFullBackup();
         const jsonString = JSON.stringify(snapshot);
         return Math.round(jsonString.length / 1024);
     }
 
-    /**
-     * Helper to safely parse stored JSON data
-     */
-    private static getStoredData(key: string): any[] | Record<string, any> | null {
-        try {
-            const raw = localStorage.getItem(key);
-            return raw ? JSON.parse(raw) : null;
-        } catch {
-            return null;
-        }
-    }
 }
 
 export { ExportService };
-export type { VaultSnapshot };

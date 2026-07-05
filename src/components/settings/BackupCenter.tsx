@@ -18,7 +18,10 @@ interface BackupCenterProps {
 export const BackupCenter: React.FC<BackupCenterProps> = ({ notify }) => {
 
 
-    const snapshotSizeKB = ExportService.getSnapshotSizeKB();
+    const [snapshotSizeKB, setSnapshotSizeKB] = useState<number | null>(null);
+    React.useEffect(() => {
+        ExportService.getSnapshotSizeKB().then(setSnapshotSizeKB).catch(() => setSnapshotSizeKB(null));
+    }, []);
 
     const preRestoreRaw = localStorage.getItem('vault_pre_restore_snapshot');
     let preRestoreDate: string | null = null;
@@ -45,9 +48,14 @@ export const BackupCenter: React.FC<BackupCenterProps> = ({ notify }) => {
 
 
     // Download JSON snapshot
-    const handleDownloadSnapshot = useCallback(() => {
-        ExportService.downloadSnapshot();
-        notify.success('JSON snapshot downloaded!');
+    const handleDownloadSnapshot = useCallback(async () => {
+        try {
+            await ExportService.downloadSnapshot();
+            notify.success('JSON snapshot downloaded!');
+        } catch (e) {
+            console.error('Snapshot download failed', e);
+            notify.error('Snapshot download failed');
+        }
     }, [notify]);
 
     // Import JSON snapshot
@@ -104,7 +112,7 @@ export const BackupCenter: React.FC<BackupCenterProps> = ({ notify }) => {
                         <Download size={18} className="text-emerald-500" />
                         <h3 className="font-semibold text-slate-900 dark:text-white">JSON Snapshots</h3>
                     </div>
-                    <span className="text-xs text-slate-500">~{snapshotSizeKB} KB</span>
+                    <span className="text-xs text-slate-500">{snapshotSizeKB === null ? '…' : `~${snapshotSizeKB} KB`}</span>
                 </div>
 
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
