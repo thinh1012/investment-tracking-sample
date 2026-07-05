@@ -36,24 +36,18 @@ class ExportService {
             const text = await file.text();
             const snapshot: any = JSON.parse(text);
 
-            // [FIX] Support both legacy and new backup formats
-            // Legacy: { version, date, transactions: [...] }
-            // New: { metadata: { version }, transactions: [...], assets: [...] }
-            const isLegacyFormat = snapshot.version && !snapshot.metadata;
+            // Full-backup format (cloud vault / Download Snapshot / pre-restore snapshot):
+            // { version, date, transactions, watchlist, marketPicks, settings, storageSnapshot, ... }
+            if (snapshot.version && !snapshot.metadata) {
+                console.log('[EXPORT] 📦 Detected full-backup format - running full restore...');
 
-            if (isLegacyFormat) {
-                console.log('[EXPORT] 📦 Detected legacy backup format - converting...');
+                const { BackupService } = await import('./database/BackupService');
+                await BackupService.restoreFullBackup(snapshot);
 
-                // [CRITICAL FIX] Write to IndexedDB, not localStorage!
-                if (snapshot.transactions?.length) {
-                    const { TransactionService } = await import('./database/TransactionService');
-                    await TransactionService.bulkImport(snapshot.transactions);
-                }
-
-                console.log(`[EXPORT] ✅ Legacy snapshot imported: ${snapshot.transactions?.length || 0} transactions from ${snapshot.date}`);
+                console.log(`[EXPORT] ✅ Full backup restored: ${snapshot.transactions?.length || 0} transactions from ${snapshot.date}`);
                 return {
                     success: true,
-                    message: `Restored ${snapshot.transactions?.length || 0} transactions from legacy backup (${snapshot.date.split('T')[0]}).`
+                    message: `Restored full backup from ${(snapshot.date || '').split('T')[0]}: ${snapshot.transactions?.length || 0} transactions, ${snapshot.watchlist?.length || 0} watchlist, ${snapshot.marketPicks?.length || 0} picks + settings/preferences.`
                 };
             }
 
