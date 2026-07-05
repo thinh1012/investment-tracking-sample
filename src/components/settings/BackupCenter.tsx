@@ -6,7 +6,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { ExportService } from '../../services/ExportService';
-import { Download, Upload, HardDrive } from 'lucide-react';
+import { Download, Upload, HardDrive, LifeBuoy } from 'lucide-react';
 
 interface BackupCenterProps {
     notify: {
@@ -19,6 +19,28 @@ export const BackupCenter: React.FC<BackupCenterProps> = ({ notify }) => {
 
 
     const snapshotSizeKB = ExportService.getSnapshotSizeKB();
+
+    const preRestoreRaw = localStorage.getItem('vault_pre_restore_snapshot');
+    let preRestoreDate: string | null = null;
+    if (preRestoreRaw) {
+        try {
+            preRestoreDate = JSON.parse(preRestoreRaw).date || 'unknown date';
+        } catch { preRestoreDate = 'unknown date'; }
+    }
+
+    const handleDownloadPreRestore = useCallback(() => {
+        if (!preRestoreRaw) return;
+        const blob = new Blob([preRestoreRaw], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `pre_restore_snapshot_${(preRestoreDate || '').split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        notify.success('Pre-restore snapshot downloaded. Re-import it via Import Snapshot if needed.');
+    }, [preRestoreRaw, preRestoreDate, notify]);
 
 
 
@@ -109,6 +131,25 @@ export const BackupCenter: React.FC<BackupCenterProps> = ({ notify }) => {
                     </label>
                 </div>
             </div>
+
+            {preRestoreRaw && (
+                <div className="bg-amber-50 dark:bg-amber-900/10 rounded-xl p-4 border border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center gap-2 mb-2">
+                        <LifeBuoy size={18} className="text-amber-500" />
+                        <h3 className="font-semibold text-slate-900 dark:text-white">Pre-Restore Safety Snapshot</h3>
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                        Local data auto-saved before the last cloud restore ({preRestoreDate}). Download it if the restore lost anything, then re-import via Import Snapshot.
+                    </p>
+                    <button
+                        onClick={handleDownloadPreRestore}
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-bold transition-all"
+                    >
+                        <Download size={14} />
+                        Download Safety Snapshot
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

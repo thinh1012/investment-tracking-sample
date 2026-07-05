@@ -40,7 +40,7 @@ function App(): React.ReactNode {
         const handleCloudRestore = async (event: CustomEvent) => {
             const data = event.detail;
             if (data) {
-                if (confirm("Data found in Cloud Vault. Restore now? (Local data will be replaced)")) {
+                if (confirm("Data found in Cloud Vault. Restore now? Local data will be replaced — a safety snapshot of it is saved first (recoverable in Settings > Backup & Recovery).")) {
                     await BackupService.restoreFullBackup(data);
                     window.location.reload();
                 }

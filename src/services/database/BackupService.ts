@@ -28,8 +28,12 @@ export const BackupService = {
             'investment_tracker_funding_offset',
             'investment_tracker_base_fix_applied',
             'investment_tracker_last_sync',
-            'vault_last_sync_time',
-            'theme'
+            'theme',
+            'dca_plans_v2',
+            'investment_tracker_watchlist_triggers',
+            'investment_tracker_bucket_overrides',
+            'investment_tracker_locale',
+            'use_rabby_ui'
         ];
 
         const storageSnapshot: Record<string, string | null> = {};
@@ -67,6 +71,16 @@ export const BackupService = {
     async restoreFullBackup(backup: any) {
         console.group("🚀 Vault Restoration Audit");
         try {
+            // Safety net: snapshot current local data before it gets wiped,
+            // recoverable from Settings > Backup & Recovery
+            try {
+                const preRestore = await BackupService.createFullBackup();
+                localStorage.setItem('vault_pre_restore_snapshot', JSON.stringify(preRestore));
+                console.log("🛟 Pre-restore snapshot saved (vault_pre_restore_snapshot)");
+            } catch (snapErr) {
+                console.warn("Pre-restore snapshot failed (continuing with restore):", snapErr);
+            }
+
             console.log("Restoration Path: Cloud -> Local DB");
             console.log("Timestamp:", backup.date);
             console.log("Record Snapshot:", {
@@ -137,6 +151,8 @@ export const BackupService = {
             if (backup.storageSnapshot) {
                 console.log(`Applying system preferences snapshot...`);
                 Object.entries(backup.storageSnapshot).forEach(([key, value]) => {
+                    // Device-specific keys must not be carried over from the uploading device
+                    if (key === 'vault_last_sync_time' || key === 'vault_pre_restore_snapshot') return;
                     if (value !== null) {
                         localStorage.setItem(key, value as string);
                     }
