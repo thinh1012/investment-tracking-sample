@@ -110,7 +110,8 @@ export const calculateAssets = (
                 asset.totalInvested = 0;
             }
 
-            if (tx.notes && tx.notes.includes('Moved to LP')) {
+            const isLpFunding = tx.subType !== undefined ? tx.subType === 'LP_FUNDING' : (tx.notes && tx.notes.includes('Moved to LP'));
+            if (isLpFunding) {
                 asset.lockedInLpQuantity = (asset.lockedInLpQuantity || 0) + tx.amount;
             }
         } else if (tx.type === 'SELL') {

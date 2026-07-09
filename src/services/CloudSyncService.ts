@@ -162,17 +162,6 @@ class CloudSyncService {
             this.status.isPending = false;
         }
     }
-
-
-    /**
-     * [DEPRECATED] Legacy restore function - now handled by useCloudSync hook
-     * This has been replaced by the downloadVault() method in useCloudSync.ts
-     * Keeping skeleton for backwards compatibility if needed.
-     */
-    static async restoreFromCloud(): Promise<boolean> {
-        console.warn('[CLOUD_SYNC] restoreFromCloud() is deprecated. Use useCloudSync hook instead.');
-        return false;
-    }
 }
 
 export { CloudSyncService };

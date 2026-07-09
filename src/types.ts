@@ -51,6 +51,10 @@ export interface Transaction {
     relatedAssetSymbols?: string[]; // For INTEREST, to link to multiple source LPs or Assets
     isCompound?: boolean; // If true, this tx increases principal without being "Fresh Capital"
     createdAt?: number; // Unix timestamp of when transaction was inputted into the system
+    subType?: 'POOL_CREATION' | 'LP_FUNDING' | 'INTERNAL_SWAP'; // Structured classification, replaces notes regex matching
+    freshCapitalAmount?: number; // Dollar amount of fresh capital (for POOL_CREATION)
+    fundedWithAmount?: number; // Amount funded from holdings asset (for INTERNAL_SWAP deposits)
+    lpTargetSymbol?: string; // Target LP symbol (for LP_FUNDING withdrawals)
 }
 
 export interface Asset {

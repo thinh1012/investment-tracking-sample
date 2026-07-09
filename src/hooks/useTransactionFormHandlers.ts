@@ -196,7 +196,9 @@ export const useTransactionFormHandlers = (state: any, props: any) => {
                             amount: qty,
                             pricePerUnit: asset.averageBuyPrice,
                             notes: `Moved to LP ${symbol}`,
-                            linkedTransactionId: newLpTransactionId
+                            linkedTransactionId: newLpTransactionId,
+                            subType: 'LP_FUNDING',
+                            lpTargetSymbol: symbol
                         });
                     }
                 }
@@ -216,7 +218,9 @@ export const useTransactionFormHandlers = (state: any, props: any) => {
                     pricePerUnit: 1, // Price is always 1 for LPs
                     notes: `Pool Creation: ${result.description}`,
                     lpRange: commonData.lpRange || undefined,
-                    monitorSymbol: commonData.monitorSymbol || undefined
+                    monitorSymbol: commonData.monitorSymbol || undefined,
+                    subType: 'POOL_CREATION',
+                    freshCapitalAmount: result.freshCapitalAmount
                 });
                 onClose();
                 return;
@@ -227,12 +231,14 @@ export const useTransactionFormHandlers = (state: any, props: any) => {
                 const newTxId = crypto.randomUUID();
                 let assetCostBasis = 0;
                 let notesToAdd = '';
+                let fundedWithAmount: number | undefined;
 
                 if (mixedAssetSymbol && mixedAssetQty) {
                     const asset = assets.find((a: Asset) => a.symbol === mixedAssetSymbol);
                     if (asset) {
                         const qty = parseFloat(mixedAssetQty);
                         assetCostBasis = qty * asset.averageBuyPrice;
+                        fundedWithAmount = qty;
                         notesToAdd = `Funded with ${qty} ${mixedAssetSymbol} (Holdings)`;
                         onSave({
                             id: crypto.randomUUID(),
@@ -242,7 +248,8 @@ export const useTransactionFormHandlers = (state: any, props: any) => {
                             amount: qty,
                             pricePerUnit: asset.averageBuyPrice,
                             notes: `Used to buy ${symbol}`,
-                            linkedTransactionId: newTxId
+                            linkedTransactionId: newTxId,
+                            subType: 'INTERNAL_SWAP'
                         });
                     }
                 }
@@ -260,7 +267,9 @@ export const useTransactionFormHandlers = (state: any, props: any) => {
                     assetSymbol: symbol.toUpperCase(),
                     amount: finalAmount,
                     pricePerUnit: (assetCostBasis + fresh) / finalAmount,
-                    notes: `${notesToAdd}. ${commonData.notes || ''}`
+                    notes: `${notesToAdd}. ${commonData.notes || ''}`,
+                    subType: 'INTERNAL_SWAP',
+                    fundedWithAmount
                 });
                 onClose();
                 return;

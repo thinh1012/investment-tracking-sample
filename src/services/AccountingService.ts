@@ -34,12 +34,13 @@ export const getJournalEntries = (transactions: Transaction[]): JournalEntry[] =
         const description = tx.notes || `${tx.type} ${tx.assetSymbol}`;
 
         if (tx.type === 'DEPOSIT') {
-            const isPoolCreation = tx.notes && tx.notes.startsWith('Pool Creation:');
-            const isInternalBuy = (tx.paymentCurrency && (tx.paymentAmount || (tx.notes && tx.notes.includes('(Holdings)'))));
+            const isPoolCreation = tx.subType !== undefined ? tx.subType === 'POOL_CREATION' : (tx.notes && tx.notes.startsWith('Pool Creation:'));
+            const holdingsFunded = tx.subType !== undefined ? tx.subType === 'INTERNAL_SWAP' : (tx.notes ? tx.notes.includes('(Holdings)') : false);
+            const isInternalBuy = (tx.paymentCurrency && (tx.paymentAmount || holdingsFunded));
 
             if (isInternalBuy) {
                 // Buy scenario: Debit Asset, Credit Payment Currency
-                const payAmount = Number(tx.paymentAmount) || (tx.notes ? parseFloat(tx.notes.match(/Funded with ([\d.]+) /)?.[1] || '0') : 0) || (Number(tx.amount) * (tx.pricePerUnit || 0));
+                const payAmount = Number(tx.paymentAmount) || tx.fundedWithAmount || (tx.notes ? parseFloat(tx.notes.match(/Funded with ([\d.]+) /)?.[1] || '0') : 0) || (Number(tx.amount) * (tx.pricePerUnit || 0));
 
                 entries.push({
                     txId, date, txType, description: `Buy ${tx.assetSymbol}`,
@@ -62,8 +63,8 @@ export const getJournalEntries = (transactions: Transaction[]): JournalEntry[] =
 
                 // 2. Identify Fresh Capital portion to Credit CAPITAL_FUNDING
                 const freshMatch = tx.notes ? tx.notes.match(/\$([\d,.]+) Fresh Capital/) : null;
-                if (freshMatch) {
-                    const freshAmount = parseFloat(freshMatch[1].replace(/,/g, ''));
+                if (tx.freshCapitalAmount !== undefined || freshMatch) {
+                    const freshAmount = tx.freshCapitalAmount !== undefined ? tx.freshCapitalAmount : parseFloat(freshMatch![1].replace(/,/g, ''));
                     if (freshAmount > 0) {
                         entries.push({
                             txId, date, txType, description: 'Fresh Capital Injection',
@@ -94,7 +95,8 @@ export const getJournalEntries = (transactions: Transaction[]): JournalEntry[] =
             });
         } else if (tx.type === 'WITHDRAWAL') {
             const lpMoveMatch = tx.notes ? tx.notes.match(/Moved to LP (.+)/) : null;
-            const isSwap = tx.notes && (tx.notes.includes('Used to buy') || tx.notes.includes('Swap') || tx.notes.includes('Bought'));
+            const lpSymbol = tx.subType === 'LP_FUNDING' ? tx.lpTargetSymbol : lpMoveMatch?.[1];
+            const isSwap = tx.subType !== undefined ? tx.subType === 'INTERNAL_SWAP' : (tx.notes && (tx.notes.includes('Used to buy') || tx.notes.includes('Swap') || tx.notes.includes('Bought')));
             const isSale = tx.paymentCurrency && tx.paymentAmount; // SELL: Has received currency and amount
 
             if (isSale) {
@@ -113,8 +115,7 @@ export const getJournalEntries = (transactions: Transaction[]): JournalEntry[] =
                     credit: Number(tx.amount),
                     currency: tx.assetSymbol || 'ASSET'
                 });
-            } else if (lpMoveMatch) {
-                const lpSymbol = lpMoveMatch[1];
+            } else if (lpSymbol) {
                 // LP Funding: Debit LP Account, Credit Spot Asset
                 entries.push({
                     txId, date, txType, description: `Contribute to ${lpSymbol}`,

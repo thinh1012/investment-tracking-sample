@@ -22,14 +22,6 @@ export const calculateEarningsBySource = (
     transactions: Transaction[],
     prices: Record<string, number>
 ): Record<string, EarningsBySourceItem> => {
-    // 🔍 DEBUG: Check what prices we're receiving
-    console.log('[calculateEarningsBySource] Prices object keys:', Object.keys(prices).slice(0, 20));
-    console.log('[calculateEarningsBySource] USDC price lookup:', {
-        'prices["USDC"]': prices['USDC'],
-        'prices["usdc"]': prices['usdc'],
-        'getPrice("USDC")': getPrice('USDC', prices)
-    });
-
     return transactions
         .filter(t => {
             if (t.type !== 'INTEREST') return false;

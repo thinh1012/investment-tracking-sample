@@ -650,4 +650,100 @@ describe('AccountingService', () => {
             expect(txEntries.some(e => e.credit > 0)).toBe(true);
         });
     });
+
+    describe('getJournalEntries - structured subType fields', () => {
+        it('should handle pool creation via subType with an edited/garbage note', () => {
+            const transactions: Transaction[] = [
+                {
+                    id: 'tx3',
+                    date: '2024-01-17',
+                    type: 'DEPOSIT',
+                    assetSymbol: 'HYPE-ETH-LP',
+                    amount: 1,
+                    notes: 'oops I edited this note lol',
+                    subType: 'POOL_CREATION',
+                    freshCapitalAmount: 5000
+                }
+            ];
+
+            const entries = getJournalEntries(transactions);
+
+            expect(entries.find(e => e.account === 'HYPE-ETH-LP' && e.debit === 1)).toBeDefined();
+            expect(entries.find(e => e.account === 'CAPITAL_FUNDING' && e.credit === 5000)).toBeDefined();
+        });
+
+        it('should match notes-driven pool creation output when using subType', () => {
+            const withNotes: Transaction[] = [{
+                id: 'tx3', date: '2024-01-17', type: 'DEPOSIT', assetSymbol: 'LP-1', amount: 10,
+                notes: 'Pool Creation: $10,000.50 Fresh Capital'
+            }];
+            const withSubType: Transaction[] = [{
+                id: 'tx3', date: '2024-01-17', type: 'DEPOSIT', assetSymbol: 'LP-1', amount: 10,
+                notes: 'Pool Creation: $10,000.50 Fresh Capital',
+                subType: 'POOL_CREATION', freshCapitalAmount: 10000.50
+            }];
+
+            expect(getJournalEntries(withSubType)).toEqual(getJournalEntries(withNotes));
+        });
+
+        it('should handle LP funding withdrawal via subType with an edited note', () => {
+            const transactions: Transaction[] = [
+                {
+                    id: 'tx4',
+                    date: '2024-01-18',
+                    type: 'WITHDRAWAL',
+                    assetSymbol: 'ETH',
+                    amount: 5,
+                    notes: 'oops edited',
+                    subType: 'LP_FUNDING',
+                    lpTargetSymbol: 'HYPE-ETH'
+                }
+            ];
+
+            const entries = getJournalEntries(transactions);
+
+            expect(entries.find(e => e.account === 'HYPE-ETH' && e.debit === 5)).toBeDefined();
+            expect(entries.find(e => e.account === 'ETH' && e.credit === 5)).toBeDefined();
+        });
+
+        it('should handle internal swap withdrawal via subType with an edited note', () => {
+            const transactions: Transaction[] = [
+                {
+                    id: 'tx4',
+                    date: '2024-01-18',
+                    type: 'WITHDRAWAL',
+                    assetSymbol: 'ETH',
+                    amount: 3,
+                    notes: 'this note no longer says anything about buying',
+                    subType: 'INTERNAL_SWAP'
+                }
+            ];
+
+            const entries = getJournalEntries(transactions);
+
+            expect(entries.find(e => e.description.includes('Swap Out'))).toBeDefined();
+            expect(entries.find(e => e.account === 'ETH' && e.credit === 3)).toBeDefined();
+        });
+
+        it('should handle internal buy deposit via subType with fundedWithAmount', () => {
+            const transactions: Transaction[] = [
+                {
+                    id: 'tx5',
+                    date: '2024-01-18',
+                    type: 'DEPOSIT',
+                    assetSymbol: 'BTC',
+                    amount: 0.1,
+                    paymentCurrency: 'USDC',
+                    notes: 'garbage note',
+                    subType: 'INTERNAL_SWAP',
+                    fundedWithAmount: 2500
+                }
+            ];
+
+            const entries = getJournalEntries(transactions);
+
+            expect(entries.find(e => e.account === 'BTC' && e.debit === 0.1)).toBeDefined();
+            expect(entries.find(e => e.account === 'USDC' && e.credit === 2500)).toBeDefined();
+        });
+    });
 });

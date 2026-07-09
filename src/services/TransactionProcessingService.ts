@@ -9,6 +9,7 @@ export interface LpProcessingResult {
     transactions: Transaction[];
     description: string;
     finalCostBasis: number;
+    freshCapitalAmount?: number;
 }
 
 export const TransactionProcessingService = {
@@ -37,6 +38,7 @@ export const TransactionProcessingService = {
 
         let totalMovedCostBasis = 0;
         let descriptionParts: string[] = [];
+        let freshCapitalAmountOut: number | undefined;
         const withdrawals: Transaction[] = [];
 
         const processToken = (token: LpToken, source: 'FRESH' | 'HOLDINGS', fundingAssetSymbol: string) => {
@@ -60,6 +62,8 @@ export const TransactionProcessingService = {
                         pricePerUnit: asset.averageBuyPrice, // Zero Realized PnL
                         notes: `Moved to LP ${lpSymbol}`,
                         linkedTransactionId: lpTransactionId,
+                        subType: 'LP_FUNDING',
+                        lpTargetSymbol: lpSymbol,
                     });
                 }
             } else {
@@ -78,6 +82,7 @@ export const TransactionProcessingService = {
             const alreadyCovered = descriptionParts.some(d => d.includes('(Fresh)'));
             if (!alreadyCovered) {
                 descriptionParts.push(`$${freshCapitalAmount} Fresh Capital`);
+                freshCapitalAmountOut = freshCapitalAmount;
             }
         }
 
@@ -86,7 +91,8 @@ export const TransactionProcessingService = {
         return {
             transactions: withdrawals,
             description: descriptionParts.join(' + '),
-            finalCostBasis: finalTotalInvested
+            finalCostBasis: finalTotalInvested,
+            freshCapitalAmount: freshCapitalAmountOut
         };
     },
 
@@ -126,7 +132,9 @@ export const TransactionProcessingService = {
                     amount: qty,
                     pricePerUnit: asset.averageBuyPrice,
                     notes: `Moved to LP ${lpSymbol}`,
-                    linkedTransactionId: lpTransactionId
+                    linkedTransactionId: lpTransactionId,
+                    subType: 'LP_FUNDING',
+                    lpTargetSymbol: lpSymbol
                 });
             }
         } else {
@@ -136,7 +144,8 @@ export const TransactionProcessingService = {
         return {
             transactions: withdrawals,
             description,
-            finalCostBasis
+            finalCostBasis,
+            freshCapitalAmount: source === 'FRESH' ? amount : undefined
         };
     },
 
