@@ -7,6 +7,7 @@ interface LiquidityPoolsTableProps {
     assets: Asset[];
     transactions: Transaction[];
     onAddTransaction?: (asset?: Asset) => void;
+    onAddClaim?: (lpSymbol: string) => void;
     updateAssetPrice?: (symbol: string, price: number) => void;
     locale?: string;
 }
@@ -54,18 +55,20 @@ const getLpComposition = (lpSymbol: string, transactions: Transaction[]): string
 };
 
 
-export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTransaction, updateAssetPrice, locale }: LiquidityPoolsTableProps) => {
+export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTransaction, onAddClaim, updateAssetPrice, locale }: LiquidityPoolsTableProps) => {
     const [isAssetListOpen, setIsAssetListOpen] = useState(false);
     const [editingLpSymbol, setEditingLpSymbol] = useState<string | null>(null);
     const [newLpValue, setNewLpValue] = useState<string>('');
     const [showOutOfRange, setShowOutOfRange] = useState(false);
+    const [showRetired, setShowRetired] = useState(false);
 
     const {
         lpAssets,
         lpSortKey,
         lpSortOrder,
         handleLpSort,
-        getRewardsForAsset
+        getRewardsForAsset,
+        retiredPools
     } = useLiquidityPools({ assets, transactions });
 
     return (
@@ -312,6 +315,68 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                         <table className="w-full text-sm text-left border-collapse opacity-60">
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
                                 {outOfRangePools.map(renderRow)}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+            )}
+
+            {retiredPools.length > 0 && (
+                <div className="border-t border-slate-200 dark:border-slate-800">
+                    <button
+                        onClick={() => setShowRetired(v => !v)}
+                        className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    >
+                        {showRetired ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                        <span>Retired</span>
+                        <span className="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 px-1.5 py-0.5 rounded-sm">
+                            {retiredPools.length}
+                        </span>
+                    </button>
+                    {showRetired && (
+                        <table className="w-full text-sm text-left border-collapse opacity-60">
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                                {retiredPools.map(pool => (
+                                    <tr key={pool.symbol} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 group/row">
+                                        <td className="px-4 py-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-black text-slate-800 dark:text-slate-100 text-sm md:text-base tracking-tight">{pool.symbol}</span>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onAddClaim && onAddClaim(pool.symbol);
+                                                    }}
+                                                    className="p-1 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 scale-100 md:scale-0 group-hover/row:scale-100"
+                                                    title="Log a Reward from this Retired Pool"
+                                                >
+                                                    <Plus size={12} strokeWidth={3} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td className="hidden md:table-cell px-4 py-2">
+                                            {pool.rewards.length === 0 ? (
+                                                <span className="text-slate-300 dark:text-slate-700">—</span>
+                                            ) : (
+                                                <div className="flex flex-col gap-0.5">
+                                                    {pool.rewards.map(reward => (
+                                                        <span key={reward.symbol} className="text-xs font-mono text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                                                            {reward.amount.toLocaleString(locale || 'en-US', { maximumFractionDigits: 4 })} <span className="text-slate-400 dark:text-slate-500">{reward.symbol}</span>
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="hidden lg:table-cell px-4 py-2">
+                                            <span className="text-xs text-slate-400">Closed</span>
+                                        </td>
+                                        <td className="hidden md:table-cell px-4 py-2 text-right">
+                                            <span className="text-sm font-mono text-slate-700 dark:text-slate-300">${pool.totalInvested.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</span>
+                                        </td>
+                                        <td className="px-4 py-2 text-right">
+                                            <span className="text-sm font-mono text-slate-500 dark:text-slate-400">${pool.totalWithdrawn.toLocaleString(locale || 'en-US', { maximumFractionDigits: 0 })}</span>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     )}

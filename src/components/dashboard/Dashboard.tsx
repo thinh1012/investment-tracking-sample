@@ -200,6 +200,7 @@ export const Dashboard: React.FC<Props> = ({
                                 assets={assets}
                                 transactions={transactions}
                                 onAddTransaction={onAddTransaction}
+                                onAddClaim={onAddClaim}
                                 updateAssetPrice={updateAssetPrice}
                                 locale={locale}
                             />
