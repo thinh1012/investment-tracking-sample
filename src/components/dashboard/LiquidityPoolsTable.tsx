@@ -15,6 +15,12 @@ interface LiquidityPoolsTableProps {
 import { TableShell } from '../common/TableShell';
 import { useLiquidityPools } from '../../hooks/useLiquidityPools';
 
+// Format a range bound: whole number if > 2, else 4 decimals
+const formatRangeBound = (num: number, locale?: string): string => {
+    const decimals = Math.abs(num) > 2 ? 0 : 4;
+    return num.toLocaleString(locale || 'en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+};
+
 // Helper to get LP composition from transactions
 const getLpComposition = (lpSymbol: string, transactions: Transaction[]): string | null => {
     // Find all DEPOSIT transactions for this LP
@@ -124,11 +130,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                                 </span>
                                             )}
                                             <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
-                                                {(() => {
-                                                    const isTokenToToken = asset.monitorSymbol?.includes('/');
-                                                    const precision = isTokenToToken ? 6 : 4;
-                                                    return `${formatPrice(asset.lpRange.min, locale, false, precision).replace('$', '')} – ${formatPrice(asset.lpRange.max, locale, false, precision).replace('$', '')}`;
-                                                })()}
+                                                {formatRangeBound(asset.lpRange.min, locale)} – {formatRangeBound(asset.lpRange.max, locale)}
                                             </span>
                                         </div>
                                     )}
@@ -165,11 +167,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                     )}
                                     {!asset.monitorSymbol && <span className="text-xs text-slate-400">Static range</span>}
                                     <span className="text-xs font-mono text-slate-500">
-                                        {(() => {
-                                            const isTokenToToken = asset.monitorSymbol?.includes('/');
-                                            const precision = isTokenToToken ? 6 : 4;
-                                            return `${formatPrice(asset.lpRange.min, locale, false, precision).replace('$', '')} – ${formatPrice(asset.lpRange.max, locale, false, precision).replace('$', '')}`;
-                                        })()}
+                                        {formatRangeBound(asset.lpRange.min, locale)} – {formatRangeBound(asset.lpRange.max, locale)}
                                     </span>
                                 </div>
                             ) : (
