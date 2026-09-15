@@ -103,9 +103,6 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                 <div className="flex flex-col">
                                     <div className="flex items-center gap-2">
                                         <span className="font-black text-slate-800 dark:text-slate-100 text-sm md:text-base tracking-tight">{asset.symbol}</span>
-                                        {asset.lpRange && asset.monitorSymbol && (
-                                            <span className={`lg:hidden w-2 h-2 rounded-full flex-shrink-0 ${asset.inRange ? 'bg-emerald-500' : 'bg-rose-500'}`} title={asset.inRange ? 'In range' : 'Out of range'} />
-                                        )}
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -218,7 +215,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                                     setEditingLpSymbol(asset.symbol);
                                                     setNewLpValue((asset.currentValue || asset.totalInvested).toString());
                                                 }}
-                                                className="opacity-100 md:opacity-0 group-hover/row:opacity-100 p-1 text-slate-400 hover:text-indigo-500"
+                                                className="hidden md:inline-flex md:opacity-0 group-hover/row:opacity-100 p-1 text-slate-400 hover:text-indigo-500"
                                                 title="Edit Value"
                                             >
                                                 <Pencil size={11} />
@@ -233,7 +230,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                             ) : null;
                                         })()}
                                         {asset.unrealizedPnL !== 0 && (
-                                            <span className={`text-xs font-mono ${asset.unrealizedPnL >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                            <span className={`hidden md:inline text-xs font-mono ${asset.unrealizedPnL >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                                                 {asset.unrealizedPnL >= 0 ? '+' : ''}{Math.abs(asset.pnlPercentage).toFixed(1)}%
                                             </span>
                                         )}
