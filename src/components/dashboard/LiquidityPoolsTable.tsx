@@ -116,6 +116,22 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                             via {fundedFromNote}
                                         </div>
                                     )}
+                                    {asset.lpRange && (
+                                        <div className="lg:hidden flex items-center gap-1.5 mt-1">
+                                            {asset.monitorPrice !== undefined && asset.monitorPrice > 0 && (
+                                                <span className={`text-xs font-mono ${asset.inRange ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                    {formatPrice(asset.monitorPrice)}
+                                                </span>
+                                            )}
+                                            <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                                                {(() => {
+                                                    const isTokenToToken = asset.monitorSymbol?.includes('/');
+                                                    const precision = isTokenToToken ? 6 : 4;
+                                                    return `${formatPrice(asset.lpRange.min, locale, false, precision).replace('$', '')} – ${formatPrice(asset.lpRange.max, locale, false, precision).replace('$', '')}`;
+                                                })()}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </td>
