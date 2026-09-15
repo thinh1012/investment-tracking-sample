@@ -227,7 +227,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                         {(() => {
                                             const composition = getLpComposition(asset.symbol, transactions);
                                             return composition ? (
-                                                <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">
+                                                <span className="hidden md:inline text-xs text-slate-400 dark:text-slate-500 font-mono">
                                                     {composition}
                                                 </span>
                                             ) : null;
