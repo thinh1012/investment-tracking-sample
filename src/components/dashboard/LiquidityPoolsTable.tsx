@@ -123,7 +123,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                         <div className="lg:hidden flex items-center gap-1.5 mt-1">
                                             {asset.monitorPrice !== undefined && asset.monitorPrice > 0 && (
                                                 <span className={`text-xs font-mono ${asset.inRange ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                    {formatPrice(asset.monitorPrice)}
+                                                    {formatPrice(asset.monitorPrice).replace('$', '')}
                                                 </span>
                                             )}
                                             <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
@@ -157,7 +157,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                             </span>
                                             {asset.monitorPrice !== undefined && asset.monitorPrice > 0 && (
                                                 <span className="text-xs font-mono text-slate-500">
-                                                    {formatPrice(asset.monitorPrice)} {asset.monitorSymbol}
+                                                    {formatPrice(asset.monitorPrice).replace('$', '')} {asset.monitorSymbol}
                                                 </span>
                                             )}
                                         </div>
