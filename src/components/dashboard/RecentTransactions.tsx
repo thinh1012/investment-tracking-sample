@@ -5,6 +5,15 @@ import { formatPrice } from '../../services/PriceService';
 import { TableShell } from '../common/TableShell';
 
 // Helper to format createdAt timestamp as dd/mm/yyyy hh:mm:ss
+const shortTypeLabel = (type: string): string => {
+    switch (type) {
+        case 'INTEREST': return 'E';
+        case 'WITHDRAWAL': return 'W';
+        case 'SELL': return 'S';
+        default: return type;
+    }
+};
+
 const formatCreatedAt = (timestamp: number): string => {
     const d = new Date(timestamp);
     const pad = (n: number) => n.toString().padStart(2, '0');
@@ -127,7 +136,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
                             )}
                         </div>
                     </div>
-                    <div className="flex-1 md:flex-none md:w-[120px] px-4 py-2 md:px-6 md:py-2">Activity</div>
+                    <div className="w-[62px] md:w-[120px] flex-none px-2 md:px-6 py-2">Activity</div>
                     <div
                         className="flex-1 md:flex-none md:w-[100px] px-4 py-2 md:px-6 md:py-2 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 select-none"
                         onClick={() => handleSort('ticker')}
@@ -141,9 +150,9 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
                             )}
                         </div>
                     </div>
-                    <div className="flex-1 md:flex-none md:w-[120px] px-4 py-2 md:px-6 md:py-2 text-right">Volume</div>
+                    <div className="w-[80px] md:w-[120px] flex-none px-2 md:px-6 py-2 text-right">Volume</div>
                     <div className="hidden lg:block w-[120px] px-6 py-2 text-right">Unit Price</div>
-                    <div className="flex-1 md:flex-none md:w-[120px] px-4 py-2 md:px-4 md:py-2 text-right">Registry</div>
+                    <div className="hidden md:block md:w-[120px] px-4 py-2 text-right">Registry</div>
                 </div>
 
                 {filteredTransactions.length > 0 ? (
@@ -156,26 +165,26 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
                                 <div className="hidden lg:block w-[100px] px-4 py-2 font-mono text-slate-300 dark:text-slate-600 text-[10px] tabular-nums whitespace-nowrap" title={tx.createdAt ? new Date(tx.createdAt).toLocaleString() : 'N/A'}>
                                     {tx.createdAt ? formatCreatedAt(tx.createdAt) : <span className="text-slate-200 dark:text-slate-700">-</span>}
                                 </div>
-                                <div className="flex-1 md:flex-none md:w-[120px] px-4 py-2 md:px-6 md:py-2">
-                                    <span className={`inline-flex items-center px-1.5 py-0.5 md:px-3 md:py-1 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest ${tx.type === 'DEPOSIT' || tx.type === 'BUY'
+                                <div className="w-[62px] md:w-[120px] flex-none px-2 py-2 md:px-6">
+                                    <span className={`inline-flex items-center px-1.5 py-0.5 md:px-3 md:py-1 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest whitespace-nowrap ${tx.type === 'DEPOSIT' || tx.type === 'BUY'
                                         ? 'bg-emerald-500/10 text-emerald-500 ring-1 ring-emerald-500/20 shadow-lg shadow-emerald-500/5'
                                         : tx.type === 'WITHDRAWAL' || tx.type === 'SELL'
                                             ? 'bg-rose-500/10 text-rose-500 ring-1 ring-rose-500/20 shadow-lg shadow-rose-500/5'
                                             : 'bg-indigo-500/10 text-indigo-500 ring-1 ring-indigo-500/20 shadow-lg shadow-indigo-500/5'
                                         }`}>
-                                        {tx.type === 'INTEREST' ? 'EARN' : tx.type}
+                                        {shortTypeLabel(tx.type)}
                                     </span>
                                 </div>
-                                <div className="flex-1 md:flex-none md:w-[100px] px-4 py-2 md:px-6 md:py-2 font-black text-slate-800 dark:text-slate-100 tracking-tight font-sans text-xs md:text-sm">
+                                <div className="flex-1 md:flex-none md:w-[100px] px-4 py-2 md:px-6 md:py-2 font-black text-slate-800 dark:text-slate-100 tracking-tight font-sans text-xs md:text-sm truncate whitespace-nowrap overflow-hidden" title={tx.assetSymbol}>
                                     {tx.assetSymbol}
                                 </div>
-                                <div className="flex-1 md:flex-none md:w-[120px] px-4 py-2 md:px-6 md:py-2 text-right font-bold font-mono text-slate-600 dark:text-slate-400 tabular-nums text-xs md:text-sm">
+                                <div className="w-[80px] md:w-[120px] flex-none px-2 py-2 md:px-6 text-right font-bold font-mono text-slate-600 dark:text-slate-400 tabular-nums text-xs md:text-sm">
                                     {tx.amount.toLocaleString(locale || 'en-US', { maximumFractionDigits: 2 })}
                                 </div>
                                 <div className="hidden lg:block w-[120px] px-6 py-2 text-right font-bold font-mono text-slate-600 dark:text-slate-400 tabular-nums">
                                     {tx.pricePerUnit ? formatPrice(tx.pricePerUnit) : <span className="text-slate-300 dark:text-slate-700">-</span>}
                                 </div>
-                                <div className="flex-1 md:flex-none md:w-[120px] px-4 py-2 md:px-4 md:py-2 text-right">
+                                <div className="hidden md:block md:w-[120px] px-4 py-2 text-right">
                                     <div className="hidden md:flex items-center justify-end gap-1 md:gap-2 opacity-0 group-hover/row:opacity-100">
                                         <button
                                             onClick={() => onEditClick(tx)}
