@@ -176,7 +176,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
                                     {tx.pricePerUnit ? formatPrice(tx.pricePerUnit) : <span className="text-slate-300 dark:text-slate-700">-</span>}
                                 </div>
                                 <div className="flex-1 md:flex-none md:w-[120px] px-4 py-2 md:px-4 md:py-2 text-right">
-                                    <div className="flex items-center justify-end gap-1 md:gap-2 opacity-100 md:opacity-0 group-hover/row:opacity-100">
+                                    <div className="hidden md:flex items-center justify-end gap-1 md:gap-2 opacity-0 group-hover/row:opacity-100">
                                         <button
                                             onClick={() => onEditClick(tx)}
                                             className="p-1.5 md:p-2 text-indigo-500 hover:bg-indigo-500/10 rounded-xl"
