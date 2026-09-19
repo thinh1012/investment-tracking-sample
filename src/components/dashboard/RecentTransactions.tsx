@@ -10,6 +10,7 @@ const shortTypeLabel = (type: string): string => {
         case 'INTEREST': return 'E';
         case 'WITHDRAWAL': return 'W';
         case 'SELL': return 'S';
+        case 'DEPOSIT': return 'D';
         default: return type;
     }
 };

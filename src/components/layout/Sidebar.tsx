@@ -84,6 +84,12 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
             <>
                 <header className="md:hidden glass border-b dark:border-slate-800/50 p-4 flex justify-between items-center sticky top-0 z-30">
                     <button
+                        onClick={() => setIsMobileMenuOpen(true)}
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-300"
+                    >
+                        <Menu className="h-6 w-6" />
+                    </button>
+                    <button
                         onClick={() => navigateTo('dashboard')}
                         className="flex items-center gap-3"
                     >
@@ -91,12 +97,6 @@ export const Sidebar: React.FC<SidebarProps> = (props) => {
                             <TrendingUp className="text-white h-5 w-5" />
                         </div>
                         <span className="font-bold text-2xl text-slate-800 dark:text-slate-100 tracking-tight">Investment Tracking</span>
-                    </button>
-                    <button
-                        onClick={() => setIsMobileMenuOpen(true)}
-                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-300"
-                    >
-                        <Menu className="h-6 w-6" />
                     </button>
                 </header>
 
