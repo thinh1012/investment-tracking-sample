@@ -15,8 +15,12 @@ export const calculateAssets = (
 ): Asset[] => {
     const assets: Record<string, Asset> = {};
 
-    // Sort transactions by date asc
-    const sortedTxs = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    // Sort transactions by date asc; same-day transactions tiebreak on createdAt so
+    // multi-step same-day actions (e.g. collect fees -> swap -> move to LP) replay in
+    // the order they actually happened instead of IndexedDB's arbitrary key order.
+    const sortedTxs = [...transactions].sort((a, b) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime() || (a.createdAt || 0) - (b.createdAt || 0)
+    );
 
     sortedTxs.forEach((tx) => {
         if (tx.type === 'TRANSFER') return;
