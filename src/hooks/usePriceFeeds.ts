@@ -6,6 +6,11 @@ import { PriceDataService, AssetOverrideService } from '../services/database/Oth
 const PRICE_CACHE_KEY = 'investment_tracker_price_cache';
 const CACHE_DURATION = 15 * 60 * 1000; // 15 Minutes
 
+// Symbols whose ticker collides on Hyperliquid/cryptoprices.cc - price via CoinGecko ID instead
+const COINGECKO_OVERRIDES: Record<string, string> = {
+    UP: 'up-2'
+};
+
 interface PriceCacheItem {
     price: number;
     updatedAt: number;
@@ -109,11 +114,30 @@ export const usePriceFeeds = (activeSymbols: string[]) => {
         const newVolumes: Record<string, number | null> = {};
         const newCacheUpdates: Record<string, any> = {};
 
+        // 0. CoinGecko ID overrides for colliding tickers
+        const cgSymbols = symbolsToFetch.filter(sym => COINGECKO_OVERRIDES[sym.toUpperCase()]);
+        if (cgSymbols.length > 0) {
+            try {
+                const ids = cgSymbols.map(sym => COINGECKO_OVERRIDES[sym.toUpperCase()]).join(',');
+                const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true`);
+                const data = await response.json();
+                cgSymbols.forEach(sym => {
+                    const d = data[COINGECKO_OVERRIDES[sym.toUpperCase()]];
+                    if (!d?.usd) return;
+                    newPrices[sym] = d.usd;
+                    newChanges[sym] = d.usd_24h_change ?? null;
+                    newVolumes[sym] = d.usd_24h_vol ?? null;
+                    newCacheUpdates[sym] = { price: d.usd, change24h: d.usd_24h_change ?? null, volume24h: d.usd_24h_vol ?? null, updatedAt: now };
+                });
+            } catch (e) { console.warn("[PriceFeeds] CoinGecko override fetch failed", e); }
+        }
+
         // 1. Bulk Fetch Hyperliquid
         if (symbolsToFetch.length > 0) {
             try {
                 const hlPrices = await fetchHyperliquidPrices();
                 Object.entries(hlPrices).forEach(([sym, data]) => {
+                    if (COINGECKO_OVERRIDES[sym.toUpperCase()]) return;
                     newPrices[sym] = data.price;
                     if (data.change24h !== undefined) newChanges[sym] = data.change24h ?? null;
                     if (data.volume24h !== undefined) newVolumes[sym] = data.volume24h ?? null;
