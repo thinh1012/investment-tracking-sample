@@ -96,7 +96,7 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
     return (
         <div className="space-y-3">
             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800">
-                <div className="grid grid-cols-[1.3fr_1fr_1.3fr] gap-2">
+                <div className={`grid gap-2 ${type === 'INTEREST' && rewardSplitMode ? 'grid-cols-1' : 'grid-cols-[1.3fr_1fr_1.3fr]'}`}>
                     <div>
                         <label className={colLabel}>{type === 'INTEREST' ? 'Source asset / LP' : 'Symbol'}</label>
                         <input

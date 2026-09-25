@@ -121,7 +121,16 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
     const renderRows = (pools: typeof lpData) => pools.map((lp) => (
         <tr key={lp.symbol} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 group">
             <td className="px-4 py-2">
-                <div className="text-sm font-medium text-slate-800 dark:text-white">{lp.symbol}</div>
+                <button
+                    onClick={() => {
+                        setSelectedLP(lp.symbol);
+                        setIsHistoryModalOpen(true);
+                    }}
+                    className="text-sm font-medium text-slate-800 dark:text-white hover:text-indigo-500 text-left"
+                    title="View claim history"
+                >
+                    {lp.symbol}
+                </button>
                 {lp.lpRange && (
                     <div className="text-xs text-slate-400 dark:text-slate-500 font-mono mt-0.5">
                         {lp.lpRange.min.toLocaleString(locale || 'en-US', { maximumFractionDigits: lp.lpRange.min < 1 ? 6 : 2 })} – {lp.lpRange.max.toLocaleString(locale || 'en-US', { maximumFractionDigits: lp.lpRange.max < 1 ? 6 : 2 })}
@@ -169,10 +178,7 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
             </td>
             <td className="px-6 py-2 text-right">
                 <button
-                    onClick={() => {
-                        setSelectedLP(lp.symbol);
-                        setIsHistoryModalOpen(true);
-                    }}
+                    onClick={() => onAddClaim && onAddClaim(lp.symbol)}
                     className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-lg"
                 >
                     <Plus size={14} />

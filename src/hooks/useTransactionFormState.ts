@@ -208,17 +208,13 @@ export const useTransactionFormState = (params: {
             ) {
                 setRewardSplitMode(true);
 
-                // Smart Inference: Try to guess tokens from symbol if no config found
-                const parts = targetSymbol.split(/[\s\-\/]+/);
-                const tokens = parts.filter(p =>
-                    p.length >= 3 &&
-                    !['LP', 'SWAP', 'POOL', 'PRJX', 'V3', 'V2', 'TANG', 'PAIR', 'FARM', 'VAULT'].includes(p.toUpperCase()) &&
-                    isNaN(Number(p))
-                );
+                // Infer the pair from the name: "PONS-WETH UNI" -> PONS, WETH; "HYPE USDC TANG SWAP" -> HYPE, USDC
+                const words = targetSymbol.trim().split(/\s+/);
+                const pair = /[-/]/.test(words[0]) ? words[0].split(/[-/]/) : words.slice(0, 2);
+                const tokens = pair.filter(p => p.length >= 2 && p.toUpperCase() !== 'LP' && isNaN(Number(p)));
 
                 if (tokens.length > 0) {
-                    // Limit to first 3 tokens to avoid picking up too many words
-                    setRewards(tokens.slice(0, 3).map(t => ({ symbol: t.toUpperCase(), amount: '' })));
+                    setRewards(tokens.slice(0, 2).map(t => ({ symbol: t.toUpperCase(), amount: '' })));
                 }
             } else {
                 setRewardSplitMode(false);
