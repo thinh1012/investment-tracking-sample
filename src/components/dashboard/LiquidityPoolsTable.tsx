@@ -115,7 +115,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                                 e.stopPropagation();
                                                 onAddTransaction && onAddTransaction(asset);
                                             }}
-                                            className="p-1 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 scale-100 md:scale-0 group-hover/row:scale-100"
+                                            className="p-1 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 hidden md:inline-flex md:scale-0 group-hover/row:scale-100"
                                             title="Add Additional Capital"
                                         >
                                             <Plus size={12} strokeWidth={3} />
@@ -126,7 +126,7 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                                     e.stopPropagation();
                                                     onClosePool(asset);
                                                 }}
-                                                className="p-1 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 scale-100 md:scale-0 group-hover/row:scale-100"
+                                                className="p-1 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 hidden md:inline-flex md:scale-0 group-hover/row:scale-100"
                                                 title="Close Position"
                                             >
                                                 <LogOut size={12} strokeWidth={3} />
