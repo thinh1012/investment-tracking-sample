@@ -16,6 +16,8 @@ import { Plus } from 'lucide-react';
 import { BackupService } from './services/database/BackupService';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Transaction, Asset } from './types';
+import { ClosePoolModal } from './components/dashboard/ClosePoolModal';
+import { findBalanceIssues } from './domain/balanceGuard';
 
 const EMPTY_PICKS: never[] = [];
 const EMPTY_SYMBOLS: string[] = [];
@@ -73,6 +75,8 @@ function App(): React.ReactNode {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
     const [formDefaults, setFormDefaults] = useState<any>(null);
+    const [closingPool, setClosingPool] = useState<Asset | null>(null);
+    const pendingSaves = useRef<Transaction[]>([]);
 
     const [simulatorState, setSimulatorState] = useState<{ symbol: string, price: number } | null>(null);
 
@@ -137,15 +141,44 @@ function App(): React.ReactNode {
         setIsFormOpen(true);
     };
 
+    // One form submit can emit several linked transactions; guard them as a batch so a cancel saves none of them.
+    const saveGuarded = (batch: Transaction[]): boolean => {
+        const issues = findBalanceIssues(transactions, batch);
+        if (issues.length > 0 && !confirm(`Balance check:\n\n${issues.map(i => `- ${i}`).join('\n\n')}\n\nSave anyway?`)) {
+            notify.warning('Not saved');
+            return false;
+        }
+        batch.forEach(tx => addTransaction(tx));
+        return true;
+    };
+
     const handleSaveTransaction = (transaction: Transaction) => {
         if (editingTransaction) {
             updateTransaction(transaction);
+            const proceeds = transactions.find(t => t.linkedTransactionId === transaction.id && t.subType === 'SALE_PROCEEDS');
+            if (proceeds && transaction.paymentCurrency && transaction.paymentAmount) {
+                updateTransaction({ ...proceeds, date: transaction.date, assetSymbol: transaction.paymentCurrency.toUpperCase(), amount: transaction.paymentAmount });
+            }
             notify.success('Transaction updated successfully');
-        } else {
-            addTransaction(transaction);
-            notify.success('Transaction added successfully');
+            handleFormClose();
+            return;
+        }
+        pendingSaves.current.push(transaction);
+        if (pendingSaves.current.length === 1) {
+            queueMicrotask(() => {
+                const batch = pendingSaves.current;
+                pendingSaves.current = [];
+                if (saveGuarded(batch)) notify.success(batch.length > 1 ? `${batch.length} transactions added` : 'Transaction added successfully');
+            });
         }
         handleFormClose();
+    };
+
+    const handleConfirmClose = (txs: Transaction[]) => {
+        if (saveGuarded(txs)) {
+            notify.success(`${closingPool?.symbol} closed`);
+            setClosingPool(null);
+        }
     };
 
     const triggerImport = () => fileInputRef.current?.click();
@@ -208,6 +241,7 @@ function App(): React.ReactNode {
                                 onRemoveAlert={removeAlert}
                                 onAddTransaction={handleAddTransaction}
                                 onAddClaim={handleAddClaim}
+                                onClosePool={setClosingPool}
                                 onRefreshPrices={refreshPrices}
                                 prices={prices}
                                 priceChanges={priceChanges}
@@ -232,6 +266,16 @@ function App(): React.ReactNode {
                     </React.Suspense>
                 </ErrorBoundary>
             </main>
+
+            {closingPool && (
+                <ClosePoolModal
+                    pool={closingPool}
+                    transactions={transactions}
+                    prices={prices}
+                    onConfirm={handleConfirmClose}
+                    onClose={() => setClosingPool(null)}
+                />
+            )}
 
             <React.Suspense fallback={null}>
                 <TransactionForm

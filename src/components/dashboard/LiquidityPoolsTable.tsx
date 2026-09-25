@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, ChevronRight, Layers, ArrowUp, ArrowDown, Plus, Check, X, Pencil } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronRight, Layers, ArrowUp, ArrowDown, Plus, Check, X, Pencil, LogOut } from 'lucide-react';
 import { Asset, Transaction } from '../../types';
 import { formatPrice } from '../../services/PriceService';
 
@@ -8,6 +8,7 @@ interface LiquidityPoolsTableProps {
     transactions: Transaction[];
     onAddTransaction?: (asset?: Asset) => void;
     onAddClaim?: (lpSymbol: string) => void;
+    onClosePool?: (asset: Asset) => void;
     updateAssetPrice?: (symbol: string, price: number) => void;
     locale?: string;
 }
@@ -61,7 +62,7 @@ const getLpComposition = (lpSymbol: string, transactions: Transaction[]): string
 };
 
 
-export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTransaction, onAddClaim, updateAssetPrice, locale }: LiquidityPoolsTableProps) => {
+export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTransaction, onAddClaim, onClosePool, updateAssetPrice, locale }: LiquidityPoolsTableProps) => {
     const [isAssetListOpen, setIsAssetListOpen] = useState(false);
     const [editingLpSymbol, setEditingLpSymbol] = useState<string | null>(null);
     const [newLpValue, setNewLpValue] = useState<string>('');
@@ -113,6 +114,18 @@ export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTran
                                         >
                                             <Plus size={12} strokeWidth={3} />
                                         </button>
+                                        {onClosePool && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onClosePool(asset);
+                                                }}
+                                                className="p-1 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 scale-100 md:scale-0 group-hover/row:scale-100"
+                                                title="Close Position"
+                                            >
+                                                <LogOut size={12} strokeWidth={3} />
+                                            </button>
+                                        )}
                                     </div>
                                     {fundedFromNote && (
                                         <div className="hidden md:block text-xs font-medium text-slate-400 mt-1 opacity-70 truncate max-w-[150px]" title={fundedFromNote}>

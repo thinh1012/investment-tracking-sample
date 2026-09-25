@@ -52,7 +52,7 @@ export const useTransactionData = () => {
     const addTransaction = useCallback(async (transaction: Transaction) => {
         const newTransaction = {
             ...transaction,
-            id: crypto.randomUUID(),
+            id: transaction.id || crypto.randomUUID(),
             createdAt: Date.now() // [PHASE 97] Track when transaction was inputted
         };
         setTransactions((prev) => [newTransaction, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));

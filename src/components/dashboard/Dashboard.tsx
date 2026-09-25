@@ -65,6 +65,7 @@ interface Props {
     locale?: string;
     onAddTransaction?: (asset?: Asset) => void;
     onAddClaim?: (lpSymbol: string) => void;
+    onClosePool?: (asset: Asset) => void;
     onUpdateAssetOverride?: (symbol: string, overrides: { avgBuyPrice?: number }) => void;
     priceChanges?: Record<string, number | null>;
     priceVolumes?: Record<string, number | null>;
@@ -96,6 +97,7 @@ export const Dashboard: React.FC<Props> = ({
     locale,
     onAddTransaction,
     onAddClaim,
+    onClosePool,
     onUpdateAssetOverride,
     priceChanges = {},
     priceVolumes = {},
@@ -200,6 +202,7 @@ export const Dashboard: React.FC<Props> = ({
                                 transactions={transactions}
                                 onAddTransaction={onAddTransaction}
                                 onAddClaim={onAddClaim}
+                                onClosePool={onClosePool}
                                 updateAssetPrice={updateAssetPrice}
                                 locale={locale}
                             />

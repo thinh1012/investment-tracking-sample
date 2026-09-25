@@ -40,7 +40,7 @@ export const useDashboardCalculations = ({ assets, transactions, prices }: UseDa
             if (!STABLE_SYMBOLS.includes(symbol)) continue;
 
             if (t.type === 'DEPOSIT') {
-                const isFresh = !t.isCompound && (!t.paymentCurrency || STABLE_SYMBOLS.includes(t.paymentCurrency.toUpperCase()));
+                const isFresh = !t.isCompound && t.subType !== 'POOL_CLOSE' && t.subType !== 'SALE_PROCEEDS' && (!t.paymentCurrency || STABLE_SYMBOLS.includes(t.paymentCurrency.toUpperCase()));
                 if (isFresh) {
                     buckets[symbol] = (buckets[symbol] || 0) + t.amount;
                 }

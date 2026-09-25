@@ -288,20 +288,25 @@ export const useTransactionFormHandlers = (state: any, props: any) => {
                     ...commonData
                 });
 
-                // Then, create a linked DEPOSIT for the received currency (credits USDT/USDC balance)
-                onSave({
-                    id: crypto.randomUUID(),
-                    date,
-                    type: 'DEPOSIT',
-                    assetSymbol: paymentCurrency.toUpperCase(),
-                    amount: parseFloat(totalSpent),
-                    pricePerUnit: 1, // Stablecoins are $1
-                    paymentAmount: parseFloat(totalSpent),
-                    paymentCurrency: paymentCurrency.toUpperCase(),
-                    linkedTransactionId: sellTxId,
-                    notes: `Received from selling ${symbol.toUpperCase()}`,
-                    isCompound: true // Not fresh capital - just asset swap
-                });
+                // WITHDRAWAL doesn't credit its paymentCurrency, so add a linked DEPOSIT for the received currency.
+                // SELL already credits proceeds in calculateAssets; USD means cashed out to fiat. On edit, App syncs the existing one.
+                const received = paymentCurrency.toUpperCase();
+                if (type === 'WITHDRAWAL' && received !== 'USD' && !initialData) {
+                    const receivedQty = parseFloat(totalSpent);
+                    const isStable = ['USDT', 'USDC', 'USDG', 'DAI', 'USDS', 'PYUSD', 'FDUSD'].includes(received);
+                    const soldValue = (parseFloat(amount) || 0) * (parseFloat(price) || 0);
+                    onSave({
+                        id: crypto.randomUUID(),
+                        date,
+                        type: 'DEPOSIT',
+                        assetSymbol: received,
+                        amount: receivedQty,
+                        pricePerUnit: isStable ? 1 : (soldValue > 0 ? soldValue / receivedQty : undefined),
+                        linkedTransactionId: sellTxId,
+                        subType: 'SALE_PROCEEDS',
+                        notes: `Received from selling ${symbol.toUpperCase()}`
+                    });
+                }
 
                 onClose();
                 return;

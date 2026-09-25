@@ -33,7 +33,18 @@ export const getJournalEntries = (transactions: Transaction[]): JournalEntry[] =
         const txType = tx.type;
         const description = tx.notes || `${tx.type} ${tx.assetSymbol}`;
 
-        if (tx.type === 'DEPOSIT') {
+        if (tx.subType === 'SALE_PROCEEDS') {
+            // The linked sale WITHDRAWAL already debits the received currency in the journal.
+        } else if (tx.subType === 'POOL_CLOSE') {
+            // Pool close: LP position leaves (WITHDRAWAL), received tokens arrive (DEPOSITs). Internal, no capital movement.
+            entries.push({
+                txId, date, txType, description: tx.type === 'WITHDRAWAL' ? `Close ${tx.assetSymbol}` : `Received from pool close`,
+                account: tx.assetSymbol || 'ASSET',
+                debit: tx.type === 'DEPOSIT' ? Number(tx.amount) || 0 : 0,
+                credit: tx.type === 'WITHDRAWAL' ? Number(tx.amount) || 0 : 0,
+                currency: tx.assetSymbol || 'ASSET'
+            });
+        } else if (tx.type === 'DEPOSIT') {
             const isPoolCreation = tx.subType !== undefined ? tx.subType === 'POOL_CREATION' : (tx.notes && tx.notes.startsWith('Pool Creation:'));
             const holdingsFunded = tx.subType !== undefined ? tx.subType === 'INTERNAL_SWAP' : (tx.notes ? tx.notes.includes('(Holdings)') : false);
             const isInternalBuy = (tx.paymentCurrency && (tx.paymentAmount || holdingsFunded));

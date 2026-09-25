@@ -138,7 +138,7 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
                                             <button
                                                 key={m}
                                                 type="button"
-                                                onClick={() => { setPaymentMode(m); if (m === 'ASSET') setIsCompound?.(true); else if (m === 'MIXED' || m === 'CASH') setIsCompound?.(false); }}
+                                                onClick={() => { setPaymentMode(m); setIsCompound?.(false); }}
                                                 className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all ${paymentMode === m ? 'bg-white dark:bg-slate-700 shadow text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}`}
                                             >
                                                 {m}
