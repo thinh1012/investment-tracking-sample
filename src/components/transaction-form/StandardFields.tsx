@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { Asset } from '../../types';
 import { MixedFundingFields } from './MixedFundingFields';
@@ -57,8 +57,21 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
     const priceAuto = isLp && lpFundingMode === 'HOLDINGS';
     const isSell = type === 'WITHDRAWAL' || type === 'SELL';
     const showPaymentModes = type !== 'INTEREST' && !isSell && (!isLp || lpMode === 'TOTAL');
-    const showCurrency = type !== 'INTEREST' && (paymentMode === 'ASSET' || paymentMode === 'CASH' || isSell) && (!isLp || lpMode === 'TOTAL');
-    const cashOptions = ['USDT', 'USDC', 'USDG', 'DAI', 'USD'];
+    const showCurrency = type !== 'INTEREST' && (paymentMode !== 'MIXED' || isSell) && (!isLp || lpMode === 'TOTAL');
+    const sellOptions = ['USDT', 'USDC', 'USDG', 'DAI', 'USD'];
+    const stables = ['USDT', 'USDC', 'USDG', 'DAI', 'USDS', 'USDE', 'USDT0', 'USDH', 'PYUSD', 'FDUSD'];
+    // Buys are paid from holdings (stables first, then by value); USD = new money from outside.
+    const holdingOptions = assets
+        .filter(a => !a.lpRange && a.quantity > 0 && a.symbol !== 'USD')
+        .sort((a, b) => Number(stables.includes(b.symbol)) - Number(stables.includes(a.symbol)) || (b.currentValue || 0) - (a.currentValue || 0))
+        .map(a => a.symbol);
+    const baseOptions = isSell ? sellOptions : [...holdingOptions, 'USD'];
+    // Keep an existing value (e.g. editing an old tx) selectable instead of silently switching it.
+    const payOptions = paymentCurrency && !baseOptions.includes(paymentCurrency) ? [paymentCurrency, ...baseOptions] : baseOptions;
+
+    useEffect(() => {
+        if (showCurrency && !paymentCurrency) setPaymentCurrency(baseOptions[0]);
+    }, [showCurrency, paymentCurrency, baseOptions.join(',')]);
     const inputCls = 'block w-full min-w-0 rounded-lg border-slate-200 dark:border-slate-700 py-2 px-3 text-sm bg-white dark:bg-slate-800 dark:text-white disabled:opacity-60';
     const colLabel = 'block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1';
 
@@ -148,7 +161,7 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
                         <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{totalLabel}</span>
                         {showPaymentModes && (
                             <div className="flex bg-slate-100 dark:bg-slate-800 p-0.5 shrink-0">
-                                {(['CASH', 'ASSET', 'MIXED'] as const).map(m => (
+                                {(['ASSET', 'MIXED'] as const).map(m => (
                                     <button
                                         key={m}
                                         type="button"
@@ -175,13 +188,10 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
                             {showCurrency && (
                                 <select
                                     value={paymentCurrency}
-                                    onChange={(e) => setPaymentCurrency(e.target.value)}
+                                    onChange={(e) => { setPaymentCurrency(e.target.value); if (e.target.value !== 'USD') setIsCompound?.(false); }}
                                     className="shrink-0 w-auto rounded-lg border-slate-200 dark:border-slate-700 text-xs font-bold uppercase bg-white dark:bg-slate-800 dark:text-white py-2 px-2"
                                 >
-                                    {cashOptions.map(curr => <option key={curr} value={curr}>{curr === 'USD' ? 'USD (fiat)' : curr}</option>)}
-                                    {paymentMode === 'ASSET' && !isSell && assets.filter(a => !a.lpRange && !cashOptions.includes(a.symbol)).map(a => (
-                                        <option key={a.symbol} value={a.symbol}>{a.symbol}</option>
-                                    ))}
+                                    {payOptions.map(curr => <option key={curr} value={curr}>{curr === 'USD' ? (isSell ? 'USD (fiat)' : 'USD (new money)') : curr}</option>)}
                                 </select>
                             )}
                             <input
@@ -202,7 +212,7 @@ export const StandardFields: React.FC<StandardFieldsProps> = (props) => {
                         </p>
                     )}
 
-                    {type === 'DEPOSIT' && setIsCompound && paymentMode === 'CASH' && !isLp && (
+                    {type === 'DEPOSIT' && setIsCompound && paymentMode !== 'MIXED' && paymentCurrency === 'USD' && !isLp && (
                         <label className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 cursor-pointer">
                             <input
                                 type="checkbox"

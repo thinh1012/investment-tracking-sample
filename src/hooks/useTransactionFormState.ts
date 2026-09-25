@@ -51,8 +51,8 @@ export const useTransactionFormState = (params: {
     const [relatedAssetSymbol, setRelatedAssetSymbol] = useState('');
     const [relatedAssetSymbols, setRelatedAssetSymbols] = useState<string[]>([]);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [paymentCurrency, setPaymentCurrency] = useState<string>('USDT');
-    const [paymentMode, setPaymentMode] = useState<'CASH' | 'ASSET' | 'MIXED'>('CASH');
+    const [paymentCurrency, setPaymentCurrency] = useState<string>('');
+    const [paymentMode, setPaymentMode] = useState<'CASH' | 'ASSET' | 'MIXED'>('ASSET');
     const [mixedCashAmount, setMixedCashAmount] = useState('');
     const [mixedCashSymbol, setMixedCashSymbol] = useState('USDT');
     const [mixedAssetSymbol, setMixedAssetSymbol] = useState('');
@@ -153,8 +153,8 @@ export const useTransactionFormState = (params: {
             setNotes('');
             setRelatedAssetSymbol('');
             setRelatedAssetSymbols([]);
-            setPaymentMode('CASH');
-            setPaymentCurrency('USDT');
+            setPaymentMode('ASSET');
+            setPaymentCurrency('');
             setMixedCashAmount('');
             setMixedCashSymbol('USDT');
             setMixedAssetSymbol('');
