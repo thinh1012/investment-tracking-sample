@@ -11,7 +11,7 @@ import { MonthlyEarnings } from './earnings/MonthlyEarnings';
 import { LPFeeTracker } from './LPFeeTracker';
 import { RecentTransactions } from './RecentTransactions';
 import { AccountingJournal } from './AccountingJournal';
-import { TrendingUp, Shield, Layout } from 'lucide-react';
+import { Shield, Layout, RefreshCw, Plus } from 'lucide-react';
 const DashboardNotes = React.lazy(() => import('../DashboardNotes'));
 const PortfolioAuditor = React.lazy(() => import('./PortfolioAuditor').then(m => ({ default: m.PortfolioAuditor })));
 
@@ -149,16 +149,19 @@ export const Dashboard: React.FC<Props> = ({
                 <div className="hidden md:flex items-center gap-3">
                     <button
                         onClick={resetBaseline}
-                        className="text-xs font-medium text-slate-500 hover:text-rose-500"
-                        title="Recalculate Principal Baseline"
+                        className="p-2.5 text-slate-500 hover:text-rose-500 border border-slate-200 dark:border-slate-800"
+                        title="Sync Baseline (recalculate principal)"
+                        aria-label="Sync Baseline"
                     >
-                        Sync Baseline
+                        <RefreshCw size={16} />
                     </button>
                     <button
                         onClick={onAddClick}
-                        className="hidden md:flex flex-none text-sm bg-indigo-500 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-600 font-medium items-center gap-2"
+                        className="hidden md:flex flex-none bg-indigo-500 text-white p-2.5 hover:bg-indigo-600 items-center"
+                        title="Add Transaction"
+                        aria-label="Add Transaction"
                     >
-                        <TrendingUp size={16} /> Add Transaction
+                        <Plus size={16} strokeWidth={2.5} />
                     </button>
                 </div>
             </div>
