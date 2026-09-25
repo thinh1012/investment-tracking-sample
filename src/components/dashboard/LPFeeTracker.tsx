@@ -163,7 +163,9 @@ export const LPFeeTracker: React.FC<LPFeeTrackerProps> = ({ assets, transactions
                     : <span className="text-slate-300 dark:text-slate-600">—</span>}
             </td>
             <td className="hidden md:table-cell px-4 py-2 text-sm">
-                {lp.netPosition >= 0 ? (
+                {lp.claimedUSD <= 0 ? (
+                    <span className="text-slate-400 dark:text-slate-500 text-xs">No fees yet</span>
+                ) : lp.netPosition >= 0 ? (
                     <span className="text-emerald-500 font-bold text-xs">Already profitable</span>
                 ) : lp.daysToBreakEven && lp.breakEvenDate ? (
                     <div className="flex flex-col">

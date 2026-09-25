@@ -50,7 +50,7 @@ export const useTransactionFormState = (params: {
     const [source, setSource] = useState('');
     const [relatedAssetSymbol, setRelatedAssetSymbol] = useState('');
     const [relatedAssetSymbols, setRelatedAssetSymbols] = useState<string[]>([]);
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [date, setDate] = useState((() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })());
     const [paymentCurrency, setPaymentCurrency] = useState<string>('');
     const [paymentMode, setPaymentMode] = useState<'CASH' | 'ASSET' | 'MIXED'>('ASSET');
     const [mixedCashAmount, setMixedCashAmount] = useState('');
@@ -181,7 +181,7 @@ export const useTransactionFormState = (params: {
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const yyyy = today.getFullYear();
             setDisplayDate(`${dd}/${mm}/${yyyy}`);
-            setDate(new Date().toISOString().split('T')[0]);
+            setDate((() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })());
         }
     }, [initialData, defaultValues, isOpen]);
 

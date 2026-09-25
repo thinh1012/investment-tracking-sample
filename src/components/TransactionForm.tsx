@@ -76,21 +76,23 @@ const TransactionForm: React.FC<Props> = (props) => {
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
                         <TypeSelector type={type} setType={setType} />
-
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Date (dd/mm/yyyy)</label>
-                            <input
-                                type="text"
-                                required
-                                placeholder="dd/mm/yyyy"
-                                maxLength={10}
-                                value={displayDate}
-                                onChange={handleDateChange}
-                                className="block w-full rounded-xl border-slate-200 dark:border-slate-700 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 py-3 px-4 text-slate-600 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 transition-all font-medium"
-                            />
-                        </div>
+                        <input
+                            type="date"
+                            required
+                            aria-label="Date"
+                            value={state.date}
+                            onChange={(e) => {
+                                const v = e.target.value;
+                                state.setDate(v);
+                                if (v) {
+                                    const [y, m, d] = v.split('-');
+                                    state.setDisplayDate(`${d}/${m}/${y}`);
+                                }
+                            }}
+                            className="block w-full sm:w-auto border-slate-200 dark:border-slate-700 py-2 px-3 text-sm text-slate-600 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 font-medium"
+                        />
                     </div>
 
                     {mode === 'SINGLE' ? (

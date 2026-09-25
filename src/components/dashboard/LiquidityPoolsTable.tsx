@@ -63,7 +63,13 @@ const getLpComposition = (lpSymbol: string, transactions: Transaction[]): string
 
 
 export const LiquidityPoolsTable = React.memo(({ assets, transactions, onAddTransaction, onAddClaim, onClosePool, updateAssetPrice, locale }: LiquidityPoolsTableProps) => {
-    const [isAssetListOpen, setIsAssetListOpen] = useState(false);
+    const [isAssetListOpen, setIsAssetListOpenState] = useState(() => {
+        try { return localStorage.getItem('lp_table_open') !== 'false'; } catch { return true; }
+    });
+    const setIsAssetListOpen = (open: boolean) => {
+        setIsAssetListOpenState(open);
+        try { localStorage.setItem('lp_table_open', String(open)); } catch { /* storage unavailable */ }
+    };
     const [editingLpSymbol, setEditingLpSymbol] = useState<string | null>(null);
     const [newLpValue, setNewLpValue] = useState<string>('');
     const [showOutOfRange, setShowOutOfRange] = useState(false);
