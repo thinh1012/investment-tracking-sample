@@ -144,7 +144,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = (props) => {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/10 rounded-xl border border-emerald-200 dark:border-emerald-800/30 animate-in fade-in slide-in-from-top-2">
                 <div>
-                    <label className="block text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-2">ðŸ’° Received Currency</label>
+                    <label className="block text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-2">Received Currency</label>
                     <select
                         value={paymentCurrency || 'USDT'}
                         onChange={(e) => setPaymentCurrency(e.target.value)}
@@ -152,13 +152,14 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = (props) => {
                     >
                         <option value="USDT">USDT</option>
                         <option value="USDC">USDC</option>
+                        <option value="USDG">USDG</option>
                         <option value="USD">USD (Fiat)</option>
                         <option value="DAI">DAI</option>
                         <option value="BUSD">BUSD</option>
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-2">ðŸ’µ Amount Received</label>
+                    <label className="block text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-2">Amount Received</label>
                     <input
                         type="number"
                         step="any"
@@ -170,7 +171,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = (props) => {
                 </div>
                 <div className="md:col-span-2">
                     <p className="text-xs text-emerald-600 dark:text-emerald-400">
-                        ðŸ’¡ This will automatically credit your {paymentCurrency || 'USDT'} balance
+                        {paymentCurrency === 'USD' ? 'Cashed out to fiat: no token balance is credited' : `This will automatically credit your ${paymentCurrency || 'USDT'} balance`}
                     </p>
                 </div>
             </div>
