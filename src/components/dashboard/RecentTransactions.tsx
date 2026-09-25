@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Search, TrendingUp, Trash2, Pencil } from 'lucide-react';
 import { Transaction } from '../../types';
 import { formatPrice } from '../../services/PriceService';
@@ -29,6 +29,8 @@ const formatCreatedAt = (timestamp: number): string => {
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 };
 
+const PAGE_SIZE = 100;
+
 interface RecentTransactionsProps {
     transactions: Transaction[];
     onEditClick: (tx: Transaction) => void;
@@ -43,6 +45,9 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
     const [sortKey, setSortKey] = useState<'date' | 'createdAt' | 'ticker'>('date');
     const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
     const [pendingDelete, setPendingDelete] = useState<Transaction | null>(null);
+    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+    useEffect(() => setVisibleCount(PAGE_SIZE), [txSearchTerm, typeFilter, sortKey, sortOrder]);
 
     const handleSort = (key: 'date' | 'createdAt' | 'ticker') => {
         if (sortKey === key) {
@@ -158,7 +163,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
 
                 {filteredTransactions.length > 0 ? (
                     <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
-                        {filteredTransactions.map((tx, index) => (
+                        {filteredTransactions.slice(0, visibleCount).map((tx, index) => (
                             <div key={tx.id} className="flex items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/20 group/row border-b border-slate-100 dark:divide-slate-800/50 px-4 md:px-0">
                                 <div className="w-[80px] sm:w-[120px] px-2 sm:px-6 py-2 font-bold font-mono text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs tracking-tighter tabular-nums whitespace-nowrap">
                                     {tx.date}
@@ -205,6 +210,15 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({ transact
                                 </div>
                             </div>
                         ))}
+                        {filteredTransactions.length > visibleCount && (
+                            <button
+                                type="button"
+                                onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+                                className="w-full py-3 text-xs font-semibold text-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                            >
+                                Show {Math.min(PAGE_SIZE, filteredTransactions.length - visibleCount)} more ({filteredTransactions.length - visibleCount} remaining)
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div className="px-8 py-20 text-center">
