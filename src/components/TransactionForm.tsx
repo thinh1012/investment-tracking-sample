@@ -94,7 +94,21 @@ const TransactionForm: React.FC<Props> = (props) => {
                     </div>
 
                     {mode === 'SINGLE' ? (
-                        <div className="space-y-6">
+                        <div className="space-y-4">
+                            {type !== 'INTEREST' && (
+                                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 w-fit">
+                                    {(['QUANTITY', 'LP'] as const).map(m => (
+                                        <button
+                                            key={m}
+                                            type="button"
+                                            onClick={() => setInputMode(m)}
+                                            className={`px-3 py-1 text-xs font-medium ${inputMode === m ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}`}
+                                        >
+                                            {m === 'QUANTITY' ? 'Token' : 'Liquidity Pool'}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                             <StandardFields
                                 symbol={symbol} setSymbol={state.setSymbol}
                                 amount={amount} setAmount={setAmount}
@@ -127,23 +141,6 @@ const TransactionForm: React.FC<Props> = (props) => {
                                     symbol={symbol} setRewardSplitMode={setRewardSplitMode}
                                 />
                             )}
-
-                            {/* Calculation Mode Toggle (Standard vs LP) */}
-                            <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-xl border border-slate-100 dark:border-slate-800">
-                                <span className="text-xs font-semibold text-slate-500 uppercase ml-2">Mode:</span>
-                                <div className="flex gap-1">
-                                    {(['QUANTITY', 'LP'] as const).map(m => (
-                                        <button
-                                            key={m}
-                                            type="button"
-                                            onClick={() => setInputMode(m)}
-                                            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${inputMode === m ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-slate-500 hover:bg-slate-200/50'}`}
-                                        >
-                                            {m === 'QUANTITY' ? 'Standard' : 'Liquidity Pool'}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
 
                             {inputMode === 'LP' && (
                                 <div className="space-y-4">
