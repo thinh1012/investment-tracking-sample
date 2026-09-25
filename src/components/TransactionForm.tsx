@@ -193,6 +193,8 @@ const TransactionForm: React.FC<Props> = (props) => {
                             removeBatchItem={removeBatchItem}
                             addBatchItem={addBatchItem}
                             type={type}
+                            paymentCurrency={paymentCurrency}
+                            setPaymentCurrency={setPaymentCurrency}
                         />
                     )}
 

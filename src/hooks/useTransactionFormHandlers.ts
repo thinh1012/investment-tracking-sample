@@ -322,9 +322,45 @@ export const useTransactionFormHandlers = (state: any, props: any) => {
                 ...commonData
             });
         } else {
-            // Batch Mode
-            const batchTxs = TransactionProcessingService.processBatchItems(batchItems, commonData);
-            batchTxs.forEach(tx => onSave(tx));
+            // Batch Mode: payment fields belong to the single form, don't leak them into every row
+            const batchCommon = { ...commonData, paymentCurrency: undefined, paymentAmount: undefined };
+            if (type === 'WITHDRAWAL') {
+                const received = ['USDT', 'USDC', 'USDG', 'DAI', 'USD'].includes(paymentCurrency) ? paymentCurrency : 'USDT';
+                batchItems
+                    .filter((item: any) => item.symbol && parseFloat(item.amount) > 0 && parseFloat(item.price) > 0)
+                    .forEach((item: any) => {
+                        const sellId = crypto.randomUUID();
+                        const qty = parseFloat(item.amount);
+                        const unitPrice = parseFloat(item.price);
+                        const value = qty * unitPrice;
+                        onSave({
+                            ...batchCommon,
+                            id: sellId,
+                            type: 'WITHDRAWAL',
+                            assetSymbol: item.symbol.toUpperCase(),
+                            amount: qty,
+                            pricePerUnit: unitPrice,
+                            paymentCurrency: received,
+                            paymentAmount: value
+                        });
+                        if (received !== 'USD') {
+                            onSave({
+                                id: crypto.randomUUID(),
+                                date,
+                                type: 'DEPOSIT',
+                                assetSymbol: received,
+                                amount: value,
+                                pricePerUnit: 1,
+                                linkedTransactionId: sellId,
+                                subType: 'SALE_PROCEEDS',
+                                notes: `Received from selling ${item.symbol.toUpperCase()}`
+                            });
+                        }
+                    });
+            } else {
+                const batchTxs = TransactionProcessingService.processBatchItems(batchItems, batchCommon);
+                batchTxs.forEach(tx => onSave(tx));
+            }
         }
 
         onClose();

@@ -9,10 +9,16 @@ interface BatchModeFieldsProps {
     removeBatchItem: (index: number) => void;
     addBatchItem: () => void;
     type: TransactionType;
+    paymentCurrency?: string;
+    setPaymentCurrency?: (s: string) => void;
 }
 
 export const BatchModeFields: React.FC<BatchModeFieldsProps> = (props) => {
-    const { batchItems, updateBatchItem, removeBatchItem, addBatchItem, type } = props;
+    const { batchItems, updateBatchItem, removeBatchItem, addBatchItem, type, paymentCurrency, setPaymentCurrency } = props;
+    const isSell = type === 'WITHDRAWAL';
+    const needsPrice = type === 'DEPOSIT' || isSell;
+    const received = ['USDT', 'USDC', 'USDG', 'DAI', 'USD'].includes(paymentCurrency || '') ? paymentCurrency! : 'USDT';
+    const totalReceived = isSell ? batchItems.reduce((s, i) => s + (parseFloat(i.amount) || 0) * (parseFloat(i.price) || 0), 0) : 0;
 
     return (
         <div className="space-y-3">
@@ -37,7 +43,7 @@ export const BatchModeFields: React.FC<BatchModeFieldsProps> = (props) => {
                             className="w-1/3 rounded-lg border-slate-200 dark:border-slate-700 py-2 px-3 text-sm bg-white dark:bg-slate-800 dark:text-white"
                             required
                         />
-                        {type === 'DEPOSIT' && (
+                        {needsPrice && (
                             <input
                                 type="number"
                                 step="any"
@@ -45,7 +51,7 @@ export const BatchModeFields: React.FC<BatchModeFieldsProps> = (props) => {
                                 value={item.price}
                                 onChange={(e) => updateBatchItem(index, 'price', e.target.value)}
                                 className="w-1/4 rounded-lg border-slate-200 dark:border-slate-700 py-2 px-3 text-sm bg-white dark:bg-slate-800 dark:text-white"
-                                required={type === 'DEPOSIT'}
+                                required={needsPrice}
                             />
                         )}
                         <button
@@ -66,6 +72,21 @@ export const BatchModeFields: React.FC<BatchModeFieldsProps> = (props) => {
             >
                 <Plus size={16} /> Add Another Item
             </button>
+            {isSell && setPaymentCurrency && (
+                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                    <span>Received in</span>
+                    <select
+                        value={received}
+                        onChange={(e) => setPaymentCurrency(e.target.value)}
+                        className="rounded-lg border-slate-200 dark:border-slate-700 text-xs font-bold bg-white dark:bg-slate-800 dark:text-white py-1.5 px-2"
+                    >
+                        {['USDT', 'USDC', 'USDG', 'DAI', 'USD'].map(c => <option key={c} value={c}>{c === 'USD' ? 'USD (fiat)' : c}</option>)}
+                    </select>
+                    <span className="ml-auto font-mono">
+                        {totalReceived.toLocaleString('en-US', { maximumFractionDigits: 2 })} {received}{received === 'USD' ? ' (not credited)' : ''}
+                    </span>
+                </div>
+            )}
         </div>
     );
 };
